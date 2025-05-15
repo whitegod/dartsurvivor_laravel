@@ -309,26 +309,10 @@ class AdminController extends Controller
         $ttus = $query->get();
         return view('admin.ttus', compact('ttus'));
     }
-    public function ttusEdit()
+    public function ttusEdit($id = null)
     {
-        $data=[];
-        return view('admin.ttusEdit',$data);
-    }
-
-    public function storeTTU(Request $request)
-    {
-        $request->validate([
-            'vin' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'unit' => 'required|string|max:255',
-            'status' => 'required|string|in:ready,occupied,pending',
-            'total_beds' => 'required|integer',
-        ]);
-
-        \App\TTU::create($request->all());
-
-        return redirect()->route('admin.ttus')->with('success', 'New TTU added successfully!');
+        $ttu = $id === 'new' ? null : \App\TTU::findOrFail($id); // Load record if editing, or null for adding
+        return view('admin.ttusEdit', compact('ttu'));
     }
 
     public function deleteTTU($id)

@@ -213,7 +213,7 @@
                     <input type="text" id="search-input" placeholder="Search">
                     <button id="search-button" class="filter-icon">🔍</button>
                 </div>
-                <a href="javascript:void(0)" class="add-new-button" onclick="openModal()">Add New</a>
+                <a href="{{ route('admin.ttus.edit', ['id' => 'new']) }}" class="add-new-button">Add New</a>
             </div>
 
             <table>
@@ -255,50 +255,6 @@
         </div>
     </div>
 </section>
-
-<!-- Modal -->
-<div id="addNewModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h4>Add New TTU</h4>
-            <span class="close-modal" onclick="closeModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-            <form id="addNewForm" method="POST" action="{{ route('admin.ttus.store') }}">
-                @csrf
-                <div class="form-group">
-                    <label for="vin">VIN - Last 7:</label>
-                    <input type="text" id="vin" name="vin" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="location">Location:</label>
-                    <input type="text" id="location" name="location" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="address">Address:</label>
-                    <input type="text" id="address" name="address" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="unit">Unit:</label>
-                    <input type="text" id="unit" name="unit" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="status">Status:</label>
-                    <select id="status" name="status" class="form-control" required>
-                        <option value="ready">Ready</option>
-                        <option value="occupied">Occupied</option>
-                        <option value="pending">Pending</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="total_beds">Total Beds:</label>
-                    <input type="number" id="total_beds" name="total_beds" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </form>
-        </div>
-    </div>
-</div>
 
 <script>
         document.querySelectorAll('.options-icon').forEach(icon => {

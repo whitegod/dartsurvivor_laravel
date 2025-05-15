@@ -39,7 +39,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/admin/survivors', 'AdminController@survivors')->name('admin.survivors');
         Route::get('/admin/ttus', 'AdminController@ttus')->name('admin.ttus');
         Route::get('/admin/ttus/{id}', 'AdminController@ttusEdit')->name('admin.ttus.edit');
-        Route::post('/admin/ttus/store', 'AdminController@storeTTU')->name('admin.ttus.store');
+        Route::get('/admin/ttus/edit/{id?}', 'AdminController@ttusEdit')->name('admin.ttus.edit');
         Route::delete('/admin/ttus/{id}', 'AdminController@deleteTTU')->name('admin.ttus.delete');
 
         Route::get('/admin/user_permissions', 'AdminController@userPermissions')->name('admin.user_permissions');
