@@ -384,8 +384,8 @@ class AdminController extends Controller
 
     public function userPermissions()
     {
-        $data=[];
-        return view('admin.user_permissions',$data);
+        $users = \App\User::with('roles')->get(); // Fetch users with their roles
+        return view('admin.user_permissions', compact('users'));
     }
 
 }

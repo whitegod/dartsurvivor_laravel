@@ -112,60 +112,63 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>5675-432</td>
-                        <td>ckent@stateofyork.gov</td>
-                        <td>Owner</td>
-                        <td>1002</td>
+                    @foreach($users as $user)
+                    <tr class="{{ $user->status ? '' : 'inactive-user' }}">
+                        <td>{{ $user->id }}</td>
+                        <td>{{ $user->email }} {{ $user->status ? '' : '(INACTIVE)' }}</td>
                         <td>
-                            <button class="btn-reset">Reset Password</button>
-                            <button class="btn-remove">Remove User</button>
+                            {{ $user->roles->pluck('name')->join(', ') }}
+                        </td>
+                        <td>
+                            {{ $user->records_authored }}
+                        </td>
+                        <td>
+                            @if($user->status)
+                                <button class="btn-reset">Reset Password</button>
+                                <button class="btn-remove">Remove User</button>
+                            @else
+                                <button class="btn-reactivate">Reactivate</button>
+                                <button class="btn-remove">Remove User</button>
+                            @endif
                         </td>
                     </tr>
-                    <tr>
-                        <td>5675-433</td>
-                        <td>chughes@stateofyork.gov</td>
-                        <td>Read/Write</td>
-                        <td>2136</td>
-                        <td>
-                            <button class="btn-reset">Reset Password</button>
-                            <button class="btn-remove">Remove User</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>5675-434</td>
-                        <td>ganchors@stateofyork.gov</td>
-                        <td>Read</td>
-                        <td>0</td>
-                        <td>
-                            <button class="btn-reset">Reset Password</button>
-                            <button class="btn-remove">Remove User</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>5675-435</td>
-                        <td>dwayne@stateofyork.gov</td>
-                        <td>Admin</td>
-                        <td>1002</td>
-                        <td>
-                            <button class="btn-reset">Reset Password</button>
-                            <button class="btn-remove">Remove User</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>5675-431</td>
-                        <td>ckent01@gmail.com (INACTIVE)</td>
-                        <td>Admin</td>
-                        <td>23</td>
-                        <td>
-                            <button class="btn-reactivate">Reactivate</button>
-                            <button class="btn-remove">Remove User</button>
-                        </td>
-                    </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
     </div>
 </section>
+
+<script>
+document.querySelector('input[type="checkbox"][checked]').addEventListener('change', function() {
+    const showInactive = this.checked;
+    document.querySelectorAll('tr.inactive-user').forEach(row => {
+        row.style.display = showInactive ? '' : 'none';
+    });
+});
+
+// On page load, hide inactive users if checkbox is unchecked (for robustness)
+window.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.querySelector('input[type="checkbox"][checked]');
+    if (!checkbox.checked) {
+        document.querySelectorAll('tr.inactive-user').forEach(row => {
+            row.style.display = 'none';
+        });
+    }
+});
+
+// Email search filter
+document.querySelector('.search-container input[type="text"]').addEventListener('input', function() {
+    const search = this.value.toLowerCase();
+    document.querySelectorAll('tbody tr').forEach(row => {
+        const emailCell = row.querySelector('td:nth-child(2)');
+        if (emailCell && emailCell.textContent.toLowerCase().includes(search)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
 
 @endsection
