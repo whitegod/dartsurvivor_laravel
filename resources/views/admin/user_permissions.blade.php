@@ -85,6 +85,16 @@
 <section id="Global">
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="toolbar">
                 <div class="search-container">
                     <input type="text" placeholder="Search">
@@ -98,7 +108,7 @@
                         Show Inactive
                     </label>
                 </div>
-                <button class="add-user">Add User</button>
+                <button class="add-user" onclick="openAddUserModal()">Add User</button>
             </div>
 
             <table>
@@ -124,11 +134,22 @@
                         </td>
                         <td>
                             @if($user->status)
-                                <button class="btn-reset">Reset Password</button>
-                                <button class="btn-remove">Remove User</button>
+                                <button type="button" class="btn-reset" onclick="openResetPasswordModal({{ $user->id }})">Reset Password</button>
+                                <form action="{{ route('admin.user_permissions.remove', $user->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-remove" onclick="return confirm('Are you sure you want to remove this user?')">Remove User</button>
+                                </form>
                             @else
-                                <button class="btn-reactivate">Reactivate</button>
-                                <button class="btn-remove">Remove User</button>
+                                <form action="{{ route('admin.user_permissions.reactivate', $user->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn-reactivate">Reactivate</button>
+                                </form>
+                                <form action="{{ route('admin.user_permissions.remove', $user->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-remove" onclick="return confirm('Are you sure you want to remove this user?')">Remove User</button>
+                                </form>
                             @endif
                         </td>
                     </tr>
@@ -138,6 +159,87 @@
         </div>
     </div>
 </section>
+
+<!-- Add User Modal (styled) -->
+<div id="addUserModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); align-items:center; justify-content:center; z-index:1000;">
+    <div style="background:#fff; padding:30px; border-radius:8px; min-width:320px; position:relative;">
+        <h3>Add New User</h3>
+        <form id="addUserForm" method="POST" action="{{ route('admin.user_permissions.add') }}">
+            @csrf
+            <div style="margin-bottom:10px;">
+                <label>Email:</label>
+                <input type="email" name="email" required
+                    style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+            </div>
+            <div style="margin-bottom:10px;">
+                <label>Name:</label>
+                <input type="text" name="name" required
+                    style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+            </div>
+            <div style="margin-bottom:10px;">
+                <label>Password:</label>
+                <input type="password" name="password" required
+                    style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+            </div>
+            <div style="margin-bottom:10px;">
+                <label>Role:</label>
+                <select name="role_id" required
+                    style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                    @foreach(\App\Role::all() as $role)
+                        <option value="{{ $role->id }}">{{ $role->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div style="text-align:right;">
+                <button type="button"
+                        onclick="closeAddUserModal()"
+                        style="margin-right:10px; background-color:#6c757d; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer;">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="btn-submit-user"
+                        style="background-color:#007bff; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer;">
+                    Add
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div id="resetPasswordModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); align-items:center; justify-content:center; z-index:1000;">
+    <div style="background:#fff; padding:30px; border-radius:8px; min-width:320px; position:relative;">
+        <h3>Reset Password</h3>
+        <form id="resetPasswordForm" method="POST" action="">
+            @csrf
+            <div style="margin-bottom:10px;">
+                <label>New Password:</label>
+                <input type="password" name="password" id="reset-password" required
+                    style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+            </div>
+            <div style="margin-bottom:10px;">
+                <label>Retype New Password:</label>
+                <input type="password" name="password_confirmation" id="reset-password-confirm" required
+                    style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+            </div>
+            <div id="reset-password-error" style="color:red; display:none; margin-bottom:10px;">
+                Passwords do not match.
+            </div>
+            <div style="text-align:right;">
+                <button type="button"
+                        onclick="closeResetPasswordModal()"
+                        style="margin-right:10px; background-color:#6c757d; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer;">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="btn-submit-reset"
+                        style="background-color:#007bff; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer;">
+                    Reset
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
 document.querySelector('input[type="checkbox"][checked]').addEventListener('change', function() {
@@ -168,6 +270,46 @@ document.querySelector('.search-container input[type="text"]').addEventListener(
             row.style.display = 'none';
         }
     });
+});
+
+// Open Add User Modal
+function openAddUserModal() {
+    document.getElementById('addUserModal').style.display = 'flex';
+}
+
+// Close Add User Modal
+function closeAddUserModal() {
+    document.getElementById('addUserModal').style.display = 'none';
+}
+
+// Only attach open modal to the toolbar Add User button
+document.querySelector('.add-user').addEventListener('click', function(e) {
+    e.preventDefault();
+    openAddUserModal();
+});
+
+function openResetPasswordModal(userId) {
+    var modal = document.getElementById('resetPasswordModal');
+    var form = document.getElementById('resetPasswordForm');
+    // Set the form action to the correct route
+    form.action = '/admin/user_permissions/' + userId + '/reset-password';
+    modal.style.display = 'flex';
+}
+function closeResetPasswordModal() {
+    document.getElementById('resetPasswordModal').style.display = 'none';
+}
+
+// Validate password match in Reset Password Modal
+document.getElementById('resetPasswordForm').addEventListener('submit', function(e) {
+    var pass = document.getElementById('reset-password').value;
+    var confirm = document.getElementById('reset-password-confirm').value;
+    var errorDiv = document.getElementById('reset-password-error');
+    if (pass !== confirm) {
+        errorDiv.style.display = 'block';
+        e.preventDefault();
+    } else {
+        errorDiv.style.display = 'none';
+    }
 });
 </script>
 

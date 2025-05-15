@@ -47,6 +47,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('/admin/ttus/{id}', 'AdminController@deleteTTU')->name('admin.ttus.delete');
 
         Route::get('/admin/user_permissions', 'AdminController@userPermissions')->name('admin.user_permissions');
+        Route::post('/admin/user_permissions/add', 'AdminController@addUser')->name('admin.user_permissions.add');
+        Route::delete('/admin/user_permissions/{id}', 'AdminController@removeUser')->name('admin.user_permissions.remove');
+        Route::post('/admin/user_permissions/{id}/reactivate', 'AdminController@reactivateUser')->name('admin.user_permissions.reactivate');
+        Route::post('/admin/user_permissions/{id}/reset-password', 'AdminController@resetPassword')->name('admin.user_permissions.reset_password');
     });
 
 });
