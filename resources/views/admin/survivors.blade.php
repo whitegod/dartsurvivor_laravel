@@ -60,6 +60,41 @@
 
         .options-icon {
             cursor: pointer;
+            position: relative;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            z-index: 100;
+            min-width: 120px; /* Adjust width for alignment */
+            padding: 5px 0; /* Add padding for spacing */
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-menu a,
+        .dropdown-menu button {
+            text-decoration: none;
+            color: black;
+            display: block;
+            padding: 8px 15px; /* Add padding for consistent spacing */
+            text-align: left; /* Align text to the left */
+            width: 100%; /* Ensure full width for alignment */
+            border: none; /* Remove button border */
+            background: none; /* Remove button background */
+            cursor: pointer;
+        }
+
+        .dropdown-menu a:hover,
+        .dropdown-menu button:hover {
+            background-color: #f0f0f0; /* Add hover effect */
+            color: black;
         }
 
         @media (max-width: 768px) {
@@ -76,15 +111,15 @@
 @endsection
 
 @section('content')
-<section id="Global">
+<section id="Survivors">
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div class="header">
+        <div class="header">
                 <div class="search-container">
-                    <input type="text" placeholder="Search">
-                    <div class="filter-icon">🔍</div>
+                    <input type="text" id="search-input" placeholder="Search" value="{{ request('search') }}">
+                    <button id="search-button" class="filter-icon">🔍</button>
                 </div>
-                <a href="#" class="add-new-button">Add New</a>
+                <a href="{{ route('admin.survivors.edit', ['id' => 'new']) }}" class="add-new-button">Add New</a>
             </div>
 
             <table>
@@ -100,46 +135,65 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @foreach($survivors as $survivor)
                     <tr>
-                        <td>123455</td>
-                        <td>Dave Kaminsky</td>
-                        <td>4831 Wetsone Dr.</td>
-                        <td>(123) 456-7890</td>
-                        <td>5</td>
-                        <td>Dec 1, 2046</td>
-                        <td class="options-icon">⋮</td>
+                        <td>{{ $survivor->fema_id }}</td>
+                        <td>{{ $survivor->name }}</td>
+                        <td>{{ $survivor->address }}</td>
+                        <td>{{ $survivor->phone }}</td>
+                        <td>{{ $survivor->hh_size }}</td>
+                        <td>{{ $survivor->li_date }}</td>
+                        <td class="options-icon">
+                            ⋮
+                            <div class="dropdown-menu">
+                                <a href="{{ route('admin.survivors.edit', $survivor->id) }}">Edit</a>
+                                <form action="{{ route('admin.survivors.delete', $survivor->id) }}" method="POST" style="margin: 0;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
-                    <tr>
-                        <td>124566</td>
-                        <td>Jane Fonda</td>
-                        <td>1234 Alphabet Dr.</td>
-                        <td>(123) 222-2221</td>
-                        <td>1</td>
-                        <td>Jan 5, 2010</td>
-                        <td class="options-icon">⋮</td>
-                    </tr>
-                    <tr>
-                        <td>190762</td>
-                        <td>Charles Xavier</td>
-                        <td>9998 State Park St.</td>
-                        <td>(123) 458-2896</td>
-                        <td>22</td>
-                        <td>Aug 5, 2025</td>
-                        <td class="options-icon">⋮</td>
-                    </tr>
-                    <tr>
-                        <td>999999</td>
-                        <td>Test Man 82</td>
-                        <td>4020 Divebar Ln.</td>
-                        <td>(123) 165-8945</td>
-                        <td>346</td>
-                        <td>Oct 5, 1987</td>
-                        <td class="options-icon">⋮</td>
-                    </tr>
-                    <!-- Add more rows as needed -->
+                    @endforeach
                 </tbody>
-            </table>        
+            </table>
         </div>
     </div>
 </section>
+
+<script>
+    document.querySelectorAll('.options-icon').forEach(icon => {
+        icon.addEventListener('click', function() {
+            const dropdown = this.querySelector('.dropdown-menu');
+            const isActive = dropdown.classList.contains('active');
+            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
+            if (!isActive) {
+                dropdown.classList.add('active');
+            }
+        });
+    });
+
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.options-icon')) {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
+        }
+    });
+
+    document.getElementById('search-button').addEventListener('click', function() {
+        const searchInput = document.getElementById('search-input').value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('search', searchInput);
+        window.location.href = url.toString();
+    });
+
+    document.getElementById('search-input').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            const searchInput = document.getElementById('search-input').value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('search', searchInput);
+            window.location.href = url.toString();
+        }
+    });
+</script>
 @endsection

@@ -102,23 +102,31 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             border-radius: 4px;
             z-index: 100;
-            min-width: 100px;
-            padding: 10px;
+            min-width: 120px; /* Adjust width for alignment */
+            padding: 5px 0; /* Add padding for spacing */
         }
 
         .dropdown-menu.active {
             display: block;
         }
 
-        .dropdown-menu a {
+        .dropdown-menu a,
+        .dropdown-menu button {
             text-decoration: none;
             color: black;
             display: block;
-            padding: 5px 0;
+            padding: 8px 15px; /* Add padding for consistent spacing */
+            text-align: left; /* Align text to the left */
+            width: 100%; /* Ensure full width for alignment */
+            border: none; /* Remove button border */
+            background: none; /* Remove button background */
+            cursor: pointer;
         }
 
-        .dropdown-menu a:hover {
-            background-color: #f0f0f0;
+        .dropdown-menu a:hover,
+        .dropdown-menu button:hover {
+            background-color: #f0f0f0; /* Add hover effect */
+            color: black;
         }
 
         @media (max-width: 768px) {
@@ -241,10 +249,10 @@
                             ⋮
                             <div class="dropdown-menu">
                                 <a href="{{ route('admin.ttus.edit', $ttu->id) }}">Edit</a>
-                                <form action="{{ route('admin.ttus.delete', $ttu->id) }}" method="POST" style="display: inline;">
+                                <form action="{{ route('admin.ttus.delete', $ttu->id) }}" method="POST" style="margin: 0;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-link" style="color: red; text-decoration: none;" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
+                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
                                 </form>
                             </div>
                         </td>
@@ -257,54 +265,54 @@
 </section>
 
 <script>
-        document.querySelectorAll('.options-icon').forEach(icon => {
-            icon.addEventListener('click', function() {
-                const dropdown = this.querySelector('.dropdown-menu');
-                const isActive = dropdown.classList.contains('active');
-                document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
-                if (!isActive) {
-                    dropdown.classList.add('active');
-                }
-            });
-        });
-
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.options-icon')) {
-                document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
+    document.querySelectorAll('.options-icon').forEach(icon => {
+        icon.addEventListener('click', function() {
+            const dropdown = this.querySelector('.dropdown-menu');
+            const isActive = dropdown.classList.contains('active');
+            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
+            if (!isActive) {
+                dropdown.classList.add('active');
             }
         });
+    });
 
-        document.getElementById('search-button').addEventListener('click', function() {
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.options-icon')) {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
+        }
+    });
+
+    document.getElementById('search-button').addEventListener('click', function() {
+        performSearch();
+    });
+
+    document.getElementById('search-input').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
             performSearch();
-        });
-
-        document.getElementById('search-input').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                performSearch();
-            }
-        });
-
-        function performSearch() {
-            const searchInput = document.getElementById('search-input').value;
-            const url = new URL(window.location.href);
-            url.searchParams.set('search', searchInput);
-            window.location.href = url.toString();
         }
+    });
 
-        function openModal() {
-            document.getElementById('addNewModal').style.display = 'flex';
+    function performSearch() {
+        const searchInput = document.getElementById('search-input').value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('search', searchInput);
+        window.location.href = url.toString();
+    }
+
+    function openModal() {
+        document.getElementById('addNewModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('addNewModal').style.display = 'none';
+    }
+
+    // Close modal when clicking outside of it
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('addNewModal');
+        if (event.target === modal) {
+            closeModal();
         }
-
-        function closeModal() {
-            document.getElementById('addNewModal').style.display = 'none';
-        }
-
-        // Close modal when clicking outside of it
-        window.addEventListener('click', function(event) {
-            const modal = document.getElementById('addNewModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        });
+    });
 </script>
 @endsection

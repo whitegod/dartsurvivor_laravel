@@ -37,6 +37,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/admin/reporting', 'AdminController@reporting')->name('admin.reporting');
 
         Route::get('/admin/survivors', 'AdminController@survivors')->name('admin.survivors');
+        Route::get('/admin/survivors/edit/{id?}', 'AdminController@editSurvivor')->name('admin.survivors.edit');
+        Route::post('/admin/survivors/store', 'AdminController@storeSurvivor')->name('admin.survivors.store');
+        Route::put('/admin/survivors/update/{id}', 'AdminController@updateSurvivor')->name('admin.survivors.update');
+        Route::delete('/admin/survivors/{id}', 'AdminController@deleteSurvivor')->name('admin.survivors.delete');
         Route::get('/admin/ttus', 'AdminController@ttus')->name('admin.ttus');
         Route::get('/admin/ttus/{id}', 'AdminController@ttusEdit')->name('admin.ttus.edit');
         Route::get('/admin/ttus/edit/{id?}', 'AdminController@ttusEdit')->name('admin.ttus.edit');

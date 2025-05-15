@@ -286,10 +286,69 @@ class AdminController extends Controller
         return view('admin.reporting',$data);
     }
 
-    public function survivors()
+    public function survivors(Request $request)
     {
-        $data=[];
-        return view('admin.survivors',$data);
+        $query = \App\Survivor::query();
+
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where('fema_id', 'LIKE', "%$search%")
+                  ->orWhere('name', 'LIKE', "%$search%")
+                  ->orWhere('address', 'LIKE', "%$search%")
+                  ->orWhere('phone', 'LIKE', "%$search%")
+                  ->orWhere('hh_size', 'LIKE', "%$search%")
+                  ->orWhere('li_date', 'LIKE', "%$search%");
+        }
+
+        $survivors = $query->get();
+        return view('admin.survivors', compact('survivors'));
+    }
+
+    public function editSurvivor($id = null)
+    {
+        $survivor = $id === 'new' ? null : \App\Survivor::findOrFail($id); // Load survivor if editing, or null for adding
+        return view('admin.survivorsEdit', compact('survivor'));
+    }
+
+    public function storeSurvivor(Request $request)
+    {
+        $request->validate([
+            'fema_id' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'hh_size' => 'required|integer',
+            'li_date' => 'required|date',
+        ]);
+
+        \App\Survivor::create($request->all());
+
+        return redirect()->route('admin.survivors')->with('success', 'Survivor added successfully!');
+    }
+
+    public function updateSurvivor(Request $request, $id)
+    {
+        $request->validate([
+            'fema_id' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'hh_size' => 'required|integer',
+            'li_date' => 'required|date',
+        ]);
+
+        $survivor = \App\Survivor::findOrFail($id); // Find the survivor by ID
+        $survivor->update($request->all()); // Update the survivor with the form data
+
+        return redirect()->route('admin.survivors')->with('success', 'Survivor updated successfully!');
+    }
+
+    public function deleteSurvivor($id)
+    {
+        $survivor = \App\Survivor::findOrFail($id); // Find the survivor or throw a 404 error
+        $survivor->delete(); // Delete the survivor
+
+        return redirect()->route('admin.survivors')->with('success', 'Survivor deleted successfully!');
     }
 
     public function ttus(Request $request)
