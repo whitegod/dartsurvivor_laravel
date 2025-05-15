@@ -292,15 +292,51 @@ class AdminController extends Controller
         return view('admin.survivors',$data);
     }
 
-    public function ttus()
+    public function ttus(Request $request)
     {
-        $ttus = \App\TTU::all(); // Fetch all TTU records
+        $query = \App\TTU::query();
+
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where('vin', 'LIKE', "%$search%")
+                  ->orWhere('location', 'LIKE', "%$search%")
+                  ->orWhere('address', 'LIKE', "%$search%")
+                  ->orWhere('unit', 'LIKE', "%$search%")
+                  ->orWhere('status', 'LIKE', "%$search%")
+                  ->orWhere('total_beds', 'LIKE', "%$search%");
+        }
+
+        $ttus = $query->get();
         return view('admin.ttus', compact('ttus'));
     }
     public function ttusEdit()
     {
         $data=[];
         return view('admin.ttusEdit',$data);
+    }
+
+    public function storeTTU(Request $request)
+    {
+        $request->validate([
+            'vin' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'unit' => 'required|string|max:255',
+            'status' => 'required|string|in:ready,occupied,pending',
+            'total_beds' => 'required|integer',
+        ]);
+
+        \App\TTU::create($request->all());
+
+        return redirect()->route('admin.ttus')->with('success', 'New TTU added successfully!');
+    }
+
+    public function deleteTTU($id)
+    {
+        $ttu = \App\TTU::findOrFail($id); // Find the record or throw a 404 error
+        $ttu->delete(); // Delete the record
+
+        return redirect()->route('admin.ttus')->with('success', 'TTU record deleted successfully!');
     }
 
     public function userPermissions()
