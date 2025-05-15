@@ -139,8 +139,8 @@
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="header">
                 <div class="search-container">
-                    <input type="text" placeholder="Search">
-                    <div class="filter-icon">🔍</div>
+                    <input type="text" id="search-input" placeholder="Search">
+                    <button id="search-button" class="filter-icon">🔍</button>
                 </div>
                 <a href="#" class="add-new-button">Add New</a>
             </div>
@@ -163,63 +163,18 @@
                         <td>{{ $ttu->vin }}</td>
                         <td>{{ $ttu->location }}</td>
                         <td>{{ $ttu->address }}</td>
-                        <td>{{ $ttu->unit }}</td>
+                        <td>Lot {{ $ttu->unit }}</td>
                         <td><span class="status {{ strtolower($ttu->status) }}">{{ ucfirst($ttu->status) }}</span></td>
                         <td><span class="total-beds">{{ $ttu->total_beds }}</span></td>
                         <td class="options-icon">
                             ⋮
                             <div class="dropdown-menu">
-                                <a href="{{Route('admin.ttus.edit', 1)}}">Edit</a>
+                                <a href="{{ route('admin.ttus.edit', $ttu->id) }}">Edit</a>
                                 <a href="#">Delete</a>
                             </div>
                         </td>
                     </tr>
-                    <tr>
-                        <td>8675309</td>
-                        <td>Wilson’s RV Park</td>
-                        <td>435 California Blvd.</td>
-                        <td>Lot 243</td>
-                        <td><span class="status occupied">Occupied</span></td>
-                        <td><span class="total-beds">3</span></td>
-                        <td class="options-icon">
-                            ⋮
-                            <div class="dropdown-menu">
-                                <a href="{{Route('admin.ttus.edit', 1)}}">Edit</a>
-                                <a href="#">Delete</a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>9870911</td>
-                        <td>Motor Pool</td>
-                        <td>12687 Federal Way</td>
-                        <td>Lot 12</td>
-                        <td><span class="status pending">Pending</span></td>
-                        <td><span class="total-beds">143</span></td>
-                        <td class="options-icon">
-                            ⋮
-                            <div class="dropdown-menu">
-                                <a href="{{Route('admin.ttus.edit', 1)}}">Edit</a>
-                                <a href="#">Delete</a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>6666666</td>
-                        <td>Lucille’s Ranch</td>
-                        <td>666 Nothell Ln.</td>
-                        <td>Lot 666</td>
-                        <td><span class="status ready">Ready</span></td>
-                        <td><span class="total-beds">-1</span></td>
-                        <td class="options-icon">
-                            ⋮
-                            <div class="dropdown-menu">
-                                <a href="{{Route('admin.ttus.edit', 1)}}">Edit</a>
-                                <a href="#">Delete</a>
-                            </div>
-                        </td>
-                    </tr>
-                    <!-- Repeat rows as needed -->
+                    @endforeach
                 </tbody>
             </table>   
         </div>

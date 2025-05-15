@@ -294,8 +294,8 @@ class AdminController extends Controller
 
     public function ttus()
     {
-        $data=[];
-        return view('admin.ttus',$data);
+        $ttus = \App\TTU::all(); // Fetch all TTU records
+        return view('admin.ttus', compact('ttus'));
     }
     public function ttusEdit()
     {

@@ -2,10 +2,10 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class TTU extends Model
 {
-    use HasFactory;
+    protected $table = 'ttus'; // Specify the table name
+    protected $fillable = ['vin', 'location', 'address', 'unit', 'status', 'total_beds']; // Add relevant columns
 }
