@@ -210,6 +210,11 @@
                     @method('PUT')
                 @endif
 
+                @if(isset($ttu))
+                    <input type="hidden" name="created_at" value="{{ $ttu->created_at }}">
+                @endif
+                <input type="hidden" name="updated_at" value="{{ now() }}">
+
                 <!-- Main TTU Info -->
                 <div class="form-row">
                     <div class="form-group">
@@ -239,7 +244,9 @@
                     <div class="form-group status-group">
                         <label for="status">TTU Status</label>
                         <select id="status" name="status">
-                            <option {{ old('status', $ttu->status ?? '') == 'Blue (Transferred)' ? 'selected' : '' }}>Blue (Transferred)</option>
+                            <option {{ old('status', $ttu->status ?? '') == 'Transferred' ? 'selected' : '' }}>Transferred</option>
+                            <option {{ old('status', $ttu->status ?? '') == 'Ready' ? 'selected' : '' }}>Ready</option>
+                            <option {{ old('status', $ttu->status ?? '') == 'Occupied' ? 'selected' : '' }}>Occupied</option>
                         </select>
                     </div>
                 </div>
@@ -304,12 +311,15 @@
                     <div class="column">
                         <span class="table-header">Does the TTU have:</span>
                         <table>
-                            @foreach(['200+ SQFT', 'Prop. Fireplace', 'TV', 'Hydraulics', 'Steps', 'Teardrop Design', 'Folding Walls', 'Outdoor Kitchen'] as $feature)
+                            @php
+                                $featureList = ['200+ SQFT', 'Prop. Fireplace', 'TV', 'Hydraulics', 'Steps', 'Teardrop Design', 'Folding Walls', 'Outdoor Kitchen'];
+                            @endphp
+                            @foreach($featureList as $feature)
                             <tr>
                                 <td>{{ $feature }}</td>
                                 <td>
                                     <label class="switch">
-                                        <input type="checkbox" name="features[{{ $feature }}]" {{ old("features.$feature", $ttu && isset($ttu->features[$feature]) && $ttu->features[$feature] ? 'checked' : '') }}>
+                                        <input type="checkbox" name="features[{{ $feature }}]" {{ old("features.$feature", !empty($features[$feature])) ? 'checked' : '' }}>
                                         <span class="slider"></span>
                                     </label>
                                 </td>
@@ -320,12 +330,15 @@
                     <div class="column">
                         <span class="table-header">Is the TTU:</span>
                         <table>
-                            @foreach(['Onsite', 'Occupied', 'Winterized', 'Deblocked', 'Cleaned', 'GPS Removed', 'Being Donated', 'Sold at Auction'] as $status)
+                            @php
+                                $statusList = ['Onsite', 'Occupied', 'Winterized', 'Deblocked', 'Cleaned', 'GPS Removed', 'Being Donated', 'Sold at Auction'];
+                            @endphp
+                            @foreach($statusList as $status)
                             <tr>
                                 <td>{{ $status }}</td>
                                 <td>
                                     <label class="switch">
-                                        <input type="checkbox" name="statuses[{{ $status }}]" {{ old("statuses.$status", $ttu && isset($ttu->statuses[$status]) && $ttu->statuses[$status] ? 'checked' : '') }}>
+                                        <input type="checkbox" name="statuses[{{ $status }}]" {{ old("statuses.$status", !empty($statuses[$status])) ? 'checked' : '' }}>
                                         <span class="slider"></span>
                                     </label>
                                 </td>
@@ -399,7 +412,12 @@
                         <div class="form-footer">
                             <div class="info">
                                 <div>Authored by:</div>
-                                <div>Created: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Last Edited:</div>
+                                @if(isset($ttu))
+                                    <div style="display: flex; gap: 40px;">
+                                        <span>Created: {{ $ttu->created_at }}</span>
+                                        <span>Last Edited: {{ $ttu->updated_at }}</span>
+                                    </div>
+                                @endif
                             </div>
                             <div class="buttons">
                                 <button type="button" class="btn btn-cancel" onclick="window.history.back();">Cancel</button>

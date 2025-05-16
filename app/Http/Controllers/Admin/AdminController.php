@@ -407,7 +407,12 @@ class AdminController extends Controller
     public function ttusEdit($id = null)
     {
         $ttu = $id ? \App\TTU::findOrFail($id) : null;
-        return view('admin.ttusEdit', compact('ttu'));
+
+        // Decode features/statuses for edit mode
+        $features = $ttu && $ttu->features ? json_decode($ttu->features, true) : [];
+        $statuses = $ttu && $ttu->statuses ? json_decode($ttu->statuses, true) : [];
+
+        return view('admin.ttusEdit', compact('ttu', 'features', 'statuses'));
     }
 
     public function deleteTTU($id)
@@ -420,15 +425,21 @@ class AdminController extends Controller
 
     public function storeTTU(Request $request)
     {
-        // Validate and create new TTU
-        \App\TTU::create($request->all());
+        $data = $request->all();
+        // Encode features/statuses if needed
+        if (isset($data['features'])) $data['features'] = json_encode($data['features']);
+        if (isset($data['statuses'])) $data['statuses'] = json_encode($data['statuses']);
+        \App\TTU::create($data);
         return redirect()->route('admin.ttus')->with('success', 'TTU created!');
     }
 
     public function updateTTU(Request $request, $id)
     {
         $ttu = \App\TTU::findOrFail($id);
-        $ttu->update($request->all());
+        $data = $request->all();
+        if (isset($data['features'])) $data['features'] = json_encode($data['features']);
+        if (isset($data['statuses'])) $data['statuses'] = json_encode($data['statuses']);
+        $ttu->update($data);
         return redirect()->route('admin.ttus')->with('success', 'TTU updated!');
     }
 

@@ -242,7 +242,7 @@
                         <td>{{ \Illuminate\Support\Str::substr($ttu->vin, -7) }}</td>
                         <td>{{ $ttu->location }}</td>
                         <td>{{ $ttu->address }}</td>
-                        <td>Lot {{ $ttu->unit }}</td>
+                        <td>Lot {{ $ttu->lot }}</td>
                         <td><span class="status {{ strtolower($ttu->status) }}">{{ ucfirst($ttu->status) }}</span></td>
                         <td><span class="total-beds">{{ $ttu->total_beds }}</span></td>
                         <td class="options-icon">
