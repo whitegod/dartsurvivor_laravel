@@ -19,7 +19,7 @@
             font-weight: bold;
             margin-bottom: 5px;
         }
-        input[type="text"], select {
+        input[type="text"], input[type="number"], select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
@@ -204,236 +204,211 @@
 <section id="Global">
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="vin">VIN</label>
-                    <input type="text" id="vin" value="5ZT2CXSBXSM090391">
-                </div>
-                <div class="form-group">
-                    <label for="manufacturer">Manufacturer</label>
-                    <select id="manufacturer">
-                        <option>Forest River</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="brand">Brand</label>
-                    <select id="brand">
-                        <option>Apex Ultra Lite</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="model">Model</label>
-                    <input type="text" id="model" value="265RBSS">
-                </div>
-                <div class="form-group">
-                    <label for="year">Year</label>
-                    <input type="text" id="year" value="2019">
-                </div>
-                <div class="form-group status-group">
-                    <label for="status">TTU Status</label>
-                    <select id="status">
-                        <option>Blue (Transferred)</option>
-                    </select>
-                </div>
-            </div>
+            <form method="POST" action="{{ isset($ttu) ? route('admin.ttus.update', $ttu->id) : route('admin.ttus.store') }}">
+                @csrf
+                @if(isset($ttu))
+                    @method('PUT')
+                @endif
 
-            <div class="form-row">
-                <div class="form-group form-group-title">Title Manufacturer, Brand, Model:</div>
-                <div class="form-group">
-                    <input type="text" placeholder="Enter manufacturer">
-                </div>
-                <div class="form-group">
-                    <input type="text" placeholder="Enter brand">
-                </div>
-                <div class="form-group">
-                    <input type="text" placeholder="Enter model">
-                </div>
-                <div class="form-group" style="display: flex; align-items: center; justify-content: flex-end;">
-                    <label for="title-select" style="margin-right: 5px; font-size: 13px;">Do&nbsp;we&nbsp;have&nbsp;the&nbsp;Title?</label>
-                    <select id="title-select">
-                        <option>Yes</option>
-                        <option>No</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="location">Location</label>
-                    <input type="text" id="location" value="Brexit County State Park of Florida">
-                </div>
-                <div class="form-group">
-                    <label for="lot">Unit Loc./Lot #</label>
-                    <input type="text" id="lot" value="Lot 102">
-                </div>
-                <div class="form-group">
-                    <label for="county">County</label>
-                    <select id="county">
-                        <option>Brexit County</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="imei">IMEI# (GPS)</label>
-                    <input type="text" id="imei" value="123456789123456">
-                </div>
-                <div class="form-group">
-                    <label for="price">Purchase Price</label>
-                    <input type="text" id="price" value="$30,000.00">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div class="container">
-                <div class="column">
-                    <span class="table-header">Does the TTU have:</span>
-                    <table>
-                        <tr>
-                            <td>200+ SQFT</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                        <tr>
-                            <td>Prop. Fireplace</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                        <tr>
-                            <td>TV</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                        <tr>
-                            <td>Hydraulics</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                        <tr>
-                            <td>Steps</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                        <tr>
-                            <td>Teardrop Design</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                        <tr>
-                            <td>Folding Walls</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                        <tr>
-                            <td>Outdoor Kitchen</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div class="column">
-                    <span class="table-header">Is the TTU:</span>
-                    <table>
-                        <tr>
-                            <td>Onsite</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                        <tr>
-                            <td>Occupied</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                        <tr>
-                            <td>Winterized</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                        <tr>
-                            <td>Deblocked</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                        <tr>
-                            <td>Cleaned</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                        <tr>
-                            <td>GPS Removed</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                        <tr>
-                            <td>Being Donated</td>
-                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Sold at Auction</td>
-                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div class="form-column form-section">
-                    <label for="disposition">Disposition:</label>
-                    <select id="disposition">
-                        <option>Officially Transferred</option>
-                    </select>
-                    <label for="transport">Transport Agency:</label>
-                    <select id="transport">
-                        <option>Select...</option>
-                    </select>
-                    <div class="status-group">
-                        <label>Is the recipient a State, City, County, or NPO?</label>
-                        <select>
-                            <option>YES</option>
+                <!-- Main TTU Info -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vin">VIN</label>
+                        <input type="text" id="vin" name="vin" value="{{ old('vin', $ttu->vin ?? '') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="manufacturer">Manufacturer</label>
+                        <select id="manufacturer" name="manufacturer">
+                            <option {{ old('manufacturer', $ttu->manufacturer ?? '') == 'Forest River' ? 'selected' : '' }}>Forest River</option>
                         </select>
                     </div>
-                    <label for="agency">What Agency Is being given to?</label>
-                    <input type="text" id="agency" value="Brexit County Donation">
-                    <label for="category">Donation Category:</label>
-                    <input type="text" id="category" value="County">
-                    <div class="remarks">
-                        <div>
-                            <label for="remarks">Remarks:</label>
-                            <textarea id="remarks"></textarea>
+                    <div class="form-group">
+                        <label for="brand">Brand</label>
+                        <select id="brand" name="brand">
+                            <option {{ old('brand', $ttu->brand ?? '') == 'Apex Ultra Lite' ? 'selected' : '' }}>Apex Ultra Lite</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="model">Model</label>
+                        <input type="text" id="model" name="model" value="{{ old('model', $ttu->model ?? '') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="year">Year</label>
+                        <input type="text" id="year" name="year" value="{{ old('year', $ttu->year ?? '') }}">
+                    </div>
+                    <div class="form-group status-group">
+                        <label for="status">TTU Status</label>
+                        <select id="status" name="status">
+                            <option {{ old('status', $ttu->status ?? '') == 'Blue (Transferred)' ? 'selected' : '' }}>Blue (Transferred)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Title Info -->
+                <div class="form-row">
+                    <div class="form-group form-group-title">Title Manufacturer, Brand, Model:</div>
+                    <div class="form-group">
+                        <input type="text" name="title_manufacturer" placeholder="Enter manufacturer" value="{{ old('title_manufacturer', $ttu->title_manufacturer ?? '') }}">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="title_brand" placeholder="Enter brand" value="{{ old('title_brand', $ttu->title_brand ?? '') }}">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="title_model" placeholder="Enter model" value="{{ old('title_model', $ttu->title_model ?? '') }}">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; justify-content: flex-end;">
+                        <label for="title-select" style="margin-right: 5px; font-size: 13px;">Do&nbsp;we&nbsp;have&nbsp;the&nbsp;Title?</label>
+                        <select id="title-select" name="has_title">
+                            <option {{ old('has_title', $ttu->has_title ?? '') == 'Yes' ? 'selected' : '' }}>Yes</option>
+                            <option {{ old('has_title', $ttu->has_title ?? '') == 'No' ? 'selected' : '' }}>No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Location & Details -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" name="location" value="{{ old('location', $ttu->location ?? '') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="lot">Unit Loc./Lot #</label>
+                        <input type="text" id="lot" name="lot" value="{{ old('lot', $ttu->lot ?? '') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="county">County</label>
+                        <select id="county" name="county">
+                            <option {{ old('county', $ttu->county ?? '') == 'Brexit County' ? 'selected' : '' }}>Brexit County</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="imei">IMEI# (GPS)</label>
+                        <input type="text" id="imei" name="imei" value="{{ old('imei', $ttu->imei ?? '') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Purchase Price</label>
+                        <input type="text" id="price" name="price" value="{{ old('price', $ttu->price ?? '') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" name="address" value="{{ old('address', $ttu->address ?? '') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="total_beds">Total beds</label>
+                        <input type="number" id="total_beds" name="total_beds" value="{{ old('total_beds', $ttu->total_beds ?? '') }}">
+                    </div>
+                </div>
+
+                <!-- Features and Statuses -->
+                <div class="container">
+                    <div class="column">
+                        <span class="table-header">Does the TTU have:</span>
+                        <table>
+                            @foreach(['200+ SQFT', 'Prop. Fireplace', 'TV', 'Hydraulics', 'Steps', 'Teardrop Design', 'Folding Walls', 'Outdoor Kitchen'] as $feature)
+                            <tr>
+                                <td>{{ $feature }}</td>
+                                <td>
+                                    <label class="switch">
+                                        <input type="checkbox" name="features[{{ $feature }}]" {{ old("features.$feature", $ttu && isset($ttu->features[$feature]) && $ttu->features[$feature] ? 'checked' : '') }}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </table>
+                    </div>
+                    <div class="column">
+                        <span class="table-header">Is the TTU:</span>
+                        <table>
+                            @foreach(['Onsite', 'Occupied', 'Winterized', 'Deblocked', 'Cleaned', 'GPS Removed', 'Being Donated', 'Sold at Auction'] as $status)
+                            <tr>
+                                <td>{{ $status }}</td>
+                                <td>
+                                    <label class="switch">
+                                        <input type="checkbox" name="statuses[{{ $status }}]" {{ old("statuses.$status", $ttu && isset($ttu->statuses[$status]) && $ttu->statuses[$status] ? 'checked' : '') }}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </table>
+                    </div>
+                    <div class="form-column form-section">
+                        <label for="disposition">Disposition:</label>
+                        <select id="disposition" name="disposition">
+                            <option {{ old('disposition', $ttu->disposition ?? '') == 'Officially Transferred' ? 'selected' : '' }}>Officially Transferred</option>
+                        </select>
+                        <label for="transport">Transport Agency:</label>
+                        <select id="transport" name="transport">
+                            <option {{ old('transport', $ttu->transport ?? '') == 'Select...' ? 'selected' : '' }}>Select...</option>
+                        </select>
+                        <div class="status-group">
+                            <label>Is the recipient a State, City, County, or NPO?</label>
+                            <select name="recipient_type">
+                                <option {{ old('recipient_type', $ttu->recipient_type ?? '') == 'YES' ? 'selected' : '' }}>YES</option>
+                                <option {{ old('recipient_type', $ttu->recipient_type ?? '') == 'NO' ? 'selected' : '' }}>NO</option>
+                            </select>
                         </div>
-                        <div>
-                            <label for="comments">Comments/Notes:</label>
-                            <textarea id="comments"></textarea>
+                        <label for="agency">What Agency Is being given to?</label>
+                        <input type="text" id="agency" name="agency" value="{{ old('agency', $ttu->agency ?? '') }}">
+                        <label for="category">Donation Category:</label>
+                        <input type="text" id="category" name="category" value="{{ old('category', $ttu->category ?? '') }}">
+                        <div class="remarks">
+                            <div>
+                                <label for="remarks">Remarks:</label>
+                                <textarea id="remarks" name="remarks">{{ old('remarks', $ttu->remarks ?? '') }}</textarea>
+                            </div>
+                            <div>
+                                <label for="comments">Comments/Notes:</label>
+                                <textarea id="comments" name="comments">{{ old('comments', $ttu->comments ?? '') }}</textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <h4>Assigned Survivor</h4>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="fema">FEMA ID</label>
-                    <input type="text" id="fema" value="Brexit County State Park of Florida">
-                </div>
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" value="Lot 102">
-                </div>
-                <div class="form-group">
-                    <label for="lo">LO</label>
-                    <select id="lo">
-                        <option>NO</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="lo-date">LO Date</label>
-                    <input type="text" id="lo-date" value="N/A">
-                </div>
-                <div class="form-group">
-                    <label for="est-lo-date">Est. LO Date</label>
-                    <input type="text" id="est-lo-date" value="N/A">
-                </div>
-            </div>
 
-            <div class="form-footer">
-                <div class="info">
-                    <div>Authored by:</div>
-                    <div>Created: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Last Edited:</div>
+                <!-- Assigned Survivor -->
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <h4>Assigned Survivor</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fema">FEMA ID</label>
+                                <input type="text" id="fema" name="fema" value="{{ old('fema', $ttu->fema ?? '') }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" id="name" name="survivor_name" value="{{ old('survivor_name', $ttu->survivor_name ?? '') }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="lo">LO</label>
+                                <select id="lo" name="lo">
+                                    <option {{ old('lo', $ttu->lo ?? '') == 'NO' ? 'selected' : '' }}>NO</option>
+                                    <option {{ old('lo', $ttu->lo ?? '') == 'YES' ? 'selected' : '' }}>YES</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="lo-date">LO Date</label>
+                                <input type="text" id="lo-date" name="lo_date" value="{{ old('lo_date', $ttu->lo_date ?? 'N/A') }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="est-lo-date">Est. LO Date</label>
+                                <input type="text" id="est-lo-date" name="est_lo_date" value="{{ old('est_lo_date', $ttu->est_lo_date ?? 'N/A') }}">
+                            </div>
+                        </div>
+
+                        <div class="form-footer">
+                            <div class="info">
+                                <div>Authored by:</div>
+                                <div>Created: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Last Edited:</div>
+                            </div>
+                            <div class="buttons">
+                                <button type="button" class="btn btn-cancel" onclick="window.history.back();">Cancel</button>
+                                <button type="submit" class="btn btn-save">{{ isset($ttu) ? 'Update' : 'Save' }}</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="buttons">
-                    <button class="btn btn-cancel">Cancel</button>
-                    <button class="btn btn-save">Save</button>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 </section>

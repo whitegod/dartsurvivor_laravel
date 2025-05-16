@@ -33,7 +33,7 @@
             flex: 1;
         }
 
-        .address-filter {
+        .text-filter {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -93,7 +93,7 @@
                 flex-direction: column;
             }
 
-            .filter, .address-filter {
+            .filter, .text-filter {
                 flex-direction: column;
                 align-items: flex-start;
                 width: 100%;
@@ -107,84 +107,88 @@
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="search-container">
-                <div class="filters">
-                    <div class="filter">
-                        <label for="scope">Scope</label>
-                        <select id="scope">
-                            <option>All</option>
+                <form method="GET" action="{{ route('admin.detailedSearch') }}">
+                    <div class="filters">
+                        <div class="filter">
+                            <label for="scope">Scope</label>
+                            <select id="scope" name="scope">
+                                <option>All</option>
+                                <!-- Add more options as needed -->
+                            </select>
+                        </div>
+                        <div class="filter">
+                            <label for="keyword">Keyword</label>
+                            <input type="text" id="keyword" name="keyword" value="{{ request('keyword') }}" placeholder="Type Here">
+                        </div>
+                        <div class="filter">
+                            <label for="countBy">Count By (Field)</label>
+                            <select id="countBy" name="countBy">
+                                <option value="author" {{ request('countBy') == 'author' ? 'selected' : '' }}>Author</option>
+                                <option value="address" {{ request('countBy') == 'address' ? 'selected' : '' }}>Address</option>
+                                <!-- Add more options as needed -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="text-filter">
+                        <select name="search_by_field" id="search_by_field" onchange="updatePlaceholder()">
+                            <option value="author" {{ request('search_by_field') == 'author' ? 'selected' : '' }}>Author</option>
+                            <option value="address" {{ request('search_by_field') == 'address' ? 'selected' : '' }}>Address</option>
                             <!-- Add more options as needed -->
                         </select>
+                        <input type="text" id="search_text" name="text" value="{{ request('text') }}"
+                            placeholder="{{ request('search_by_field') == 'address' ? 'Enter Address' : 'Enter Author Name' }}">
                     </div>
-                    <div class="filter">
-                        <label for="keyword">Keyword</label>
-                        <input type="text" id="keyword" placeholder="Type Here">
+                    <div class="search-button-container">
+                        <button type="submit">Search</button>
                     </div>
-                    <div class="filter">
-                        <label for="countBy">Count By (Field)</label>
-                        <select id="countBy">
-                            <option>Author</option>
-                            <!-- Add more options as needed -->
-                        </select>
-                    </div>
-                </div>
-
-                <div class="address-filter">
-                    <select>
-                        <option>Address</option>
-                        <!-- Add more options as needed -->
-                    </select>
-                    <input type="text" placeholder="5309 Aerosmith Rd.">
-                </div>
-
-                <div class="search-button-container">
-                    <button>Search</button>
-                </div>
+                </form>
             </div>
 
             <table>
                 <thead>
                     <tr>
-                        <th>Author</th>
-                        <th>Address</th>
+                        @if($countBy === 'author')
+                            <th>Author</th>
+                        @else
+                            <th>Address</th>
+                        @endif
                         <th>Count</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Carol Hughes</td>
-                        <td>5309 Aerosmith Rd.</td>
-                        <td>53</td>
-                        <td><a href="#" class="view-link">View</a></td>
-                    </tr>
-                    <tr>
-                        <td>Damien Weyas</td>
-                        <td>5309 Aerosmith Rd</td>
-                        <td>12</td>
-                        <td><a href="#" class="view-link">View</a></td>
-                    </tr>
-                    <tr>
-                        <td>Garrett Thesborne</td>
-                        <td>5309 Aerosmith Rd</td>
-                        <td>231</td>
-                        <td><a href="#" class="view-link">View</a></td>
-                    </tr>
-                    <tr>
-                        <td>Sweet Caroline</td>
-                        <td>5309 Aerosmith Rd</td>
-                        <td>1</td>
-                        <td><a href="#" class="view-link">View</a></td>
-                    </tr>
-                    <tr>
-                        <td>Pedro Weredugo</td>
-                        <td>5309 Aerosmith Rd</td>
-                        <td>9</td>
-                        <td><a href="#" class="view-link">View</a></td>
-                    </tr>
+                    @forelse($results ?? [] as $row)
+                        <tr>
+                            @if($countBy === 'author')
+                                <td>{{ $row->author }}</td>
+                            @else
+                                <td>{{ $row->address }}</td>
+                            @endif
+                            <td>{{ $row->count }}</td>
+                            <td><a href="#" class="view-link">View</a></td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="3">No results found.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>          
         </div>
     </div>
 </section>
-
+<script>
+function updatePlaceholder() {
+    var select = document.getElementById('search_by_field');
+    var input = document.getElementById('search_text');
+    if (select.value === 'address') {
+        input.placeholder = 'Enter Address';
+    } else if (select.value === 'author') {
+        input.placeholder = 'Enter Author Name';
+    } else {
+        input.placeholder = 'Type Here';
+    }
+}
+document.addEventListener('DOMContentLoaded', updatePlaceholder);
+</script>
 @endsection

@@ -221,7 +221,7 @@
                     <input type="text" id="search-input" placeholder="Search">
                     <button id="search-button" class="filter-icon">🔍</button>
                 </div>
-                <a href="{{ route('admin.ttus.edit', ['id' => 'new']) }}" class="add-new-button">Add New</a>
+                <a href="{{ route('admin.ttus.edit') }}" class="add-new-button btn btn-primary">Add New</a>
             </div>
 
             <table>
@@ -239,7 +239,7 @@
                 <tbody>
                     @foreach($ttus as $ttu)
                     <tr>
-                        <td>{{ $ttu->vin }}</td>
+                        <td>{{ \Illuminate\Support\Str::substr($ttu->vin, -7) }}</td>
                         <td>{{ $ttu->location }}</td>
                         <td>{{ $ttu->address }}</td>
                         <td>Lot {{ $ttu->unit }}</td>
