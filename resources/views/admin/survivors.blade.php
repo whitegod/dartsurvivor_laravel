@@ -138,9 +138,14 @@
                     @foreach($survivors as $survivor)
                     <tr>
                         <td>{{ $survivor->fema_id }}</td>
-                        <td>{{ $survivor->name }}</td>
+                        <td>{{ $survivor->fname }} {{ $survivor->lname }}</td>
                         <td>{{ $survivor->address }}</td>
-                        <td>{{ $survivor->phone }}</td>
+                        <td>
+                            {{ $survivor->primary_phone ?? '' }}
+                            @if(!empty($survivor->secondary_phone))
+                                <br>{{ $survivor->secondary_phone }}
+                            @endif
+                        </td>
                         <td>{{ $survivor->hh_size }}</td>
                         <td>{{ $survivor->li_date }}</td>
                         <td class="options-icon">

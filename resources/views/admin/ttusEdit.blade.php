@@ -213,8 +213,6 @@
                 @if(isset($ttu))
                     <input type="hidden" name="created_at" value="{{ $ttu->created_at }}">
                 @endif
-                <input type="hidden" name="updated_at" value="{{ now() }}">
-
                 <!-- Main TTU Info -->
                 <div class="form-row">
                     <div class="form-group">
@@ -279,8 +277,8 @@
                         <input type="text" id="location" name="location" value="{{ old('location', $ttu->location ?? '') }}">
                     </div>
                     <div class="form-group">
-                        <label for="lot">Unit Loc./Lot #</label>
-                        <input type="text" id="lot" name="lot" value="{{ old('lot', $ttu->lot ?? '') }}">
+                        <label for="loc_id">Unit Loc./Lot #</label>
+                        <input type="text" id="loc_id" name="loc_id" value="{{ old('loc_id', $ttu->loc_id ?? '') }}">
                     </div>
                     <div class="form-group">
                         <label for="county">County</label>
@@ -293,12 +291,19 @@
                         <input type="text" id="imei" name="imei" value="{{ old('imei', $ttu->imei ?? '') }}">
                     </div>
                     <div class="form-group">
-                        <label for="price">Purchase Price</label>
-                        <input type="text" id="price" name="price" value="{{ old('price', $ttu->price ?? '') }}">
+                        <label for="purchase_price">Purchase Price</label>
+                        <input type="text" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}">
                     </div>
                     <div class="form-group">
-                        <label for="address">Address</label>
-                        <input type="text" id="address" name="address" value="{{ old('address', $ttu->address ?? '') }}">
+                        <label for="loc_id">Address</label>
+                        <select id="loc_id" name="loc_id">
+                            <option value="">Select Address</option>
+                            @foreach($locations as $id => $addr)
+                                <option value="{{ $id }}" {{ old('loc_id', $ttu->loc_id ?? '') == $id ? 'selected' : '' }}>
+                                    {{ $addr }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="total_beds">Total beds</label>
@@ -312,14 +317,24 @@
                         <span class="table-header">Does the TTU have:</span>
                         <table>
                             @php
-                                $featureList = ['200+ SQFT', 'Prop. Fireplace', 'TV', 'Hydraulics', 'Steps', 'Teardrop Design', 'Folding Walls', 'Outdoor Kitchen'];
+                                $featureMap = [
+                                    '200+ SQFT' => 'has_200sqft',
+                                    'Prop. Fireplace' => 'has_propanefire',
+                                    'TV' => 'has_tv',
+                                    'Hydraulics' => 'has_hydraul',
+                                    'Steps' => 'has_steps',
+                                    'Teardrop Design' => 'has_teardrop',
+                                    'Folding Walls' => 'has_foldwalls',
+                                    'Outdoor Kitchen' => 'has_extkitchen',
+                                ];
                             @endphp
-                            @foreach($featureList as $feature)
+                            @foreach($featureMap as $label => $field)
                             <tr>
-                                <td>{{ $feature }}</td>
+                                <td>{{ $label }}</td>
                                 <td>
                                     <label class="switch">
-                                        <input type="checkbox" name="features[{{ $feature }}]" {{ old("features.$feature", !empty($features[$feature])) ? 'checked' : '' }}>
+                                        <input type="checkbox" name="{{ $field }}" value="1"
+                                            {{ old($field, $ttu->$field ?? false) ? 'checked' : '' }}>
                                         <span class="slider"></span>
                                     </label>
                                 </td>
@@ -331,14 +346,24 @@
                         <span class="table-header">Is the TTU:</span>
                         <table>
                             @php
-                                $statusList = ['Onsite', 'Occupied', 'Winterized', 'Deblocked', 'Cleaned', 'GPS Removed', 'Being Donated', 'Sold at Auction'];
+                                $statusMap = [
+                                    'Onsite' => 'is_onsite',
+                                    'Occupied' => 'is_occupied',
+                                    'Winterized' => 'is_winterized',
+                                    'Deblocked' => 'is_deblocked',
+                                    'Cleaned' => 'is_cleaned',
+                                    'GPS Removed' => 'is_gps_removed',
+                                    'Being Donated' => 'is_being_donated',
+                                    'Sold at Auction' => 'is_sold_at_auction',
+                                ];
                             @endphp
-                            @foreach($statusList as $status)
+                            @foreach($statusMap as $label => $field)
                             <tr>
-                                <td>{{ $status }}</td>
+                                <td>{{ $label }}</td>
                                 <td>
                                     <label class="switch">
-                                        <input type="checkbox" name="statuses[{{ $status }}]" {{ old("statuses.$status", !empty($statuses[$status])) ? 'checked' : '' }}>
+                                        <input type="checkbox" name="{{ $field }}" value="1"
+                                            {{ old($field, $ttu->$field ?? false) ? 'checked' : '' }}>
                                         <span class="slider"></span>
                                     </label>
                                 </td>
@@ -349,31 +374,32 @@
                     <div class="form-column form-section">
                         <label for="disposition">Disposition:</label>
                         <select id="disposition" name="disposition">
-                            <option {{ old('disposition', $ttu->disposition ?? '') == 'Officially Transferred' ? 'selected' : '' }}>Officially Transferred</option>
+                            <!-- <option {{ old('disposition', $ttu->disposition ?? '') == 'Officially Transferred' ? 'selected' : '' }}>Officially Transferred</option> -->
                         </select>
-                        <label for="transport">Transport Agency:</label>
-                        <select id="transport" name="transport">
-                            <option {{ old('transport', $ttu->transport ?? '') == 'Select...' ? 'selected' : '' }}>Select...</option>
+                        <label for="transpo_agency">Transport Agency:</label>
+                        <select id="transpo_agency" name="transpo_agency">
+                            <!-- <option {{ old('transpo_agency', $ttu->transpo_agency ?? '') == 'Select...' ? 'selected' : '' }}>Select...</option> -->
+                            <!-- Add more options as needed -->
                         </select>
                         <div class="status-group">
                             <label>Is the recipient a State, City, County, or NPO?</label>
                             <select name="recipient_type">
-                                <option {{ old('recipient_type', $ttu->recipient_type ?? '') == 'YES' ? 'selected' : '' }}>YES</option>
-                                <option {{ old('recipient_type', $ttu->recipient_type ?? '') == 'NO' ? 'selected' : '' }}>NO</option>
+                                <!-- <option {{ old('recipient_type', $ttu->recipient_type ?? '') == 'YES' ? 'selected' : '' }}>YES</option>
+                                <option {{ old('recipient_type', $ttu->recipient_type ?? '') == 'NO' ? 'selected' : '' }}>NO</option> -->
                             </select>
                         </div>
-                        <label for="agency">What Agency Is being given to?</label>
-                        <input type="text" id="agency" name="agency" value="{{ old('agency', $ttu->agency ?? '') }}">
-                        <label for="category">Donation Category:</label>
-                        <input type="text" id="category" name="category" value="{{ old('category', $ttu->category ?? '') }}">
+                        <label for="transpo_agency">What Agency Is being given to?</label>
+                        <input type="text" id="transpo_agency" name="transpo_agency" value="{{ old('transpo_agency', $ttu->transpo_agency ?? '') }}">
+                        <!-- <label for="category">Donation Category:</label> -->
+                        <!-- <input type="text" id="category" name="category" value=""> -->
                         <div class="remarks">
                             <div>
                                 <label for="remarks">Remarks:</label>
-                                <textarea id="remarks" name="remarks">{{ old('remarks', $ttu->remarks ?? '') }}</textarea>
+                                <textarea id="remarks" name="remarks"></textarea>
                             </div>
                             <div>
                                 <label for="comments">Comments/Notes:</label>
-                                <textarea id="comments" name="comments">{{ old('comments', $ttu->comments ?? '') }}</textarea>
+                                <textarea id="comments" name="comments"></textarea>
                             </div>
                         </div>
                     </div>
@@ -385,12 +411,12 @@
                         <h4>Assigned Survivor</h4>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="fema">FEMA ID</label>
-                                <input type="text" id="fema" name="fema" value="{{ old('fema', $ttu->fema ?? '') }}">
+                                <label for="fdec">FEMA ID</label>
+                                <input type="text" id="fdec" name="fdec" value="{{ old('fdec', $ttu->fdec ?? '') }}">
                             </div>
                             <div class="form-group">
-                                <label for="name">Name</label>
-                                <input type="text" id="name" name="survivor_name" value="{{ old('survivor_name', $ttu->survivor_name ?? '') }}">
+                                <label for="survivor_name">Name</label>
+                                <input type="text" id="survivor_name" name="survivor_name" value="{{ $survivor_name }}" readonly>
                             </div>
                             <div class="form-group">
                                 <label for="lo">LO</label>
@@ -404,18 +430,18 @@
                                 <input type="text" id="lo-date" name="lo_date" value="{{ old('lo_date', $ttu->lo_date ?? 'N/A') }}">
                             </div>
                             <div class="form-group">
-                                <label for="est-lo-date">Est. LO Date</label>
-                                <input type="text" id="est-lo-date" name="est_lo_date" value="{{ old('est_lo_date', $ttu->est_lo_date ?? 'N/A') }}">
+                                <label for="expect-lo-date">Est. LO Date</label>
+                                <input type="text" id="expect-lo-date" name="expect_lo_date" value="{{ old('expect_lo_date', $ttu->expect_lo_date ?? 'N/A') }}">
                             </div>
                         </div>
 
                         <div class="form-footer">
                             <div class="info">
-                                <div>Authored by:</div>
+                                <div>Authored by: {{ $ttu->author ?? '' }}</div>
                                 @if(isset($ttu))
                                     <div style="display: flex; gap: 40px;">
                                         <span>Created: {{ $ttu->created_at }}</span>
-                                        <span>Last Edited: {{ $ttu->updated_at }}</span>
+                                        <span>Last Edited: </span>
                                     </div>
                                 @endif
                             </div>

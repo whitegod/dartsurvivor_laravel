@@ -44,9 +44,15 @@
                     <input type="text" id="fema_id" name="fema_id" class="form-control" value="{{ $survivor->fema_id ?? '' }}" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" class="form-control" value="{{ $survivor->name ?? '' }}" required>
+                <div class="form-group" style="display: flex; gap: 16px;">
+                    <div style="flex:1;">
+                        <label for="fname">First Name:</label>
+                        <input type="text" id="fname" name="fname" class="form-control" value="{{ $survivor->fname ?? '' }}" required>
+                    </div>
+                    <div style="flex:1;">
+                        <label for="lname">Last Name:</label>
+                        <input type="text" id="lname" name="lname" class="form-control" value="{{ $survivor->lname ?? '' }}" required>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -54,9 +60,15 @@
                     <input type="text" id="address" name="address" class="form-control" value="{{ $survivor->address ?? '' }}" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="phone">Phone:</label>
-                    <input type="text" id="phone" name="phone" class="form-control" value="{{ $survivor->phone ?? '' }}" required>
+                <div class="form-group" style="display: flex; gap: 16px;">
+                    <div style="flex:1;">
+                        <label for="primary_phone">Phone:</label>
+                        <input type="text" id="primary_phone" name="primary_phone" class="form-control" value="{{ $survivor->primary_phone ?? '' }}" required>
+                    </div>
+                    <div style="flex:1;">
+                        <label for="secondary_phone">Secondary Phone:</label>
+                        <input type="text" id="secondary_phone" name="secondary_phone" class="form-control" value="{{ $survivor->secondary_phone ?? '' }}">
+                    </div>
                 </div>
 
                 <div class="form-group">

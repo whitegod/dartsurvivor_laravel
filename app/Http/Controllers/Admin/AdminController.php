@@ -324,14 +324,16 @@ class AdminController extends Controller
 
     public function survivors(Request $request)
     {
-        $query = \App\Survivor::query();
+        $query = \DB::table('survivor'); // changed from 'survivors'
 
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->where('fema_id', 'LIKE', "%$search%")
-                  ->orWhere('name', 'LIKE', "%$search%")
+                  ->orWhere('fname', 'LIKE', "%$search%")
+                  ->orWhere('lname', 'LIKE', "%$search%")
                   ->orWhere('address', 'LIKE', "%$search%")
-                  ->orWhere('phone', 'LIKE', "%$search%")
+                  ->orWhere('primary_phone', 'LIKE', "%$search%")
+                  ->orWhere('secondary_phone', 'LIKE', "%$search%")
                   ->orWhere('hh_size', 'LIKE', "%$search%")
                   ->orWhere('li_date', 'LIKE', "%$search%");
         }
@@ -342,7 +344,7 @@ class AdminController extends Controller
 
     public function editSurvivor($id = null)
     {
-        $survivor = $id === 'new' ? null : \App\Survivor::findOrFail($id); // Load survivor if editing, or null for adding
+        $survivor = $id === 'new' ? null : \DB::table('survivor')->where('id', $id)->first(); // changed from 'survivors'
         return view('admin.survivorsEdit', compact('survivor'));
     }
 
@@ -357,32 +359,21 @@ class AdminController extends Controller
             'li_date' => 'required|date',
         ]);
 
-        \App\Survivor::create($request->all());
+        \DB::table('survivor')->insert($request->except(['_token', '_method'])); // changed from 'survivors'
 
         return redirect()->route('admin.survivors')->with('success', 'Survivor added successfully!');
     }
 
     public function updateSurvivor(Request $request, $id)
     {
-        $request->validate([
-            'fema_id' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'hh_size' => 'required|integer',
-            'li_date' => 'required|date',
-        ]);
-
-        $survivor = \App\Survivor::findOrFail($id); // Find the survivor by ID
-        $survivor->update($request->all()); // Update the survivor with the form data
-
-        return redirect()->route('admin.survivors')->with('success', 'Survivor updated successfully!');
+        $data = $request->except(['_token', '_method']);
+        \DB::table('survivor')->where('id', $id)->update($data);
+        return redirect()->route('admin.survivors')->with('success', 'Survivor updated!');
     }
 
     public function deleteSurvivor($id)
     {
-        $survivor = \App\Survivor::findOrFail($id); // Find the survivor or throw a 404 error
-        $survivor->delete(); // Delete the survivor
+        \DB::table('survivor')->where('id', $id)->delete(); // changed from 'survivors'
 
         return redirect()->route('admin.survivors')->with('success', 'Survivor deleted successfully!');
     }
@@ -406,13 +397,22 @@ class AdminController extends Controller
     }
     public function ttusEdit($id = null)
     {
-        $ttu = $id ? \App\TTU::findOrFail($id) : null;
+        $ttu = $id ? \DB::table('ttu')->where('id', $id)->first() : null;
+        $locations = \DB::table('TTULocation')->pluck('loc_address', 'id');
 
-        // Decode features/statuses for edit mode
-        $features = $ttu && $ttu->features ? json_decode($ttu->features, true) : [];
-        $statuses = $ttu && $ttu->statuses ? json_decode($ttu->statuses, true) : [];
+        // Fetch survivor name if survivor_id is set
+        $survivor_name = '';
+        if ($ttu && $ttu->survivor_id) {
+            $survivor = \DB::table('survivor')->where('id', $ttu->survivor_id)->first();
+            if ($survivor) {
+                $survivor_name = trim(($survivor->fname ?? '') . ' ' . ($survivor->lname ?? ''));
+            }
+        }
 
-        return view('admin.ttusEdit', compact('ttu', 'features', 'statuses'));
+        // Optionally, fetch all survivors for a dropdown
+        $survivors = \DB::table('survivor')->pluck(\DB::raw("CONCAT(fname, ' ', lname)"), 'id');
+
+        return view('admin.ttusEdit', compact('ttu', 'locations', 'survivor_name', 'survivors'));
     }
 
     public function deleteTTU($id)
@@ -425,21 +425,42 @@ class AdminController extends Controller
 
     public function storeTTU(Request $request)
     {
-        $data = $request->all();
-        // Encode features/statuses if needed
-        if (isset($data['features'])) $data['features'] = json_encode($data['features']);
-        if (isset($data['statuses'])) $data['statuses'] = json_encode($data['statuses']);
+        $data = $request->except(['_token', '_method', 'survivor_name']);
+
+        // Set checkboxes to 0 if not checked
+        $featureFields = [
+            'has_200sqft', 'has_propanefire', 'has_tv', 'has_hydraul',
+            'has_steps', 'has_teardrop', 'has_foldwalls', 'has_extkitchen'
+        ];
+        $statusFields = [
+            'is_onsite', 'is_occupied', 'is_winterized', 'is_deblocked',
+            'is_cleaned', 'is_gps_removed', 'is_being_donated', 'is_sold_at_auction'
+        ];
+        foreach (array_merge($featureFields, $statusFields) as $field) {
+            $data[$field] = $request->has($field) ? 1 : 0;
+        }
+
         \App\TTU::create($data);
         return redirect()->route('admin.ttus')->with('success', 'TTU created!');
     }
 
     public function updateTTU(Request $request, $id)
     {
-        $ttu = \App\TTU::findOrFail($id);
-        $data = $request->all();
-        if (isset($data['features'])) $data['features'] = json_encode($data['features']);
-        if (isset($data['statuses'])) $data['statuses'] = json_encode($data['statuses']);
-        $ttu->update($data);
+        $data = $request->except(['_token', '_method', 'survivor_name']);
+
+        $featureFields = [
+            'has_200sqft', 'has_propanefire', 'has_tv', 'has_hydraul',
+            'has_steps', 'has_teardrop', 'has_foldwalls', 'has_extkitchen'
+        ];
+        $statusFields = [
+            'is_onsite', 'is_occupied', 'is_winterized', 'is_deblocked',
+            'is_cleaned', 'is_gps_removed', 'is_being_donated', 'is_sold_at_auction'
+        ];
+        foreach (array_merge($featureFields, $statusFields) as $field) {
+            $data[$field] = $request->has($field) ? 1 : 0;
+        }
+
+        \App\TTU::where('id', $id)->update($data);
         return redirect()->route('admin.ttus')->with('success', 'TTU updated!');
     }
 

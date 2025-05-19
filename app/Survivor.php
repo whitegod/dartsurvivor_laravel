@@ -6,12 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Survivor extends Model
 {
-    protected $table = 'survivors'; // Specify the table name
+    protected $table = 'survivor'; // Specify the table name
     protected $fillable = [
         'fema_id',      // FEMA-ID
-        'name',         // Name
+        'fname',         // First Name
+        'lname',         // Last Name
         'address',      // Address
-        'phone',        // Phone
+        'primary_phone',        // Phone
+        'secondary_phone',        // Phone
         'hh_size',      // HH Size (Household Size)
         'li_date',      // LI Date (Last Interaction Date)
     ];
