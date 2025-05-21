@@ -8,7 +8,6 @@ class Survivor extends Model
 {
     protected $table = 'survivor'; // Specify the table name
     protected $fillable = [
-        'fema_id',      // FEMA-ID
         'fname',         // First Name
         'lname',         // Last Name
         'address',      // Address
@@ -16,5 +15,7 @@ class Survivor extends Model
         'secondary_phone',        // Phone
         'hh_size',      // HH Size (Household Size)
         'li_date',      // LI Date (Last Interaction Date)
+        'case_worker_id', // Case Worker ID
+        'remarks',      // Remarks
     ];
 }

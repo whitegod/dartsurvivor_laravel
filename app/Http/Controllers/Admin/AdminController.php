@@ -350,15 +350,6 @@ class AdminController extends Controller
 
     public function storeSurvivor(Request $request)
     {
-        $request->validate([
-            'fema_id' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'hh_size' => 'required|integer',
-            'li_date' => 'required|date',
-        ]);
-
         \DB::table('survivor')->insert($request->except(['_token', '_method'])); // changed from 'survivors'
 
         return redirect()->route('admin.survivors')->with('success', 'Survivor added successfully!');

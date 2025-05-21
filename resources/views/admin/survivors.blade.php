@@ -147,7 +147,8 @@
                             @endif
                         </td>
                         <td>{{ $survivor->hh_size }}</td>
-                        <td>{{ $survivor->li_date }}</td>
+                        <!-- need to check again -->
+                        <td>{{ $survivor->est_lo_date }}</td>
                         <td class="options-icon">
                             ⋮
                             <div class="dropdown-menu">
