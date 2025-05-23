@@ -55,6 +55,69 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/admin/user_permissions/{id}/reset-password', 'AdminController@resetPassword')->name('admin.user_permissions.reset_password');
     });
 
+    Route::get('/admin/ttus/vin-autocomplete', function(\Illuminate\Http\Request $request) {
+        $q = $request->query('query');
+        return \App\TTU::whereNull('survivor_id')
+            ->where('vin', 'like', '%' . $q . '%') // Match any part of VIN
+            ->limit(10)
+            ->get(['vin']);
+    });
+    
+    Route::get('/admin/ttus/vin-details', function(\Illuminate\Http\Request $request) {
+        $vin = $request->query('vin');
+        $ttu = \App\TTU::where('vin', $vin)->whereNull('survivor_id')->first();
+        if ($ttu) {
+            return [
+                'lo' => $ttu->lo,
+                'lo_date' => $ttu->lo_date,
+                'est_lo_date' => $ttu->est_lo_date,
+                'vin' => $ttu->vin,
+            ];
+        }
+        return response()->json(null, 404);
+    });
+
+    // Add this route for hotel name autocomplete
+    Route::get('/admin/hotels/autocomplete', function(\Illuminate\Http\Request $request) {
+        $q = $request->query('query', '');
+        return \DB::table('hotel')
+            ->where('name', 'like', '%' . $q . '%')
+            ->limit(10)
+            ->get(['name']);
+    });
+
+    Route::get('/admin/rooms/autocomplete', function(\Illuminate\Http\Request $request) {
+        $hotel = $request->query('hotel', '');
+        $hotelRow = \DB::table('hotel')->where('name', $hotel)->first();
+        if (!$hotelRow) {
+            return [];
+        }
+        return \DB::table('room')
+            ->where('hotel', $hotelRow->id)
+            ->whereNull('survivor_id')
+            ->get(['room_num']);
+    });
+
+    Route::get('/admin/units/autocomplete', function(\Illuminate\Http\Request $request) {
+        $park = $request->query('statepark', '');
+        $parkRow = \DB::table('statepark')->where('name', $park)->first();
+        if (!$parkRow) {
+            return [];
+        }
+        return \DB::table('lodge_unit')
+            ->where('statepark', $parkRow->id)
+            ->whereNull('survivor_id')
+            ->get(['unit_name']);
+    });
+
+    Route::get('/admin/stateparks/autocomplete', function(\Illuminate\Http\Request $request) {
+        $q = $request->query('query', '');
+        return \DB::table('statepark')
+            ->where('name', 'like', '%' . $q . '%')
+            ->limit(10)
+            ->get(['name']);
+    });
+
 });
 
 

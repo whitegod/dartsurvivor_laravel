@@ -167,6 +167,10 @@
 
                 <div class="form-row">
                     <div class="form-group">
+                        <label for="fema_id">FEMA-ID</label>
+                        <input type="text" id="fema_id" name="fema_id" value="{{ old('fema_id', $survivor->fema_id ?? '') }}">
+                    </div>
+                    <div class="form-group">
                         <label for="primary_phone">Primary Phone</label>
                         <input type="text" id="primary_phone" name="primary_phone" value="{{ $survivor->primary_phone ?? '' }}">
                     </div>
@@ -235,68 +239,82 @@
                         <div class="form-group" style="flex:4; min-width:220px; margin-right: 100px;">
                             <label class="info" style="margin-bottom:6px;">VIN</label>
                             <div style="display:flex; gap:4px;">
-                                <input type="text" name="vin" value="{{ old('vin', $survivor->vin ?? '') }}">
+                                <input type="text" name="vin" id="vin-autocomplete" value="{{ old('vin', $ttu->vin ?? '') }}" style="width: 260px;" autocomplete="off">
                                 <button class="btn btn-primary" type="button">
                                     Go-to Record
                                 </button>
                             </div>
+                            <div id="vin-suggestions" style="position:relative; z-index:10;"></div>
                         </div>
                         <div class="form-group" style="flex:0.5; min-width:70px;">
                             <label for="lo">LO</label>
                             <select id="lo" name="lo">
-                                <option value="NO" {{ old('lo', $survivor->lo ?? '') == 'NO' ? 'selected' : '' }}>NO</option>
-                                <option value="YES" {{ old('lo', $survivor->lo ?? '') == 'YES' ? 'selected' : '' }}>YES</option>
+                                <option value="0" {{ old('lo', isset($ttu) ? $ttu->lo : '') == '0' ? 'selected' : '' }}>NO</option>
+                                <option value="1" {{ old('lo', isset($ttu) ? $ttu->lo : '') == '1' ? 'selected' : '' }}>YES</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="lo_date">LO Date</label>
-                            <input id="lo_date" name="lo_date" type="date" value="{{ old('lo_date', $survivor->lo_date ?? '') }}">
+                            <input id="lo_date" name="lo_date" type="date" value="{{ old('lo_date', $ttu->lo_date ?? '') }}">
                         </div>
                         <div class="form-group">
                             <label for="est_lo_date">Est. LO Date</label>
-                            <input id="est_lo_date" name="est_lo_date" type="date" value="{{ old('est_lo_date', $survivor->est_lo_date ?? '') }}">
+                            <input id="est_lo_date" name="est_lo_date" type="date" value="{{ old('est_lo_date', $ttu->est_lo_date ?? '') }}">
                         </div>
                     </div>
                 </div>
-
                 <div id="hotel-row" style="{{ $locationType == 'Hotel' ? '' : 'display:none;' }}; margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
                     <label style="font-weight:bold; font-size:16px; margin-bottom:2px;">Assigned Hotel</label>
                     <div class="form-row">
                         <div class="form-group" style="flex:4; min-width:220px; margin-right: 100px;">
                             <label class="info" style="margin-bottom:6px;">Hotel Name</label>
                             <div style="display:flex; gap:4px;">
-                                <input type="text" name="hotel_name" value="{{ old('hotel_name', $survivor->hotel_name ?? '') }}" placeholder="Hotel Name">
-                                <input type="text" name="hotel_room" value="{{ old('hotel_room', $survivor->hotel_room ?? '') }}" placeholder="Room #" style="max-width:90px;">
+                                <input type="text" name="hotel_name"
+                                    value="{{ old('hotel_name', $hotelName ?? $survivor->hotel_name ?? '') }}"
+                                    style="width: 200px;">
+
+                                <select name="hotel_room" id="hotel_room_select" style="min-width:160px;">
+                                    @if(old('hotel_room', $hotelRoom ?? false))
+                                        <option value="{{ old('hotel_room', $hotelRoom ?? '') }}" selected>
+                                            {{ old('hotel_room', $hotelRoom ?? '') }}
+                                        </option>
+                                    @endif
+                                </select>
                             </div>
+                            <div id="hotel-suggestions" style="position:absolute; z-index:1000; background-color: #fff; border:1px solid #ddd;"></div>
                         </div>
                         <div class="form-group">
                             <label for="hotel_li_date">LI Date</label>
-                            <input id="hotel_li_date" name="hotel_li_date" type="date" value="{{ old('hotel_li_date', $survivor->hotel_li_date ?? '') }}">
+                            <input id="hotel_li_date" name="hotel_li_date" type="date"
+                                value="{{ old('hotel_li_date', $hotelLiDate ?? '') }}">
                         </div>
                         <div class="form-group">
                             <label for="hotel_lo_date">LO Date</label>
-                            <input id="hotel_lo_date" name="hotel_lo_date" type="date" value="{{ old('hotel_lo_date', $survivor->hotel_lo_date ?? '') }}">
+                            <input id="hotel_lo_date" name="hotel_lo_date" type="date"
+                                value="{{ old('hotel_lo_date', $hotelLoDate ?? '') }}">
                         </div>
                     </div>
                 </div>
-
                 <div id="statepark-row" style="{{ $locationType == 'State Park' ? '' : 'display:none;' }}; margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
                     <label style="font-weight:bold; font-size:16px; margin-bottom:2px;">Assigned State Park</label>
                     <div class="form-row">
                         <div class="form-group" style="flex:4; min-width:220px; margin-right: 100px;">
                             <label class="info" style="margin-bottom:6px;">State Park Name</label>
-                            <div style="display:flex; gap:4px;">
-                                <input type="text" name="statepark_name" value="{{ old('statepark_name', $survivor->statepark_name ?? '') }}" placeholder="State Park Name">
-                                <input type="text" name="statepark_site" value="{{ old('statepark_site', $survivor->statepark_site ?? '') }}" placeholder="Site #" style="max-width:90px;">
+                            <div style="position:relative; display:flex; gap:4px;">
+                                <input type="text" name="statepark_name" value="{{ old('statepark_name', $stateparkName ?? $survivor->statepark_name ?? '') }}">
+                                <div id="statepark-suggestions" style="position:absolute; top:100%; left:0; z-index:1000; background-color: #fff; border:1px solid #ddd;"></div>
+                                <select name="unit_name" id="unit_name_select">
+                                    <!-- JS will populate -->
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="statepark_li_date">LI Date</label>
-                            <input id="statepark_li_date" name="statepark_li_date" type="date" value="{{ old('statepark_li_date', $survivor->statepark_li_date ?? '') }}">
+                            <input id="statepark_li_date" name="statepark_li_date" type="date" value="{{ old('statepark_li_date', $stateparkLiDate ?? '') }}">
                         </div>
                         <div class="form-group">
                             <label for="statepark_lo_date">LO Date</label>
-                            <input id="statepark_lo_date" name="statepark_lo_date" type="date" value="{{ old('statepark_lo_date', $survivor->statepark_lo_date ?? '') }}">
+                            <input id="statepark_lo_date" name="statepark_lo_date" type="date" value="{{ old('statepark_lo_date', $stateparkLoDate ?? '') }}">
                         </div>
                     </div>
                 </div>
@@ -321,31 +339,31 @@
                                 </select>
                             </div>
                             <div class="form-group" style="min-width:120px; max-width:180px;">
-                                <label for="case_worker_id">Case Worker ID</label>
-                                <input type="text" id="case_worker_id" name="case_worker_id" value="{{ old('case_worker_id', $survivor->case_worker_id ?? '') }}">
+                                <label for="caseworker_id">Case Worker ID</label>
+                                <input type="text" id="caseworker_id" name="caseworker_id" value="{{ old('caseworker_id', $survivor->caseworker_id ?? '') }}">
                             </div>
                         </div>
                     </div>
                     <!-- Right Column -->
                     <div style="flex: 2;">
-                        <label for="comments">Comments/Notes:</label>
-                        <textarea id="comments" name="comments" rows="3">{{ old('comments', $survivor->comments ?? '') }}</textarea>
+                        <label for="notes">Comments/Notes:</label>
+                        <textarea id="notes" name="notes" rows="3">{{ old('notes', $survivor->notes ?? '') }}</textarea>
                     </div>
                 </div>
                 <div class="form-row" style="margin-top: 12px;">
-                    <div class="form-group" style="min-width:160px;">
-                        <label style="color: #888; font-size: 14px;">Authored by:</label>
-                        <div style="color: #888; font-size: 14px;">{{ $survivor->authored_by ?? '' }}</div>
+                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 0;">
+                        <span>Authored by:</span>
+                        <div>{{ $survivor->author ?? '' }}</div>
                     </div>
                 </div>
-                <div class="form-row" style="margin-top: 12px;">
-                    <div class="form-group" style="min-width:160px;">
-                        <label style="color: #888; font-size: 14px;">Created:</label>
-                        <div style="color: #888; font-size: 14px;">{{ $survivor->created_at ?? '' }}</div>
+                <div class="form-row">
+                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 0;">
+                        <span>Created:</span>
+                        <div>{{ $survivor->created_at ?? '' }}</div>
                     </div>
-                    <div class="form-group" style="min-width:160px;">
-                        <label style="color: #888; font-size: 14px;">Last Edited:</label>
-                        <div style="color: #888; font-size: 14px;">{{ $survivor->updated_at ?? '' }}</div>
+                    <div class="form-group" style="display: flex; gap: 8px; align-items: center; margin-bottom: 0; margin-left: 20px;">
+                        <span>Last Edited:</span>
+                        <div>{{ $survivor->updated_at ?? '' }}</div>
                     </div>
 
                     <button type="button" class="btn btn-secondary" onclick="window.history.back();" style="margin-right: 16px;">Cancel</button>
@@ -355,38 +373,11 @@
         </div>
     </div>
 </section>
-@endsection
-
 <script>
-function toggleTTURow() {
-    const ttuRow = document.getElementById('ttu-row');
-    const hotelRow = document.getElementById('hotel-row');
-    const stateparkRow = document.getElementById('statepark-row');
-    const ttuRadio = document.querySelector('input[name="location_type"][value="TTU"]');
-    const hotelRadio = document.querySelector('input[name="location_type"][value="Hotel"]');
-    const stateparkRadio = document.querySelector('input[name="location_type"][value="State Park"]');
-    if (ttuRadio && ttuRadio.checked) {
-        ttuRow.style.display = '';
-        hotelRow.style.display = 'none';
-        stateparkRow.style.display = 'none';
-    } else if (hotelRadio && hotelRadio.checked) {
-        ttuRow.style.display = 'none';
-        hotelRow.style.display = '';
-        stateparkRow.style.display = 'none';
-    } else if (stateparkRadio && stateparkRadio.checked) {
-        ttuRow.style.display = 'none';
-        hotelRow.style.display = 'none';
-        stateparkRow.style.display = '';
-    } else {
-        ttuRow.style.display = 'none';
-        hotelRow.style.display = 'none';
-        stateparkRow.style.display = 'none';
-    }
-}
-document.addEventListener('DOMContentLoaded', function() {
-    toggleTTURow();
-    document.querySelectorAll('input[name="location_type"]').forEach(function(radio) {
-        radio.addEventListener('change', toggleTTURow);
-    });
-});
+    window.initialSelectedUnit = @json(old('unit_name', $unitName ?? $survivor->unit_name ?? ''));
+    window.initialSelectedRoom = @json(old('hotel_room', $hotelRoom ?? ''));
+    window.initialHotelName = @json(old('hotel_name', $hotelName ?? $survivor->hotel_name ?? ''));
+    window.initialStateparkName = @json(old('statepark_name', $stateparkName ?? $survivor->statepark_name ?? ''));
 </script>
+<script src="{{ asset('js/survivorsEdit.js') }}"></script>
+@endsection
