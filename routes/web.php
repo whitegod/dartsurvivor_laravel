@@ -93,7 +93,7 @@ Route::group(['middleware' => 'auth'], function () {
             return [];
         }
         return \DB::table('room')
-            ->where('hotel', $hotelRow->id)
+            ->where('hotel_id', $hotelRow->id)
             ->whereNull('survivor_id')
             ->get(['room_num']);
     });
@@ -105,7 +105,7 @@ Route::group(['middleware' => 'auth'], function () {
             return [];
         }
         return \DB::table('lodge_unit')
-            ->where('statepark', $parkRow->id)
+            ->where('statepark_id', $parkRow->id)
             ->whereNull('survivor_id')
             ->get(['unit_name']);
     });

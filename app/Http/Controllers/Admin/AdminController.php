@@ -341,7 +341,8 @@ class AdminController extends Controller
         }
 
         $survivors = $query->get();
-        return view('admin.survivors', compact('survivors'));
+        $fields = \Schema::getColumnListing('survivor'); // changed from 'survivors'
+        return view('admin.survivors', compact('survivors', 'fields'));
     }
 
     public function editSurvivor($id = null)
@@ -364,7 +365,7 @@ class AdminController extends Controller
         if ($survivor && $survivor->location_type === 'Hotel') {
             $room = \App\Room::where('survivor_id', $survivor->id)->first();
             if ($room) {
-                $hotel = \App\Hotel::find($room->hotel);
+                $hotel = \App\Hotel::find($room->hotel_id);
                 $hotelName = $hotel ? $hotel->name : '';
                 $hotelRoom = $room->room_num;
                 $hotelLiDate = $room->li_date;
@@ -376,7 +377,7 @@ class AdminController extends Controller
         if ($survivor && $survivor->location_type === 'State Park') {
             $unit = \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->first();
             if ($unit) {
-                $park = \DB::table('statepark')->where('id', $unit->statepark)->first();
+                $park = \DB::table('statepark')->where('id', $unit->statepark_id)->first();
                 $stateparkName = $park ? $park->name : '';
                 $unitName = $unit->unit_name;
                 $stateparkLiDate = $unit->li_date ? date('Y-m-d', strtotime($unit->li_date)) : '';
@@ -413,11 +414,11 @@ class AdminController extends Controller
             // Save room (create or update)
             \App\Room::updateOrCreate(
                 [
-                    'hotel' => $hotel->id, // use 'hotel' instead of 'hotel_id'
+                    'hotel_id' => $hotel->id,
                     'room_num' => $request->hotel_room,
                 ],
                 [
-                    'hotel' => $hotel->id, // use 'hotel' instead of 'hotel_id'
+                    'hotel_id' => $hotel->id,
                     'room_num' => $request->hotel_room,
                     'li_date' => $request->hotel_li_date,
                     'lo_date' => $request->hotel_lo_date,
@@ -443,7 +444,7 @@ class AdminController extends Controller
             if ($parkRow) {
                 // Find the lodge_unit row for this park and site
                 $unit = \DB::table('lodge_unit')
-                    ->where('statepark', $parkRow->id)
+                    ->where('statepark_id', $parkRow->id)
                     ->where('unit_name', $request->unit_name)
                     ->first();
 
@@ -497,11 +498,11 @@ class AdminController extends Controller
             // Assign survivor_id and dates to the selected room
             \App\Room::updateOrCreate(
                 [
-                    'hotel' => $hotel->id,
+                    'hotel_id' => $hotel->id,
                     'room_num' => $request->hotel_room,
                 ],
                 [
-                    'hotel' => $hotel->id,
+                    'hotel_id' => $hotel->id,
                     'room_num' => $request->hotel_room,
                     'li_date' => $request->hotel_li_date,
                     'lo_date' => $request->hotel_lo_date,
@@ -528,7 +529,7 @@ class AdminController extends Controller
             if ($parkRow) {
                 // Find the lodge_unit row for this park and site
                 $unit = \DB::table('lodge_unit')
-                    ->where('statepark', $parkRow->id)
+                    ->where('statepark_id', $parkRow->id)
                     ->where('unit_name', $request->unit_name)
                     ->first();
 
@@ -573,7 +574,8 @@ class AdminController extends Controller
         }
 
         $ttus = $query->get();
-        return view('admin.ttus', compact('ttus'));
+        $fields = \Schema::getColumnListing('ttu');
+        return view('admin.ttus', compact('ttus', 'fields'));
     }
     public function ttusEdit($id = null)
     {
@@ -627,6 +629,17 @@ class AdminController extends Controller
     public function updateTTU(Request $request, $id)
     {
         $data = $request->except(['_token', '_method', 'survivor_name']);
+
+        // Map expect_lo_date to est_lo_date if present
+        if (isset($data['expect_lo_date'])) {
+            $data['est_lo_date'] = $data['expect_lo_date'];
+            unset($data['expect_lo_date']);
+        }
+
+        // Show only last 7 digits from VIN if present
+        if (isset($data['vin'])) {
+            $data['vin'] = substr($data['vin'], -7);
+        }
 
         $featureFields = [
             'has_200sqft', 'has_propanefire', 'has_tv', 'has_hydraul',

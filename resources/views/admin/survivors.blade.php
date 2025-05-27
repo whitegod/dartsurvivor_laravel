@@ -97,6 +97,15 @@
             color: black;
         }
 
+        .hh-size {
+            display: inline-block;
+            width: 40px;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
         @media (max-width: 768px) {
             .search-container {
                 flex-direction: column;
@@ -122,48 +131,68 @@
                 <a href="{{ route('admin.survivors.edit', ['id' => 'new']) }}" class="add-new-button">Add New</a>
             </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>FEMA-ID</th>
-                        <th>Name</th>
-                        <th>Address</th>
-                        <th>Phone</th>
-                        <th>HH Size</th>
-                        <th>LI Date</th>
-                        <th>Options</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($survivors as $survivor)
-                    <tr>
-                        <td>{{ $survivor->fema_id }}</td>
-                        <td>{{ $survivor->fname }} {{ $survivor->lname }}</td>
-                        <td>{{ $survivor->address }}</td>
-                        <td>
-                            {{ $survivor->primary_phone ?? '' }}
-                            @if(!empty($survivor->secondary_phone))
-                                <br>{{ $survivor->secondary_phone }}
+            <div style="position: relative;">
+                <table style="width:100%; margin-top: 0; min-width: 900px;">
+                    <thead>
+                        <tr id="dynamic-table-header">
+                            <!-- Dynamic header will be rendered here -->
+                        </tr>
+                    </thead>
+                    <tbody id="dynamic-table-body">
+                        <!-- Dynamic body will be rendered here -->
+                    </tbody>
+                </table>
+                <div id="filter-dropdown" class="dropdown-menu"
+                    style="top: 40px; right: 0; left: auto; min-width: 160px; max-height: 300px; overflow-y: auto; position: absolute; z-index: 102;">
+                    @foreach($fields as $field)
+                        @php
+                            // Merge fname and lname as a single "name" checkbox
+                            if ($field === 'fname') {
+                                $defaultChecked = true;
+                        @endphp
+                        <label style="display: flex; align-items: center; padding: 8px 15px; cursor: pointer;">
+                            <input type="checkbox" class="filter-field-checkbox" data-field="name" style="margin-right: 8px;" checked>
+                            Name
+                        </label>
+                        @php
+                                continue;
+                            }
+                            // Merge primary_phone and secondary_phone as a single "phone" checkbox
+                            if ($field === 'primary_phone') {
+                                $defaultChecked = true;
+                        @endphp
+                        <label style="display: flex; align-items: center; padding: 8px 15px; cursor: pointer;">
+                            <input type="checkbox" class="filter-field-checkbox" data-field="phone" style="margin-right: 8px;" checked>
+                            Phone
+                        </label>
+                        @php
+                                continue;
+                            }
+                            if ($field === 'secondary_phone' || $field === 'lname') continue;
+                            $defaultChecked = in_array($field, ['fema_id', 'address', 'hh_size', 'li_date']);
+                        @endphp
+                        <label style="display: flex; align-items: center; padding: 8px 15px; cursor: pointer;">
+                            <input type="checkbox" class="filter-field-checkbox" data-field="{{ $field }}" style="margin-right: 8px;" {{ $defaultChecked ? 'checked' : '' }}>
+                            @if($field === 'fema_id')
+                                FEMA-ID
+                            @elseif($field === 'hh_size')
+                                HH Size
+                            @elseif($field === 'own_rent')
+                                Own/Rent
+                            @else
+                                {{ ucfirst(str_replace('_', ' ', $field)) }}
                             @endif
-                        </td>
-                        <td>{{ $survivor->hh_size }}</td>
-                        <!-- need to check again -->
-                        <td>{{ $survivor->est_lo_date }}</td>
-                        <td class="options-icon">
-                            ⋮
-                            <div class="dropdown-menu">
-                                <a href="{{ route('admin.survivors.edit', $survivor->id) }}">Edit</a>
-                                <form action="{{ route('admin.survivors.delete', $survivor->id) }}" method="POST" style="margin: 0;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
+                        </label>
                     @endforeach
-                </tbody>
-            </table>
+                </div>
+                <!-- Hidden JSON data for survivors and fields -->
+                <script type="application/json" id="survivors-data">
+                    {!! json_encode($survivors) !!}
+                </script>
+                <script type="application/json" id="fields-data">
+                    {!! json_encode($fields) !!}
+                </script>
+            </div>
         </div>
     </div>
 </section>
@@ -199,6 +228,172 @@
             const url = new URL(window.location.href);
             url.searchParams.set('search', searchInput);
             window.location.href = url.toString();
+        }
+    });
+
+    // --- Dynamic Table Rendering ---
+    function renderTable() {
+        const survivors = JSON.parse(document.getElementById('survivors-data').textContent);
+        const fields = JSON.parse(document.getElementById('fields-data').textContent);
+        const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox:checked')).map(cb => cb.dataset.field);
+
+        // Render header
+        const headerRow = document.getElementById('dynamic-table-header');
+        headerRow.innerHTML = '';
+        checkedFields.forEach(field => {
+            const th = document.createElement('th');
+            // Merge fname and lname into "Name" column
+            if (field === 'fname' || field === 'lname') {
+                if (!checkedFields.includes('name')) {
+                    th.textContent = 'Name';
+                    headerRow.appendChild(th);
+                }
+            } else if (field === 'name') {
+                th.textContent = 'Name';
+                headerRow.appendChild(th);
+            } else if (field === 'primary_phone' || field === 'secondary_phone') {
+                if (!checkedFields.includes('phone')) {
+                    th.textContent = 'Phone';
+                    headerRow.appendChild(th);
+                }
+            } else if (field === 'phone') {
+                th.textContent = 'Phone';
+                headerRow.appendChild(th);
+            } else if (field === 'fema_id') {
+                th.textContent = 'FEMA-ID';
+                headerRow.appendChild(th);
+            } else if (field === 'hh_size') {
+                th.textContent = 'HH Size';
+                headerRow.appendChild(th);
+            } else if (field === 'own_rent') {
+                th.textContent = 'Own/Rent';
+                headerRow.appendChild(th);
+            } else {
+                th.textContent = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                headerRow.appendChild(th);
+            }
+        });
+        // Add options/filter column
+        const thOptions = document.createElement('th');
+        thOptions.style.position = 'relative';
+        thOptions.innerHTML = `<button id="filter-button" style="background: none; border: none; cursor: pointer; padding: 0; vertical-align: middle;">
+            <i class='fa fa-filter'></i>
+        </button>`;
+        headerRow.appendChild(thOptions);
+
+        // Render body
+        const body = document.getElementById('dynamic-table-body');
+        body.innerHTML = '';
+        survivors.forEach(survivor => {
+            const tr = document.createElement('tr');
+            let skipName = false;
+            let skipPhone = false;
+            checkedFields.forEach(field => {
+                // Merge fname and lname into "Name" column
+                if ((field === 'fname' || field === 'lname') && !skipName) {
+                    const td = document.createElement('td');
+                    td.textContent = (survivor.fname || '') + ' ' + (survivor.lname || '');
+                    tr.appendChild(td);
+                    skipName = true;
+                } else if (field === 'name') {
+                    const td = document.createElement('td');
+                    td.textContent = (survivor.fname || '') + ' ' + (survivor.lname || '');
+                    tr.appendChild(td);
+                } else if ((field === 'primary_phone' || field === 'secondary_phone') && !skipPhone) {
+                    const td = document.createElement('td');
+                    td.innerHTML = (survivor.primary_phone || '') +
+                        (survivor.secondary_phone ? '<br>' + survivor.secondary_phone : '');
+                    tr.appendChild(td);
+                    skipPhone = true;
+                } else if (field === 'phone') {
+                    const td = document.createElement('td');
+                    td.innerHTML = (survivor.primary_phone || '') +
+                        (survivor.secondary_phone ? '<br>' + survivor.secondary_phone : '');
+                    tr.appendChild(td);
+                } else if (field === 'hh_size') {
+                    const td = document.createElement('td');
+                    if (survivor['hh_size'] === null || survivor['hh_size'] === undefined) {
+                        td.innerHTML = '';
+                    } else {
+                        td.innerHTML = `<span class="hh-size">${survivor['hh_size']}</span>`;
+                    }
+                    tr.appendChild(td);
+                } else if (field === 'own_rent') {
+                    const td = document.createElement('td');
+                    td.textContent = survivor['own_rent'] == 0 ? 'Own' : 'Rent';
+                    tr.appendChild(td);
+                } else if (field !== 'fname' && field !== 'lname' && field !== 'primary_phone' && field !== 'secondary_phone') {
+                    const td = document.createElement('td');
+                    td.textContent = survivor[field] !== undefined ? survivor[field] : '';
+                    tr.appendChild(td);
+                }
+            });
+            // Options column
+            const tdOptions = document.createElement('td');
+            tdOptions.className = 'options-icon';
+            tdOptions.style.position = 'relative';
+            tdOptions.innerHTML = `⋮
+                <div class="dropdown-menu" style="right:0; left:auto; min-width:120px; position:absolute;">
+                    <a href="/admin/survivors/edit/${survivor.id}">Edit</a>
+                    <form action="/admin/survivors/delete/${survivor.id}" method="POST" style="margin: 0;">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
+                    </form>
+                </div>`;
+            tr.appendChild(tdOptions);
+            body.appendChild(tr);
+        });
+
+        // Re-bind filter button event after header re-render
+        setTimeout(() => {
+            const filterBtn = document.getElementById('filter-button');
+            if (filterBtn && !filterBtn._bound) {
+                filterBtn.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    const dropdown = document.getElementById('filter-dropdown');
+                    dropdown.classList.toggle('active');
+                    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                        if (menu !== dropdown) menu.classList.remove('active');
+                    });
+                });
+                filterBtn._bound = true;
+            }
+
+            // Re-bind 3-dots options-icon click events after table re-render
+            document.querySelectorAll('.options-icon').forEach(icon => {
+                if (!icon._bound) {
+                    icon.addEventListener('click', function(event) {
+                        event.stopPropagation();
+                        const dropdown = this.querySelector('.dropdown-menu');
+                        const isActive = dropdown.classList.contains('active');
+                        document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
+                        if (!isActive) {
+                            dropdown.classList.add('active');
+                        }
+                    });
+                    icon._bound = true;
+                }
+            });
+        }, 0);
+    }
+
+    // Initial render
+    renderTable();
+
+    // Update table on checkbox change
+    document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
+        cb.addEventListener('change', renderTable);
+    });
+
+    // Hide all dropdown menus when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('#filter-button')) {
+            document.getElementById('filter-dropdown').classList.remove('active');
+        }
+        // Hide all row options dropdowns if clicking outside .options-icon
+        if (!event.target.closest('.options-icon')) {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
         }
     });
 </script>
