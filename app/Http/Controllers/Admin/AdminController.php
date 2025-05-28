@@ -652,7 +652,9 @@ class AdminController extends Controller
                 'donation_agency' => $request->donation_agency,
                 'donation_category' => $request->donation_category,
                 'sold_at_auction_price' => $request->sold_at_auction_price,
-                'recipient' => $request->recipient
+                'recipient' => $request->recipient,
+                'donated' => $request->has('is_being_donated') ? 1 : 0,
+                'auction' => $request->has('is_sold_at_auction') ? 1 : 0,
             ];
             \DB::table('transfer')->insert($transferData);
         }
@@ -712,8 +714,9 @@ class AdminController extends Controller
                 'donation_category' => $request->donation_category,
                 'sold_at_auction_price' => $request->sold_at_auction_price,
                 'recipient' => $request->recipient,
+                'donated' => $request->has('is_being_donated') ? 1 : 0,
+                'auction' => $request->has('is_sold_at_auction') ? 1 : 0,
             ];
-            // If transfer row exists, update; else, insert
             if (\DB::table('transfer')->where('ttu_id', $id)->exists()) {
                 \DB::table('transfer')->where('ttu_id', $id)->update($transferData);
             } else {

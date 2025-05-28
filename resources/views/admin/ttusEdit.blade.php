@@ -584,7 +584,15 @@ document.addEventListener('DOMContentLoaded', function() {
         var checkbox = document.querySelector('input[name="is_being_donated"]');
         var section = document.getElementById('donation-section');
         if (checkbox && section) {
-            section.style.display = checkbox.checked ? '' : 'none';
+            if (checkbox.checked) {
+                section.style.display = '';
+            } else {
+                section.style.display = 'none';
+                // Clear donation section fields
+                document.querySelector('select[name="recipient_type"]').selectedIndex = 0;
+                document.getElementById('donation_agency').value = '';
+                document.getElementById('donation_category').value = '';
+            }
         }
     }
     // Initial check
@@ -600,7 +608,14 @@ document.addEventListener('DOMContentLoaded', function() {
         var checkbox = document.querySelector('input[name="is_sold_at_auction"]');
         var section = document.getElementById('sold-at-auction-section');
         if (checkbox && section) {
-            section.style.display = checkbox.checked ? '' : 'none';
+            if (checkbox.checked) {
+                section.style.display = '';
+            } else {
+                section.style.display = 'none';
+                // Clear sold-at-auction section fields
+                document.getElementById('sold_at_auction_price').value = '';
+                document.getElementById('recipient').value = '';
+            }
         }
     }
     // Initial check

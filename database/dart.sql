@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 27, 2025 at 03:12 AM
+-- Generation Time: May 28, 2025 at 06:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -280,8 +280,33 @@ CREATE TABLE `survivor` (
 
 INSERT INTO `survivor` (`id`, `fema_id`, `fname`, `lname`, `address`, `city`, `state`, `zip`, `county`, `primary_phone`, `secondary_phone`, `hh_size`, `pets`, `email`, `li_date`, `own_rent`, `author`, `location_type`, `opt_out`, `opt_out_reason`, `caseworker_id`, `notes`, `created_at`, `updated_at`) VALUES
 (1, '364783292634', 'test', 'dfsd', NULL, NULL, NULL, NULL, NULL, '(890) 903-5768', '(890) 903-2344', 3, 1, NULL, NULL, 0, 'Dart Admin', 'TTU', 0, 'N/A', NULL, NULL, '2025-05-26 15:29:38', '2025-05-26 15:32:27'),
-(2, '343256765', 'dd', 'fdge', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'Dart Admin', 'Hotel', 0, 'N/A', NULL, NULL, '2025-05-26 15:43:18', '2025-05-26 16:09:15'),
+(2, '343256765', 'dd', 'fdge', 'address 2', NULL, 'CA', '12345', NULL, NULL, NULL, 3, 2, NULL, NULL, 0, 'Dart Admin', 'State Park', 0, 'N/A', NULL, NULL, '2025-05-26 15:43:18', '2025-05-28 09:38:27'),
 (3, '343256243', 'adsa', 'fewfw', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 3, 1, NULL, NULL, 0, 'Dart Admin', 'State Park', 0, 'Personal', NULL, NULL, '2025-05-26 15:43:36', '2025-05-26 17:45:50');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `transfer`
+--
+
+CREATE TABLE `transfer` (
+  `id` int(11) NOT NULL,
+  `ttu_id` int(11) DEFAULT NULL,
+  `donated` tinyint(4) NOT NULL,
+  `recipient_type` tinyint(4) NOT NULL,
+  `donation_agency` varchar(200) DEFAULT NULL,
+  `donation_category` varchar(50) DEFAULT NULL,
+  `auction` tinyint(4) NOT NULL,
+  `sold_at_auction_price` float DEFAULT NULL,
+  `recipient` varchar(200) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `transfer`
+--
+
+INSERT INTO `transfer` (`id`, `ttu_id`, `donated`, `recipient_type`, `donation_agency`, `donation_category`, `auction`, `sold_at_auction_price`, `recipient`) VALUES
+(1, 2, 0, 0, 'asd', 'cat234', 0, 353453, 'tester');
 
 -- --------------------------------------------------------
 
@@ -297,18 +322,19 @@ CREATE TABLE `ttu` (
   `brand` varchar(100) DEFAULT NULL,
   `model` varchar(100) DEFAULT NULL,
   `year` varchar(10) DEFAULT NULL,
-  `status` varchar(32) DEFAULT NULL,
+  `status` varchar(100) DEFAULT NULL,
   `title_manufacturer` varchar(100) DEFAULT NULL,
   `title_brand` varchar(100) DEFAULT NULL,
   `title_model` varchar(100) DEFAULT NULL,
   `has_title` varchar(10) DEFAULT NULL,
-  `location` varchar(255) DEFAULT NULL,
-  `unit` varchar(32) DEFAULT NULL,
+  `unit_loc` varchar(10) DEFAULT NULL,
+  `location` varchar(50) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
   `county` varchar(100) DEFAULT NULL,
   `imei` varchar(64) DEFAULT NULL,
   `purchase_price` decimal(10,2) DEFAULT NULL,
   `total_beds` int(11) DEFAULT NULL,
+  `disposition` varchar(50) DEFAULT NULL,
   `transpo_agency` varchar(100) DEFAULT NULL,
   `remarks` text DEFAULT NULL,
   `comments` text DEFAULT NULL,
@@ -332,6 +358,7 @@ CREATE TABLE `ttu` (
   `is_gps_removed` tinyint(1) DEFAULT 0,
   `is_being_donated` tinyint(1) DEFAULT 0,
   `is_sold_at_auction` tinyint(1) DEFAULT 0,
+  `author` varchar(50) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -340,10 +367,11 @@ CREATE TABLE `ttu` (
 -- Dumping data for table `ttu`
 --
 
-INSERT INTO `ttu` (`id`, `survivor_id`, `vin`, `manufacturer`, `brand`, `model`, `year`, `status`, `title_manufacturer`, `title_brand`, `title_model`, `has_title`, `location`, `unit`, `address`, `county`, `imei`, `purchase_price`, `total_beds`, `transpo_agency`, `remarks`, `comments`, `fdec`, `lo`, `lo_date`, `est_lo_date`, `has_200sqft`, `has_propanefire`, `has_tv`, `has_hydraul`, `has_steps`, `has_teardrop`, `has_foldwalls`, `has_extkitchen`, `is_onsite`, `is_occupied`, `is_winterized`, `is_deblocked`, `is_cleaned`, `is_gps_removed`, `is_being_donated`, `is_sold_at_auction`, `created_at`, `updated_at`) VALUES
-(1, NULL, '5ZT2CXSBXSM090391', 'Forest River', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL),
-(2, 1, '3SD2CXSBXSM046291', 'Forest River', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1', '2025-05-27', '2025-05-29', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL),
-(3, 3, '3SD2CXBNMSM043391', 'Forest River', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1', NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL);
+INSERT INTO `ttu` (`id`, `survivor_id`, `vin`, `manufacturer`, `brand`, `model`, `year`, `status`, `title_manufacturer`, `title_brand`, `title_model`, `has_title`, `unit_loc`, `location`, `address`, `county`, `imei`, `purchase_price`, `total_beds`, `disposition`, `transpo_agency`, `remarks`, `comments`, `fdec`, `lo`, `lo_date`, `est_lo_date`, `has_200sqft`, `has_propanefire`, `has_tv`, `has_hydraul`, `has_steps`, `has_teardrop`, `has_foldwalls`, `has_extkitchen`, `is_onsite`, `is_occupied`, `is_winterized`, `is_deblocked`, `is_cleaned`, `is_gps_removed`, `is_being_donated`, `is_sold_at_auction`, `author`, `created_at`, `updated_at`) VALUES
+(1, NULL, 'S0VM9145645', 'Forest River', 'Apex Ultra Lite', 'D23', '2023', 'Demobilized (#ffd700)', NULL, NULL, NULL, 'Yes', NULL, NULL, NULL, 'Brexit County', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'NO', '0000-00-00', '0000-00-00', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', NULL, NULL),
+(2, 1, '3SD2CXSBXSM046291', 'Forest River', NULL, NULL, NULL, 'Not Ready for Occupancy (#b22222)', NULL, NULL, NULL, 'Yes', NULL, 'Ramada Inn', NULL, NULL, NULL, NULL, 4, 'Awaiting Signatures', 'fedex', NULL, NULL, NULL, 'NO', '2025-05-27', '2025-06-07', 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, '1', '2025-05-27 15:35:51', '2025-05-28 16:25:34'),
+(3, 3, '3SD2CXBNMSM043391', 'Forest River', NULL, NULL, NULL, 'Transferred to Auction (#007bff)', NULL, NULL, NULL, 'Yes', NULL, NULL, NULL, NULL, NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, 'NO', '2025-05-29', '2025-05-31', 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', NULL, NULL),
+(4, NULL, 'MSV2937294', NULL, NULL, NULL, '2023', 'Transferred to City/County/State Entity (#800080)', NULL, NULL, NULL, 'Yes', '123', 'Ramada Inn', NULL, NULL, NULL, NULL, 5, NULL, NULL, NULL, NULL, NULL, 'NO', '0000-00-00', '0000-00-00', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -353,11 +381,19 @@ INSERT INTO `ttu` (`id`, `survivor_id`, `vin`, `manufacturer`, `brand`, `model`,
 
 CREATE TABLE `ttulocation` (
   `id` int(11) NOT NULL,
-  `ttu_id` int(11) NOT NULL,
+  `ttu_id` int(11) DEFAULT NULL,
   `loc_name` varchar(50) NOT NULL,
   `loc_address` varchar(255) NOT NULL,
-  `loc_phone` varchar(50) NOT NULL
+  `loc_phone` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `ttulocation`
+--
+
+INSERT INTO `ttulocation` (`id`, `ttu_id`, `loc_name`, `loc_address`, `loc_phone`) VALUES
+(1, NULL, 'Brexit County State Park of Florida', '4831 Wetstone Dr.', '(123) 456 - 7890'),
+(2, NULL, 'Ramada Inn', '9930 Divebar Ln.', '(123) 458 - 2894');
 
 -- --------------------------------------------------------
 
@@ -451,6 +487,12 @@ ALTER TABLE `survivor`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `transfer`
+--
+ALTER TABLE `transfer`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `ttu`
 --
 ALTER TABLE `ttu`
@@ -528,16 +570,22 @@ ALTER TABLE `survivor`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `transfer`
+--
+ALTER TABLE `transfer`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `ttu`
 --
 ALTER TABLE `ttu`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `ttulocation`
 --
 ALTER TABLE `ttulocation`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `users`
