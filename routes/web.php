@@ -118,6 +118,15 @@ Route::group(['middleware' => 'auth'], function () {
             ->get(['name']);
     });
 
+    Route::get('/admin/locations/autocomplete', function(\Illuminate\Http\Request $request) {
+        $q = $request->query('query', '');
+        return \DB::table('ttulocation')
+            ->where('loc_name', 'like', '%' . $q . '%')
+            ->distinct()
+            ->limit(10)
+            ->get(['loc_name as location']);
+    });
+    
 });
 
 

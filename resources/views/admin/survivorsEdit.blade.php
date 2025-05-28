@@ -56,22 +56,28 @@
             background-position: right 10px center;
             background-size: 16px 16px;
         }
-        .btn-primary {
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-cancel {
+            background-color: #ddd;
+            color: black;
+            text-decoration: underline;
+        }
+
+        .btn-save {
             background-color: #007bff;
             color: white;
-            border: none;
-            padding: 10px 28px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
         }
         .form-footer {
             display: flex;
-            justify-content: flex-end;
-            margin-top: 24px;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
         }
         .info {
             font-size: 14px;
@@ -350,25 +356,36 @@
                         <textarea id="notes" name="notes" rows="3">{{ old('notes', $survivor->notes ?? '') }}</textarea>
                     </div>
                 </div>
-                <div class="form-row" style="margin-top: 12px;">
-                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 0;">
-                        <span>Authored by:</span>
-                        <div>{{ $survivor->author ?? '' }}</div>
+                <div class="form-footer">
+                    <div class="info">
+                        <div>
+                            <span>Authored by:</span>
+                            <span>{{ $survivor->author ?? '' }}</span>
+                        </div>
+                        <div style="display: flex; gap: 40px;">
+                            <span>Created: {{ $ttu->created_at }}</span>
+                            <span>Last Edited: {{ $ttu->updated_at }}</span>
+                        </div>
                     </div>
+                    <div class="buttons">
+                        <button type="button" class="btn btn-cancel" onclick="window.history.back();" style="margin-right: 16px;">Cancel</button>
+                        <button type="submit" class="btn btn-save">{{ isset($survivor) ? 'Update' : 'Save' }}</button>
+                    </div>
+                </div>
+                <!-- <div class="form-row" style="margin-top: 12px;">
+                    <div>
+                        <span>Authored by:</span>
+                        <span>{{ $survivor->author ?? '' }}</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 40px;">
+                    <span>Created: {{ $survivor->created_at }}</span>
+                    <span>Last Edited: {{ $survivor->updated_at }}</span>
                 </div>
                 <div class="form-row">
-                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 0;">
-                        <span>Created:</span>
-                        <div>{{ $survivor->created_at ?? '' }}</div>
-                    </div>
-                    <div class="form-group" style="display: flex; gap: 8px; align-items: center; margin-bottom: 0; margin-left: 20px;">
-                        <span>Last Edited:</span>
-                        <div>{{ $survivor->updated_at ?? '' }}</div>
-                    </div>
-
                     <button type="button" class="btn btn-secondary" onclick="window.history.back();" style="margin-right: 16px;">Cancel</button>
                     <button type="submit" class="btn btn-primary">{{ isset($survivor) ? 'Update' : 'Save' }}</button>
-                </div>
+                </div> -->
             </form>
         </div>
     </div>

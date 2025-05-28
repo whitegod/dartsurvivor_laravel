@@ -566,7 +566,6 @@ class AdminController extends Controller
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->where('vin', 'LIKE', "%$search%")
-                  ->orWhere('location', 'LIKE', "%$search%")
                   ->orWhere('address', 'LIKE', "%$search%")
                   ->orWhere('unit', 'LIKE', "%$search%")
                   ->orWhere('status', 'LIKE', "%$search%")
@@ -577,24 +576,44 @@ class AdminController extends Controller
         $fields = \Schema::getColumnListing('ttu');
         return view('admin.ttus', compact('ttus', 'fields'));
     }
+    
     public function ttusEdit($id = null)
     {
         $ttu = $id ? \DB::table('ttu')->where('id', $id)->first() : null;
-        $locations = \DB::table('TTULocation')->pluck('loc_address', 'id');
+        $locations = \DB::table('ttulocation')->pluck('loc_name', 'id');
 
-        // Fetch survivor name if survivor_id is set
+        // Fetch survivor name and FEMA-ID if survivor_id is set
         $survivor_name = '';
+        $selectedFemaId = '';
         if ($ttu && $ttu->survivor_id) {
             $survivor = \DB::table('survivor')->where('id', $ttu->survivor_id)->first();
             if ($survivor) {
                 $survivor_name = trim(($survivor->fname ?? '') . ' ' . ($survivor->lname ?? ''));
+                $selectedFemaId = $survivor->fema_id ?? '';
             }
+        }
+
+        // Fetch author name if available
+        $authorName = '';
+        if ($ttu && $ttu->author) {
+            $author = \DB::table('users')->where('id', $ttu->author)->first();
+            if ($author) {
+                $authorName = trim(($author->name ?? $author->username ?? $author->email ?? ''));
+            }
+        }
+
+        // Fetch transfer data if exists
+        $transfer = null;
+        if ($ttu) {
+            $transfer = \DB::table('transfer')->where('ttu_id', $ttu->id)->first();
         }
 
         // Optionally, fetch all survivors for a dropdown
         $survivors = \DB::table('survivor')->pluck(\DB::raw("CONCAT(fname, ' ', lname)"), 'id');
 
-        return view('admin.ttusEdit', compact('ttu', 'locations', 'survivor_name', 'survivors'));
+        return view('admin.ttusEdit', compact(
+            'ttu', 'locations', 'survivor_name', 'survivors', 'selectedFemaId', 'authorName', 'transfer'
+        ));
     }
 
     public function deleteTTU($id)
@@ -607,7 +626,7 @@ class AdminController extends Controller
 
     public function storeTTU(Request $request)
     {
-        $data = $request->except(['_token', '_method', 'survivor_name']);
+        $data = $request->except(['_token', '_method', 'fema_id', 'survivor_name']);
 
         // Set checkboxes to 0 if not checked
         $featureFields = [
@@ -622,23 +641,51 @@ class AdminController extends Controller
             $data[$field] = $request->has($field) ? 1 : 0;
         }
 
-        \App\TTU::create($data);
+        $data['author'] = auth()->id(); // or Auth::id() if not using helper
+        $ttu = \App\TTU::create($data);
+
+        // Save to transfer table if needed
+        if ($request->is_being_donated || $request->is_sold_at_auction) {
+            $transferData = [
+                'ttu_id' => $ttu->id,
+                'recipient_type' => $request->recipient_type,
+                'donation_agency' => $request->donation_agency,
+                'donation_category' => $request->donation_category,
+                'sold_at_auction_price' => $request->sold_at_auction_price,
+                'recipient' => $request->recipient
+            ];
+            \DB::table('transfer')->insert($transferData);
+        }
+
         return redirect()->route('admin.ttus')->with('success', 'TTU created!');
     }
 
     public function updateTTU(Request $request, $id)
     {
-        $data = $request->except(['_token', '_method', 'survivor_name']);
+        $data = $request->except(['_token', '_method', 'fema_id', 'survivor_name']);
+
+        // Remove transfer-only fields before saving TTU
+        unset(
+            $data['recipient_type'],
+            $data['donation_agency'],
+            $data['donation_category'],
+            $data['sold_at_auction_price'],
+            $data['recipient']
+        );
+
+        // Only keep donation fields if is_being_donated is checked
+        if (empty($request->is_being_donated)) {
+            unset($data['recipient_type'], $data['donation_agency'], $data['donation_category']);
+        }
+        
+        if (empty($request->is_sold_at_auction)) {
+            unset($data['sold_at_auction_price'], $data['recipient']);
+        }
 
         // Map expect_lo_date to est_lo_date if present
         if (isset($data['expect_lo_date'])) {
             $data['est_lo_date'] = $data['expect_lo_date'];
             unset($data['expect_lo_date']);
-        }
-
-        // Show only last 7 digits from VIN if present
-        if (isset($data['vin'])) {
-            $data['vin'] = substr($data['vin'], -7);
         }
 
         $featureFields = [
@@ -653,7 +700,27 @@ class AdminController extends Controller
             $data[$field] = $request->has($field) ? 1 : 0;
         }
 
+        $data['author'] = auth()->id(); // Only if you want to update the author on edit
         \App\TTU::where('id', $id)->update($data);
+
+        // Save or update transfer table if needed
+        if ($request->is_being_donated || $request->is_sold_at_auction) {
+            $transferData = [
+                'ttu_id' => $id,
+                'recipient_type' => $request->recipient_type,
+                'donation_agency' => $request->donation_agency,
+                'donation_category' => $request->donation_category,
+                'sold_at_auction_price' => $request->sold_at_auction_price,
+                'recipient' => $request->recipient,
+            ];
+            // If transfer row exists, update; else, insert
+            if (\DB::table('transfer')->where('ttu_id', $id)->exists()) {
+                \DB::table('transfer')->where('ttu_id', $id)->update($transferData);
+            } else {
+                \DB::table('transfer')->insert($transferData);
+            }
+        }
+
         return redirect()->route('admin.ttus')->with('success', 'TTU updated!');
     }
 

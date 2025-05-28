@@ -7,12 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class TTU extends Model
 {
     protected $table = 'ttu';
-    public $timestamps = false; // Disable Laravel's automatic timestamps
 
     protected $fillable = [
         'vin', 'manufacturer', 'brand', 'model', 'year', 'status',
         'title_manufacturer', 'title_brand', 'title_model', 'has_title',
-        'location', 'loc_id', 'county', 'imei', 'purchase_price', 'address', 'beds', 'queens', 'bunks',
+        'loc_id', 'county', 'imei', 'purchase_price', 'address', 'beds', 'queens', 'bunks',
         'transfer_num', 'author',
         'transpo_agency', 'remarks', 'comments', 'fdec', 'survivor_name',
         'lo', 'lo_date', 'est_lo_date', 'created_at',

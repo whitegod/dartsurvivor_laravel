@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (vinInput) {
         vinInput.addEventListener('input', function() {
             const query = this.value;
-            if (query.length < 2) {
+            if (query.length < 1) {
                 suggestionsBox.innerHTML = '';
                 return;
             }
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     hotelInput.addEventListener('input', function() {
         let query = this.value;
-        if (query.length < 2) {
+        if (query.length < 1) {
             suggestionsBox.style.display = 'none';
             suggestionsBox.innerHTML = '';
             return;
@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     stateparkInput.addEventListener('input', function() {
         let query = this.value;
-        if (query.length < 2) {
+        if (query.length < 1) {
             suggestionsBox.style.display = 'none';
             suggestionsBox.innerHTML = '';
             return;
