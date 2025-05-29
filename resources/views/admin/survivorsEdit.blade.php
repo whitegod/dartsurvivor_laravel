@@ -1,123 +1,7 @@
 @extends('template.template')
 
 @section('content-header')
-    <style>
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-        .form-group {
-            flex: 1 1 160px;
-            margin-right: 15px;
-            margin-bottom: 10px;
-        }
-        label {
-            font-weight: bold;
-            margin-top: 10px;
-            margin-bottom: 6px;
-            display: block;
-        }
-        input[type="text"], input[type="number"], input[type="email"], input[type="date"] {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background: #f9f9f9;
-            /* font-size: 14px; */
-            font-family: inherit;
-            font-weight: 400;
-        }
-        textarea {
-            width: 100%;
-            height: 120px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            resize: vertical;
-        }
-        select {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background: #f9f9f9;
-            /* font-size: 14px; */
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            font-family: inherit;
-            font-weight: 400;
-        }
-        select {
-            background-image: url("data:image/svg+xml;charset=UTF-8,<svg width='16' height='16' fill='gray' xmlns='http://www.w3.org/2000/svg'><path d='M4 6l4 4 4-4'/></svg>");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 16px 16px;
-        }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-cancel {
-            background-color: #ddd;
-            color: black;
-            text-decoration: underline;
-        }
-
-        .btn-save {
-            background-color: #007bff;
-            color: white;
-        }
-        .form-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-        }
-        .info {
-            font-size: 14px;
-            color: gray;
-        }
-        /* Custom square radio buttons styled as checkboxes */
-        input[type="radio"] {
-            margin: 0;
-        }
-        .custom-radio-square {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            border: 2px solid #007bff;
-            border-radius: 3px;
-            background: #fff;
-            cursor: pointer;
-            position: relative;
-            margin: 0;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .custom-radio-square:checked {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-        .custom-radio-square:checked::after {
-            content: '';
-            display: block;
-            position: absolute;
-            left: 4px;
-            top: 0px;
-            width: 6px;
-            height: 12px;
-            border: solid #fff;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg) scale(1.1);
-        }
-    </style>
+<link rel="stylesheet" href="{{ asset('css/survivorsEdit.css') }}">
 @endsection
 
 @php
@@ -372,20 +256,6 @@
                         <button type="submit" class="btn btn-save">{{ isset($survivor) ? 'Update' : 'Save' }}</button>
                     </div>
                 </div>
-                <!-- <div class="form-row" style="margin-top: 12px;">
-                    <div>
-                        <span>Authored by:</span>
-                        <span>{{ $survivor->author ?? '' }}</span>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 40px;">
-                    <span>Created: {{ $survivor->created_at }}</span>
-                    <span>Last Edited: {{ $survivor->updated_at }}</span>
-                </div>
-                <div class="form-row">
-                    <button type="button" class="btn btn-secondary" onclick="window.history.back();" style="margin-right: 16px;">Cancel</button>
-                    <button type="submit" class="btn btn-primary">{{ isset($survivor) ? 'Update' : 'Save' }}</button>
-                </div> -->
             </form>
         </div>
     </div>

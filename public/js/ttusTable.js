@@ -1,4 +1,3 @@
-
 document.querySelectorAll('.options-icon').forEach(icon => {
     icon.addEventListener('click', function () {
         const dropdown = this.querySelector('.dropdown-menu');
@@ -16,22 +15,21 @@ document.addEventListener('click', function (event) {
     }
 });
 
-document.getElementById('search-button').addEventListener('click', function () {
-    performSearch();
-});
+let globalSearchTerm = '';
 
+// Only search when button is clicked or Enter is pressed
+document.getElementById('search-button').addEventListener('click', function (event) {
+    event.preventDefault();
+    globalSearchTerm = document.getElementById('search-input').value.trim().toLowerCase();
+    renderTable();
+});
 document.getElementById('search-input').addEventListener('keydown', function (event) {
     if (event.key === 'Enter') {
-        performSearch();
+        event.preventDefault();
+        globalSearchTerm = this.value.trim().toLowerCase();
+        renderTable();
     }
 });
-
-function performSearch() {
-    const searchInput = document.getElementById('search-input').value;
-    const url = new URL(window.location.href);
-    url.searchParams.set('search', searchInput);
-    window.location.href = url.toString();
-}
 
 function openModal() {
     document.getElementById('addNewModal').style.display = 'flex';
@@ -84,7 +82,12 @@ function renderTable() {
     // Render body
     const body = document.getElementById('dynamic-table-body');
     body.innerHTML = '';
-    ttus.forEach(ttu => {
+    ttus.filter(ttu => {
+        if (!globalSearchTerm) return true;
+        return Object.values(ttu).some(val =>
+            (val ?? '').toString().toLowerCase().includes(globalSearchTerm)
+        );
+    }).forEach(ttu => {
         const tr = document.createElement('tr');
         checkedFields.forEach(field => {
             const td = document.createElement('td');
