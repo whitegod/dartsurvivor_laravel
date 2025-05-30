@@ -1,7 +1,7 @@
 @extends('template.template')
 
 @section('content-header')
-<link rel="stylesheet" href="{{ asset('css/ttusEdit.css') }}">
+<link rel="stylesheet" href="{{ asset('css/editPage.css') }}">
 @endsection
 
 @section('content')

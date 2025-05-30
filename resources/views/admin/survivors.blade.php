@@ -2,7 +2,7 @@
 
 @section('content-header')
 <link rel="stylesheet" href="\plugins\datatables\dataTables.bootstrap.css">
-<link rel="stylesheet" href="{{ asset('css/survivors.css') }}">
+<link rel="stylesheet" href="{{ asset('css/tablePage.css') }}">
 @endsection
 
 @section('content')
@@ -12,7 +12,7 @@
         <div class="header">
                 <div class="search-container">
                     <input type="text" id="search-input" placeholder="Search" value="{{ request('search') }}">
-                    <button id="search-button" class="filter-icon">🔍</button>
+                    <button id="search-button" class="filter-icon"><i class="fa fa-filter"></i></button>
                 </div>
                 <a href="{{ route('admin.survivors.edit', ['id' => 'new']) }}" class="add-new-button">Add New</a>
             </div>

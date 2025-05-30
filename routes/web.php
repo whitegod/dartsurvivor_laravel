@@ -48,6 +48,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::put('/admin/ttus/update/{id}', 'AdminController@updateTTU')->name('admin.ttus.update');
         Route::delete('/admin/ttus/{id}', 'AdminController@deleteTTU')->name('admin.ttus.delete');
 
+        Route::get('/admin/locations', 'AdminController@locations')->name('admin.locations');
+        Route::get('/admin/locations/edit/{id?}', 'AdminController@locationEdit')->name('admin.locations.edit');
+        Route::post('/admin/locations/update/{id}', 'AdminController@locationUpdate')->name('admin.locations.update');
+        Route::post('/admin/locations/store', 'AdminController@locationStore')->name('admin.locations.store');
+
         Route::get('/admin/user_permissions', 'AdminController@userPermissions')->name('admin.user_permissions');
         Route::post('/admin/user_permissions/add', 'AdminController@addUser')->name('admin.user_permissions.add');
         Route::delete('/admin/user_permissions/{id}', 'AdminController@removeUser')->name('admin.user_permissions.remove');

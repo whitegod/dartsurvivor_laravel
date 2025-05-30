@@ -262,14 +262,6 @@ class AdminController extends Controller
         return view('admin.Admin_profilePayrollManager');
     } 
 
-    
-
-
-
-
-
-
-
     public function dashboard()
     {
         $data=[];
@@ -727,6 +719,60 @@ class AdminController extends Controller
         return redirect()->route('admin.ttus')->with('success', 'TTU updated!');
     }
 
+        public function locations()
+    {
+        // Fetch hotels with survivor hh_size sum
+        $hotels = \DB::table('hotel')
+            ->select(
+                \DB::raw("'Hotel' as type"),
+                'hotel.name as location_name',
+                'hotel.address',
+                'hotel.phone',
+                // Sum hh_size from survivors assigned to rooms in this hotel
+                \DB::raw('COALESCE((
+                    SELECT SUM(s.hh_size)
+                    FROM room r
+                    JOIN survivor s ON r.survivor_id = s.id
+                    WHERE r.hotel_id = hotel.id
+                ), 0) as survivor_count'),
+                'hotel.created_at'
+            )
+            ->get();
+
+        // Fetch state parks with survivor hh_size sum
+        $stateparks = \DB::table('statepark')
+            ->select(
+                \DB::raw("'State Park' as type"),
+                'statepark.name as location_name',
+                'statepark.address',
+                'statepark.phone',
+                // Sum hh_size from survivors assigned to lodge_units in this state park
+                \DB::raw('COALESCE((
+                    SELECT SUM(s.hh_size)
+                    FROM lodge_unit lu
+                    JOIN survivor s ON lu.survivor_id = s.id
+                    WHERE lu.statepark_id = statepark.id
+                ), 0) as survivor_count'),
+                'statepark.created_at'
+            )
+            ->get();
+
+        // Merge both collections and sort by created_at descending
+        $locations = $hotels->merge($stateparks)->sortByDesc('created_at')->values();
+
+        // Define the fields you want to show/filter
+        $fields = [
+            'type',
+            'location_name',
+            'address',
+            'phone',
+            'survivor_count',
+            // add more fields if needed
+        ];
+
+        return view('admin.locations', compact('locations', 'fields'));
+    }
+
     public function userPermissions()
     {
         $users = \App\User::with('roles')->get(); // Fetch users with their roles
@@ -789,5 +835,44 @@ class AdminController extends Controller
         return redirect()->route('admin.user_permissions')->with('success', 'Password reset successfully!');
     }
 
+    public function locationEdit($id = null)
+    {
+        // Try to find in hotel first, then statepark
+        $location = null;
+        $type = '';
+        if ($id) {
+            $location = \DB::table('hotel')->where('id', $id)->first();
+            $type = 'Hotel';
+            if (!$location) {
+                $location = \DB::table('statepark')->where('id', $id)->first();
+                $type = 'State Park';
+            }
+        }
+        return view('admin.locationsEdit', compact('location', 'type'));
+    }
+
+    public function locationUpdate(Request $request, $id)
+    {
+        $type = $request->input('type');
+        $data = $request->only(['name', 'address', 'phone']);
+        if ($type === 'Hotel') {
+            \DB::table('hotel')->where('id', $id)->update($data);
+        } elseif ($type === 'State Park') {
+            \DB::table('statepark')->where('id', $id)->update($data);
+        }
+        return redirect()->route('admin.locations')->with('success', 'Location updated!');
+    }
+
+    public function locationStore(Request $request)
+    {
+        $type = $request->input('type');
+        $data = $request->only(['name', 'address', 'phone']);
+        if ($type === 'Hotel') {
+            \DB::table('hotel')->insert($data);
+        } elseif ($type === 'State Park') {
+            \DB::table('statepark')->insert($data);
+        }
+        return redirect()->route('admin.locations')->with('success', 'Location added!');
+    }
 }
 

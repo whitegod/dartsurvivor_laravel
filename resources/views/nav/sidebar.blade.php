@@ -30,8 +30,8 @@
                     <i class="fa fa-search" ></i> <span> Detailed Search</span>
                 </a>
             </li>
-            <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/reporting')) ? 'active_child' : ''}}">
-                <a href="/admin/reporting">
+            <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/dashboard')) ? 'active_child' : ''}}">
+                <a href="/admin/dashboard">
                     <i class="fa fa-book" ></i> <span> Reporting</span>
                 </a>
             </li>
@@ -52,8 +52,8 @@
                     <i class="fa fa-car" ></i> <span> TTUs</span>
                 </a>
             </li>
-            <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/dashboard')) ? 'active_child' : ''}}">
-                <a href="/admin/dashboard">
+            <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/locations')) ? 'active_child' : ''}}">
+                <a href="/admin/locations">
                     <i class="fa fa-map" ></i> <span> Locations</span>
                 </a>
             </li>
