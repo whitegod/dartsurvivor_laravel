@@ -246,10 +246,12 @@
                             <span>Authored by:</span>
                             <span>{{ $survivor->author ?? '' }}</span>
                         </div>
-                        <div style="display: flex; gap: 40px;">
-                            <span>Created: {{ $ttu->created_at }}</span>
-                            <span>Last Edited: {{ $ttu->updated_at }}</span>
-                        </div>
+                        @if(isset($survivor))
+                            <div style="display: flex; gap: 40px;">
+                                <span>Created: {{ $survivor->created_at }}</span>
+                                <span>Last Edited: {{ $survivor->updated_at }}</span>
+                            </div>
+                        @endif
                     </div>
                     <div class="buttons">
                         <button type="button" class="btn btn-cancel" onclick="window.history.back();" style="margin-right: 16px;">Cancel</button>
