@@ -724,6 +724,7 @@ class AdminController extends Controller
         // Fetch hotels with survivor hh_size sum
         $hotels = \DB::table('hotel')
             ->select(
+                'hotel.id', // <-- Add this line!
                 \DB::raw("'Hotel' as type"),
                 'hotel.name as location_name',
                 'hotel.address',
@@ -742,6 +743,7 @@ class AdminController extends Controller
         // Fetch state parks with survivor hh_size sum
         $stateparks = \DB::table('statepark')
             ->select(
+                'statepark.id', // <-- Add this line!
                 \DB::raw("'State Park' as type"),
                 'statepark.name as location_name',
                 'statepark.address',
@@ -835,26 +837,48 @@ class AdminController extends Controller
         return redirect()->route('admin.user_permissions')->with('success', 'Password reset successfully!');
     }
 
-    public function locationEdit($id = null)
+    public function locationEdit(Request $request)
     {
-        // Try to find in hotel first, then statepark
+        $id = $request->query('id');
+        $type = $request->query('type');
         $location = null;
-        $type = '';
-        if ($id) {
+        $rooms = null;
+        $lodge_units = null;
+
+        if ($id && $type === 'Hotel') {
             $location = \DB::table('hotel')->where('id', $id)->first();
-            $type = 'Hotel';
-            if (!$location) {
-                $location = \DB::table('statepark')->where('id', $id)->first();
-                $type = 'State Park';
-            }
+            $rooms = \DB::table('room')
+                ->leftJoin('survivor', 'room.survivor_id', '=', 'survivor.id')
+                ->select('room.room_num', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->where('room.hotel_id', $id)
+                ->get()
+                ->map(function($r) {
+                    $r->survivor_name = $r->fname ? $r->fname . ' ' . $r->lname : null;
+                    return $r;
+                });
+        } elseif ($id && $type === 'State Park') {
+            $location = \DB::table('statepark')->where('id', $id)->first();
+            $lodge_units = \DB::table('lodge_unit')
+                ->leftJoin('survivor', 'lodge_unit.survivor_id', '=', 'survivor.id')
+                ->select('lodge_unit.unit_name', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->where('lodge_unit.statepark_id', $id)
+                ->get()
+                ->map(function($u) {
+                    $u->survivor_name = $u->fname ? $u->fname . ' ' . $u->lname : null;
+                    return $u;
+                });
         }
-        return view('admin.locationsEdit', compact('location', 'type'));
+
+        return view('admin.locationsEdit', compact('location', 'type', 'rooms', 'lodge_units'));
     }
 
     public function locationUpdate(Request $request, $id)
     {
         $type = $request->input('type');
         $data = $request->only(['name', 'address', 'phone']);
+        $data['updated_at'] = now();
+        $data['author'] = auth()->user()->name ?? 'Unknown'; 
+
         if ($type === 'Hotel') {
             \DB::table('hotel')->where('id', $id)->update($data);
         } elseif ($type === 'State Park') {
@@ -867,12 +891,48 @@ class AdminController extends Controller
     {
         $type = $request->input('type');
         $data = $request->only(['name', 'address', 'phone']);
+        $data['author'] = auth()->user()->name ?? 'Unknown'; 
+        $data['created_at'] = now(); // Optional: ensure created_at is set
+        $data['updated_at'] = now(); // Optional: ensure updated_at is set
+
         if ($type === 'Hotel') {
             \DB::table('hotel')->insert($data);
         } elseif ($type === 'State Park') {
             \DB::table('statepark')->insert($data);
         }
         return redirect()->route('admin.locations')->with('success', 'Location added!');
+    }
+
+    public function roomStore(Request $request)
+    {
+        // Validate input
+        $validated = $request->validate([
+            'location_id' => 'required|integer|exists:hotel,id',
+            'number' => 'required|string|max:255',
+        ]);
+
+        \DB::table('room')->insert([
+            'hotel_id' => $validated['location_id'],
+            'room_num' => $validated['number'],
+        ]);
+
+        return redirect()->back()->with('success', 'Room added successfully!');
+    }
+
+    public function lodgeUnitStore(Request $request)
+    {
+        // Validate input
+        $validated = $request->validate([
+            'location_id' => 'required|integer|exists:statepark,id',
+            'number' => 'required|string|max:255',
+        ]);
+
+        \DB::table('lodge_unit')->insert([
+            'statepark_id' => $validated['location_id'],
+            'unit_name' => $validated['number'],
+        ]);
+
+        return redirect()->back()->with('success', 'Lodge Unit added successfully!');
     }
 }
 

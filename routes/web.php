@@ -50,7 +50,7 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('/admin/locations', 'AdminController@locations')->name('admin.locations');
         Route::get('/admin/locations/edit/{id?}', 'AdminController@locationEdit')->name('admin.locations.edit');
-        Route::post('/admin/locations/update/{id}', 'AdminController@locationUpdate')->name('admin.locations.update');
+        Route::put('/admin/locations/update/{id}', 'AdminController@locationUpdate')->name('admin.locations.update');
         Route::post('/admin/locations/store', 'AdminController@locationStore')->name('admin.locations.store');
 
         Route::get('/admin/user_permissions', 'AdminController@userPermissions')->name('admin.user_permissions');
@@ -58,6 +58,17 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('/admin/user_permissions/{id}', 'AdminController@removeUser')->name('admin.user_permissions.remove');
         Route::post('/admin/user_permissions/{id}/reactivate', 'AdminController@reactivateUser')->name('admin.user_permissions.reactivate');
         Route::post('/admin/user_permissions/{id}/reset-password', 'AdminController@resetPassword')->name('admin.user_permissions.reset_password');
+    
+        // For hotel rooms
+        Route::get('/admin/rooms/create', 'AdminController@roomCreate')->name('admin.rooms.create');
+        Route::post('/admin/rooms/store', 'AdminController@roomStore')->name('admin.rooms.store');
+        Route::get('/admin/rooms/edit/{id?}', 'AdminController@roomEdit')->name('admin.rooms.edit');
+
+        // For state park lodge units
+        Route::get('/admin/lodge-units/create', 'AdminController@lodgeUnitCreate')->name('admin.lodge_units.create');
+        Route::post('/admin/lodge-units/store', 'AdminController@lodgeUnitStore')->name('admin.lodge_units.store');
+        Route::get('/admin/lodge-units/edit/{id?}', 'AdminController@lodgeUnitEdit')->name('admin.lodge_units.edit');
+
     });
 
     Route::get('/admin/ttus/vin-autocomplete', function(\Illuminate\Http\Request $request) {
@@ -131,6 +142,7 @@ Route::group(['middleware' => 'auth'], function () {
             ->limit(10)
             ->get(['loc_name as location']);
     });
+    
     
 });
 
