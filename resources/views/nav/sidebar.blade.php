@@ -70,7 +70,7 @@
                 </a>
             </li>
             <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/dashboard')) ? 'active_child' : ''}}">
-                <a href="/admin/dashboard">
+                <a href="/admin/caseworkers">
                     <i class="fa fa-briefcase" ></i> <span> Case Workers</span>
                 </a>
             </li>

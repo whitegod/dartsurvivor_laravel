@@ -70,6 +70,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/admin/lodge-units/store', 'AdminController@lodgeUnitStore')->name('admin.lodge_units.store');
         Route::get('/admin/lodge-units/edit/{id?}', 'AdminController@lodgeUnitEdit')->name('admin.lodge_units.edit');
 
+        Route::get('/admin/caseworkers', 'AdminController@caseworkers')->name('admin.caseworkers');
+
     });
 
     Route::get('/admin/ttus/vin-autocomplete', function(\Illuminate\Http\Request $request) {

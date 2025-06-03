@@ -949,5 +949,12 @@ class AdminController extends Controller
         }
         return redirect()->route('admin.locations')->with('success', 'Location and related units deleted!');
     }
+
+    public function caseworkers()
+    {
+        // Adjust the table/fields as needed for your DB structure
+        $caseworkers = \DB::table('caseworker')->get();
+        return view('admin.caseworkers', compact('caseworkers'));
+    }
 }
 
