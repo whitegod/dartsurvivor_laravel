@@ -11,7 +11,7 @@
             <div class="header">
                 <div class="search-container">
                     <input type="text" id="search-input" placeholder="Search">
-                    <button id="search-filter-btn" class="filter-icon">
+                    <button id="search-btn" class="filter-icon">
                         <i class="fa fa-filter"></i>
                     </button>
                 </div>

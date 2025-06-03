@@ -4,8 +4,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const filterDropdown = document.getElementById('filter-dropdown');
     const headerRow = document.getElementById('dynamic-table-header');
     const body = document.getElementById('dynamic-table-body');
+    const searchInput = document.getElementById('search-input');
+    const searchBtn = document.getElementById('search-btn');
+    const addNewBtn = document.querySelector('.add-new-button');
 
-    // Render filter checkboxes dynamically (like survivors page)
+    // --- Render filter checkboxes dynamically ---
     filterDropdown.innerHTML = '';
     fields.forEach(field => {
         const label = document.createElement('label');
@@ -28,12 +31,11 @@ document.addEventListener('DOMContentLoaded', function () {
         filterDropdown.appendChild(label);
     });
 
-    // Filter dropdown toggle
+    // --- Filter dropdown toggle ---
     document.addEventListener('click', function (event) {
         const filterBtn = document.getElementById('filter-button');
         if (filterBtn && filterBtn.contains(event.target)) {
             filterDropdown.classList.toggle('active');
-            // Position dropdown under the filter button
             const rect = filterBtn.getBoundingClientRect();
             filterDropdown.style.top = (rect.bottom + window.scrollY) + 'px';
             filterDropdown.style.right = (window.innerWidth - rect.right) + 'px';
@@ -42,13 +44,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Handle filter checkbox changes
-    filterDropdown.querySelectorAll('.filter-field-checkbox').forEach(cb => {
-        cb.addEventListener('change', renderTable);
-    });
+    // --- Get checked fields ---
+    function getCheckedFields() {
+        return Array.from(document.querySelectorAll('.filter-field-checkbox:checked')).map(cb => cb.dataset.field);
+    }
 
-    function renderTable() {
-        const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox:checked')).map(cb => cb.dataset.field);
+    // --- Render table (header + body) ---
+    function renderTable(data) {
+        const checkedFields = getCheckedFields();
 
         // Render header
         headerRow.innerHTML = '';
@@ -60,21 +63,31 @@ document.addEventListener('DOMContentLoaded', function () {
         // Add filter icon column
         const thOptions = document.createElement('th');
         thOptions.style.position = 'relative';
-        thOptions.innerHTML = `<button id="filter-button" style="background: none; border: none; cursor: pointer; padding: 0; margin: 0;">
+        thOptions.innerHTML = `<button id="filter-button" type="button" style="background: none; border: none; cursor: pointer; padding: 0; margin: 0;">
             <i class="fa fa-filter"></i>
         </button>`;
         headerRow.appendChild(thOptions);
 
+        // Attach dropdown toggle event after rendering header
+        const filterBtn = document.getElementById('filter-button');
+        if (filterBtn) {
+            filterBtn.addEventListener('click', function (event) {
+                event.stopPropagation();
+                filterDropdown.classList.toggle('active');
+                const rect = filterBtn.getBoundingClientRect();
+            });
+        }
+
         // Render body
         body.innerHTML = '';
-        locations.forEach(location => {
+        data.forEach(location => {
             const tr = document.createElement('tr');
             checkedFields.forEach(field => {
                 const td = document.createElement('td');
                 td.textContent = location[field] ?? '';
                 tr.appendChild(td);
             });
-            // Options column with dropdown (same as survivors page)
+            // Options column with dropdown
             const tdOptions = document.createElement('td');
             tdOptions.className = 'options-icon';
             tdOptions.style.position = 'relative';
@@ -93,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
             body.appendChild(tr);
         });
 
-        // Dropdown logic for options (same as survivors page)
+        // Dropdown logic for options
         document.querySelectorAll('.options-icon').forEach(icon => {
             icon.addEventListener('click', function (e) {
                 e.stopPropagation();
@@ -114,15 +127,51 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Initial render
-    renderTable();
+    // --- Filtering logic for search ---
+    function getFilteredLocations() {
+        const query = (searchInput.value || '').trim().toLowerCase();
+        const checkedFields = getCheckedFields();
+        if (!query) return locations;
+        return locations.filter(location =>
+            checkedFields.some(field =>
+                (location[field] + '').toLowerCase().includes(query)
+            )
+        );
+    }
 
-    // Make "Add New" button work
-    const addNewBtn = document.querySelector('.add-new-button');
+    // --- Event: filter checkboxes ---
+    filterDropdown.querySelectorAll('.filter-field-checkbox').forEach(cb => {
+        cb.addEventListener('change', function () {
+            renderTable(getFilteredLocations());
+        });
+    });
+
+    // --- Event: search button click ---
+    if (searchBtn) {
+        searchBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            renderTable(getFilteredLocations());
+        });
+    }
+
+    // --- Event: Enter key in search input ---
+    if (searchInput) {
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                renderTable(getFilteredLocations());
+            }
+        });
+    }
+
+    // --- "Add New" button ---
     if (addNewBtn) {
         addNewBtn.addEventListener('click', function (e) {
             e.preventDefault();
             window.location.href = '/admin/locations/edit';
         });
     }
+
+    // --- Initial render ---
+    renderTable(locations);
 });
