@@ -95,10 +95,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 <span style="cursor:pointer;font-size:22px;color:#888;">&#8942;</span>
                 <div class="dropdown-menu" style="right:0; left:auto; min-width:120px; position:absolute;">
                     <a href="/admin/locations/edit?type=${encodeURIComponent(location.type)}&id=${location.id}">Edit</a>
-                    <form action="/admin/locations/delete/${location.id}" method="POST" style="margin: 0;">
-                        <input type="hidden" name="_token" value="${window.csrfToken || ''}">
+                    <form action="/admin/locations/delete/${location.id}?type=${encodeURIComponent(location.type)}" method="POST" style="margin: 0;">
+                        <input type="hidden" name="_token" value="${window.csrfToken}">
                         <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
+                        <button type="submit" onclick="return confirm('Are you sure you want to delete this record and all related rooms/units?');">Delete</button>
                     </form>
                 </div>
             `;

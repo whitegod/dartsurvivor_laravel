@@ -51,5 +51,8 @@
         </div>
     </div>
 </section>
+<script>
+    window.csrfToken = "{{ csrf_token() }}";
+</script>
 <script src="{{ asset('js/locationsTable.js') }}"></script>
 @endsection

@@ -934,5 +934,20 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Lodge Unit added successfully!');
     }
+
+    public function deleteLocation($id, Request $request)
+    {
+        $type = $request->query('type');
+        \Log::info("DeleteLocation called for id=$id, type=$type");
+
+        if ($type === 'Hotel') {
+            \DB::table('room')->where('hotel_id', $id)->delete();
+            \DB::table('hotel')->where('id', $id)->delete();
+        } elseif ($type === 'State Park') {
+            \DB::table('lodge_unit')->where('statepark_id', $id)->delete();
+            \DB::table('statepark')->where('id', $id)->delete();
+        }
+        return redirect()->route('admin.locations')->with('success', 'Location and related units deleted!');
+    }
 }
 

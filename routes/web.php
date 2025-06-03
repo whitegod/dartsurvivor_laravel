@@ -52,6 +52,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/admin/locations/edit/{id?}', 'AdminController@locationEdit')->name('admin.locations.edit');
         Route::put('/admin/locations/update/{id}', 'AdminController@locationUpdate')->name('admin.locations.update');
         Route::post('/admin/locations/store', 'AdminController@locationStore')->name('admin.locations.store');
+        Route::delete('/admin/locations/delete/{id}', 'AdminController@deleteLocation')->name('admin.locations.delete');
 
         Route::get('/admin/user_permissions', 'AdminController@userPermissions')->name('admin.user_permissions');
         Route::post('/admin/user_permissions/add', 'AdminController@addUser')->name('admin.user_permissions.add');
