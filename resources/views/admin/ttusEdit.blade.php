@@ -268,6 +268,83 @@
                             </div>
                         </div>
 
+                        <!-- PrivateSite Features -->
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 10px;">
+                            <h4 style="margin: 0;">Private Site</h4>
+                            <label class="switch" style="margin: 0;">
+                                <input type="checkbox" id="privatesite-switch" name="privatesite" value="1"
+                                    {{ old('privatesite', $ttu->privatesite ?? false) ? 'checked' : '' }}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div id="privatesite-section" class="form-row form-section" style="display: {{ old('privatesite', $ttu->privatesite ?? false) ? 'flex' : 'none' }};">
+                            <div class="column">
+                                <table>
+                                    @php
+                                        $siteFeatureMap = [
+                                            'Right of Entry' => 'roe',
+                                            'Release of Information' => 'roi',
+                                            'Power' => 'pow',
+                                            'Water' => 'h2o',
+                                            'Sewage' => 'sew',
+                                            'Own Property' => 'own',
+                                            'Residential' => 'res',
+                                        ];
+                                    @endphp
+                                    @foreach($siteFeatureMap as $label => $field)
+                                    <tr>
+                                        <td>{{ $label }}</td>
+                                        <td>
+                                            <label class="switch">
+                                                <input type="checkbox" name="{{ $field }}" value="1"
+                                                    {{ old($field, $privatesite->$field ?? false) ? 'checked' : '' }}>
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </table>
+                            </div>
+                            <div class="form-column">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="damage_assessment">Damage Assessment:</label>
+                                        <textarea id="damage_assessment" name="damage_assessment">{{ old('damage_assessment', $privatesite->damage_assessment ?? '') }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="ehp">EHP:</label>
+                                        <input type="text" id="ehp" name="ehp" value="{{ old('ehp', $privatesite->ehp ?? '') }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ehp_notes">EHP Notes:</label>
+                                        <textarea id="ehp_notes" name="ehp_notes">{{ old('ehp_notes', $privatesite->ehp_notes ?? '') }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="dow_long">DOW Longitude:</label>
+                                        <input type="text" id="dow_long" name="dow_long" value="{{ old('dow_long', $privatesite->dow_long ?? '') }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dow_lat">DOW Latitude:</label>
+                                        <input type="text" id="dow_lat" name="dow_lat" value="{{ old('dow_lat', $privatesite->dow_lat ?? '') }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="zon">Zoning:</label>
+                                        <input type="text" id="zon" name="zon" value="{{ old('zon', $privatesite->zon ?? '') }}">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="dow_response">DOW Response:</label>
+                                        <textarea id="dow_response" name="dow_response">{{ old('dow_response', $privatesite->dow_response ?? '') }}</textarea>
+                                    </div>                                    
+                                </div>                           
+                            </div>
+                        </div>                                           
+                                  
                         <div class="form-footer">
                             <div class="info">
                                 <div>

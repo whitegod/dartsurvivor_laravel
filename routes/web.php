@@ -31,47 +31,46 @@ Route::group(['middleware' => 'auth'], function () {
 
     });
 
-    Route::group(['middleware' => 'role:Admin', 'namespace' => 'Admin'], function (){
+    Route::group(['middleware' => 'role:Admin', 'namespace' => 'Admin'], function () {
         Route::get('/admin/dashboard', 'AdminController@dashboard')->name('admin.dashboard');
         Route::get('/admin/detailed-search', 'AdminController@detailedSearch')->name('admin.detailedSearch');
         Route::get('/admin/reporting', 'AdminController@reporting')->name('admin.reporting');
 
-        Route::get('/admin/survivors', 'AdminController@survivors')->name('admin.survivors');
-        Route::get('/admin/survivors/edit/{id?}', 'AdminController@editSurvivor')->name('admin.survivors.edit');
-        Route::post('/admin/survivors/store', 'AdminController@storeSurvivor')->name('admin.survivors.store');
-        Route::put('/admin/survivors/update/{id}', 'AdminController@updateSurvivor')->name('admin.survivors.update');
-        Route::delete('/admin/survivors/{id}', 'AdminController@deleteSurvivor')->name('admin.survivors.delete');
+        Route::get('/admin/survivors', 'SurvivorController@survivors')->name('admin.survivors');
+        Route::get('/admin/survivors/edit/{id?}', 'SurvivorController@editSurvivor')->name('admin.survivors.edit');
+        Route::post('/admin/survivors/store', 'SurvivorController@storeSurvivor')->name('admin.survivors.store');
+        Route::put('/admin/survivors/update/{id}', 'SurvivorController@updateSurvivor')->name('admin.survivors.update');
+        Route::delete('/admin/survivors/{id}', 'SurvivorController@deleteSurvivor')->name('admin.survivors.delete');
         
-        Route::get('/admin/ttus', 'AdminController@ttus')->name('admin.ttus');
-        Route::get('/admin/ttus/edit/{id?}', 'AdminController@ttusEdit')->name('admin.ttus.edit');
-        Route::post('/admin/ttus/store', 'AdminController@storeTTU')->name('admin.ttus.store');
-        Route::put('/admin/ttus/update/{id}', 'AdminController@updateTTU')->name('admin.ttus.update');
-        Route::delete('/admin/ttus/{id}', 'AdminController@deleteTTU')->name('admin.ttus.delete');
+        Route::get('/admin/ttus', 'TTUController@ttus')->name('admin.ttus');
+        Route::get('/admin/ttus/edit/{id?}', 'TTUController@ttusEdit')->name('admin.ttus.edit');
+        Route::post('/admin/ttus/store', 'TTUController@storeTTU')->name('admin.ttus.store');
+        Route::put('/admin/ttus/update/{id}', 'TTUController@updateTTU')->name('admin.ttus.update');
+        Route::delete('/admin/ttus/{id}', 'TTUController@deleteTTU')->name('admin.ttus.delete');
 
-        Route::get('/admin/locations', 'AdminController@locations')->name('admin.locations');
-        Route::get('/admin/locations/edit/{id?}', 'AdminController@locationEdit')->name('admin.locations.edit');
-        Route::put('/admin/locations/update/{id}', 'AdminController@locationUpdate')->name('admin.locations.update');
-        Route::post('/admin/locations/store', 'AdminController@locationStore')->name('admin.locations.store');
-        Route::delete('/admin/locations/delete/{id}', 'AdminController@deleteLocation')->name('admin.locations.delete');
+        Route::get('/admin/locations', 'LocationController@locations')->name('admin.locations');
+        Route::get('/admin/locations/edit/{id?}', 'LocationController@locationEdit')->name('admin.locations.edit');
+        Route::put('/admin/locations/update/{id}', 'LocationController@locationUpdate')->name('admin.locations.update');
+        Route::post('/admin/locations/store', 'LocationController@locationStore')->name('admin.locations.store');
+        Route::delete('/admin/locations/delete/{id}', 'LocationController@deleteLocation')->name('admin.locations.delete');
 
-        Route::get('/admin/user_permissions', 'AdminController@userPermissions')->name('admin.user_permissions');
-        Route::post('/admin/user_permissions/add', 'AdminController@addUser')->name('admin.user_permissions.add');
-        Route::delete('/admin/user_permissions/{id}', 'AdminController@removeUser')->name('admin.user_permissions.remove');
-        Route::post('/admin/user_permissions/{id}/reactivate', 'AdminController@reactivateUser')->name('admin.user_permissions.reactivate');
-        Route::post('/admin/user_permissions/{id}/reset-password', 'AdminController@resetPassword')->name('admin.user_permissions.reset_password');
+        Route::get('/admin/user_permissions', 'UserController@userPermissions')->name('admin.user_permissions');
+        Route::post('/admin/user_permissions/add', 'UserController@addUser')->name('admin.user_permissions.add');
+        Route::delete('/admin/user_permissions/{id}', 'UserController@removeUser')->name('admin.user_permissions.remove');
+        Route::post('/admin/user_permissions/{id}/reactivate', 'UserController@reactivateUser')->name('admin.user_permissions.reactivate');
+        Route::post('/admin/user_permissions/{id}/reset-password', 'UserController@resetPassword')->name('admin.user_permissions.reset_password');
     
         // For hotel rooms
-        Route::get('/admin/rooms/create', 'AdminController@roomCreate')->name('admin.rooms.create');
-        Route::post('/admin/rooms/store', 'AdminController@roomStore')->name('admin.rooms.store');
-        Route::get('/admin/rooms/edit/{id?}', 'AdminController@roomEdit')->name('admin.rooms.edit');
+        Route::get('/admin/rooms/create', 'LocationController@roomCreate')->name('admin.rooms.create');
+        Route::post('/admin/rooms/store', 'LocationController@roomStore')->name('admin.rooms.store');
+        Route::get('/admin/rooms/edit/{id?}', 'LocationController@roomEdit')->name('admin.rooms.edit');
 
         // For state park lodge units
-        Route::get('/admin/lodge-units/create', 'AdminController@lodgeUnitCreate')->name('admin.lodge_units.create');
-        Route::post('/admin/lodge-units/store', 'AdminController@lodgeUnitStore')->name('admin.lodge_units.store');
-        Route::get('/admin/lodge-units/edit/{id?}', 'AdminController@lodgeUnitEdit')->name('admin.lodge_units.edit');
+        Route::get('/admin/lodge-units/create', 'LocationController@lodgeUnitCreate')->name('admin.lodge_units.create');
+        Route::post('/admin/lodge-units/store', 'LocationController@lodgeUnitStore')->name('admin.lodge_units.store');
+        Route::get('/admin/lodge-units/edit/{id?}', 'LocationController@lodgeUnitEdit')->name('admin.lodge_units.edit');
 
-        Route::get('/admin/caseworkers', 'AdminController@caseworkers')->name('admin.caseworkers');
-
+        Route::get('/admin/caseworkers', 'CaseworkerController@caseworkers')->name('admin.caseworkers');
     });
 
     Route::get('/admin/ttus/vin-autocomplete', function(\Illuminate\Http\Request $request) {
@@ -148,6 +147,7 @@ Route::group(['middleware' => 'auth'], function () {
     
     
 });
+
 
 
 

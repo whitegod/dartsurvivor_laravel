@@ -116,6 +116,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (soldAuctionCheckbox) {
         soldAuctionCheckbox.addEventListener('change', toggleSoldAtAuctionSection);
     }
+    //Private Site handle
+    const privatesiteSwitch = document.getElementById('privatesite-switch');
+    const privatesiteSection = document.getElementById('privatesite-section');
+    if (privatesiteSwitch && privatesiteSection) {
+        privatesiteSwitch.addEventListener('change', function() {
+            privatesiteSection.style.display = this.checked ? 'flex' : 'none';
+        });
+    }
 });
 
 function updateStatusWithColor() {
