@@ -277,13 +277,25 @@
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <div id="privatesite-section" class="form-row form-section" style="display: {{ old('privatesite', $ttu->privatesite ?? false) ? 'flex' : 'none' }};">
+                        <div id="privatesite-section" class="container form-section" style="display: {{ old('privatesite', $ttu->privatesite ?? false) ? 'flex' : 'none' }};">
                             <div class="column">
+                                <div>
+                                    <div class="form-group">
+                                        <label for="name">Name:</label>
+                                        <input type="text" id="name" name="name" value={{ old('name', $privatesite->name ?? '') }}>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="address">Address:</label>
+                                        <input type="text" id="address" name="address" value={{ old('address', $privatesite->address ?? '') }}>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">Phone:</label>
+                                        <input type="text" id="phone" name="phone" value={{ old('phone', $privatesite->phone ?? '') }}>
+                                    </div>
+                                </div>
                                 <table>
                                     @php
                                         $siteFeatureMap = [
-                                            'Right of Entry' => 'roe',
-                                            'Release of Information' => 'roi',
                                             'Power' => 'pow',
                                             'Water' => 'h2o',
                                             'Sewage' => 'sew',

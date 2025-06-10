@@ -61,7 +61,7 @@ class TTUController extends Controller
 
         $privatesite = null;
         if ($ttu) {
-            $privatesite = \DB::table('privatesite')->where('survivor_id', $ttu->survivor_id)->first();
+            $privatesite = \DB::table('privatesite')->where('ttu_id', $ttu->id)->first();
         }
 
         return view('admin.ttusEdit', compact(
@@ -82,7 +82,7 @@ class TTUController extends Controller
         $data = $request->except([
             '_token', '_method', 'fema_id', 'survivor_name',
             // privatesite fields (do not store in TTU)
-            'roe', 'roi', 'pow', 'h2o', 'sew', 'own', 'res',
+            'name', 'address', 'phone', 'pow', 'h2o', 'sew', 'own', 'res',
             'damage_assessment', 'ehp', 'ehp_notes', 'dow_long', 'dow_lat', 'zon', 'dow_response', 'privatesite'
         ]);
 
@@ -100,18 +100,15 @@ class TTUController extends Controller
         }
 
         $data['author'] = auth()->id();
-        $ttu = \App\TTU::create($request->except([
-            // exclude privatesite fields here
-            'roe', 'roi', 'pow', 'h2o', 'sew', 'own', 'res',
-            'damage_assessment', 'ehp', 'ehp_notes', 'dow_long', 'dow_lat', 'zon', 'dow_response', 'privatesite'
-        ]));
+        $ttu = \App\TTU::create($data); // <-- use $data, not $request->except([...])
 
         // Save privatesite if privatesite switch is checked
         if ($request->has('privatesite')) {
             $privatesiteData = [
-                'survivor_id' => $ttu->survivor_id,
-                'roe' => $request->has('roe') ? 1 : 0,
-                'roi' => $request->has('roi') ? 1 : 0,
+                'ttu_id' => $ttu->id,
+                'name' => $request->input('name'),
+                'address' => $request->input('address'),
+                'phone' => $request->input('phone'),
                 'pow' => $request->has('pow') ? 1 : 0,
                 'h2o' => $request->has('h2o') ? 1 : 0,
                 'sew' => $request->has('sew') ? 1 : 0,
@@ -148,11 +145,10 @@ class TTUController extends Controller
 
     public function updateTTU(Request $request, $id)
     {
-        // $data = $request->except(['_token', '_method', 'fema_id', 'survivor_name']);
         $data = $request->except([
                 '_token', '_method', 'fema_id', 'survivor_name',
                 // privatesite fields (do not store in TTU)
-                'roe', 'roi', 'pow', 'h2o', 'sew', 'own', 'res',
+                'name', 'address', 'phone', 'pow', 'h2o', 'sew', 'own', 'res',
                 'damage_assessment', 'ehp', 'ehp_notes', 'dow_long', 'dow_lat', 'zon', 'dow_response', 'privatesite'
             ]);
         // Remove transfer-only fields before saving TTU
@@ -195,12 +191,13 @@ class TTUController extends Controller
         \App\TTU::where('id', $id)->update($data);
 
         $ttu = \App\TTU::find($id);
-        $survivor_id = $ttu->survivor_id;
 
         if ($request->has('privatesite')) {
             $privatesiteData = [
-                'roe' => $request->has('roe') ? 1 : 0,
-                'roi' => $request->has('roi') ? 1 : 0,
+                'ttu_id' => $ttu->id,
+                'name' => $request->input('name'),
+                'address' => $request->input('address'),
+                'phone' => $request->input('phone'),
                 'pow' => $request->has('pow') ? 1 : 0,
                 'h2o' => $request->has('h2o') ? 1 : 0,
                 'sew' => $request->has('sew') ? 1 : 0,
@@ -214,14 +211,13 @@ class TTUController extends Controller
                 'zon' => $request->input('zon'),
                 'dow_response' => $request->input('dow_response'),
             ];
-            if (\DB::table('privatesite')->where('survivor_id', $survivor_id)->exists()) {
-                \DB::table('privatesite')->where('survivor_id', $survivor_id)->update($privatesiteData);
+            if (\DB::table('privatesite')->where('ttu_id', $id)->exists()) {
+                \DB::table('privatesite')->where('ttu_id', $id)->update($privatesiteData);
             } else {
-                $privatesiteData['survivor_id'] = $survivor_id;
                 \DB::table('privatesite')->insert($privatesiteData);
             }
         } else {
-            \DB::table('privatesite')->where('survivor_id', $survivor_id)->delete();
+            \DB::table('privatesite')->where('ttu_id', $id)->delete();
         }
 
         // Save or update transfer table if needed (keep original logic)
