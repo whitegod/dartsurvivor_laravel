@@ -59,9 +59,13 @@ class TTUController extends Controller
         // Optionally, fetch all survivors for a dropdown
         $survivors = \DB::table('survivor')->pluck(\DB::raw("CONCAT(fname, ' ', lname)"), 'id');
 
+        // Fetch privatesite with created_at
         $privatesite = null;
         if ($ttu) {
-            $privatesite = \DB::table('privatesite')->where('ttu_id', $ttu->id)->first();
+            $privatesite = \DB::table('privatesite')
+                ->select('*', 'created_at')
+                ->where('ttu_id', $ttu->id)
+                ->first();
         }
 
         return view('admin.ttusEdit', compact(
@@ -121,6 +125,7 @@ class TTUController extends Controller
                 'dow_lat' => $request->input('dow_lat'),
                 'zon' => $request->input('zon'),
                 'dow_response' => $request->input('dow_response'),
+                'created_at' => now(), // <-- add created_at for insert
             ];
             \DB::table('privatesite')->insert($privatesiteData);
         }
@@ -210,6 +215,7 @@ class TTUController extends Controller
                 'dow_lat' => $request->input('dow_lat'),
                 'zon' => $request->input('zon'),
                 'dow_response' => $request->input('dow_response'),
+                'created_at' => now(), // <-- add created_at for update
             ];
             if (\DB::table('privatesite')->where('ttu_id', $id)->exists()) {
                 \DB::table('privatesite')->where('ttu_id', $id)->update($privatesiteData);

@@ -12,7 +12,7 @@ class LocationController extends Controller
         // Fetch hotels with survivor hh_size sum
         $hotels = \DB::table('hotel')
             ->select(
-                'hotel.id', // <-- Add this line!
+                'hotel.id',
                 \DB::raw("'Hotel' as type"),
                 'hotel.name as location_name',
                 'hotel.address',
@@ -47,8 +47,23 @@ class LocationController extends Controller
             )
             ->get();
 
-        // Merge both collections and sort by created_at descending
-        $locations = $hotels->merge($stateparks)->sortByDesc('created_at')->values();
+        // Fetch privatesite locations with survivor_count (hh_size from survivor via ttu)
+        $privatesites = \DB::table('privatesite')
+            ->leftJoin('ttu', 'privatesite.ttu_id', '=', 'ttu.id')
+            ->leftJoin('survivor', 'ttu.survivor_id', '=', 'survivor.id')
+            ->select(
+                'privatesite.id',
+                \DB::raw("'Private Site' as type"),
+                'privatesite.name as location_name',
+                'privatesite.address',
+                'privatesite.phone',
+                \DB::raw('COALESCE(survivor.hh_size, 0) as survivor_count'),
+                'privatesite.created_at'
+            )
+            ->get();
+
+        // Merge all collections and sort by created_at descending
+        $locations = $hotels->merge($stateparks)->merge($privatesites)->sortByDesc('created_at')->values();
 
         // Define the fields you want to show/filter
         $fields = [
@@ -70,6 +85,7 @@ class LocationController extends Controller
         $location = null;
         $rooms = null;
         $lodge_units = null;
+        $privatesite = null;
 
         if ($id && $type === 'Hotel') {
             $location = \DB::table('hotel')->where('id', $id)->first();
@@ -93,9 +109,11 @@ class LocationController extends Controller
                     $u->survivor_name = $u->fname ? $u->fname . ' ' . $u->lname : null;
                     return $u;
                 });
+        } elseif ($id && $type === 'Private Site') {
+            $privatesite = \DB::table('privatesite')->where('id', $id)->first();
         }
 
-        return view('admin.locationsEdit', compact('location', 'type', 'rooms', 'lodge_units'));
+        return view('admin.locationsEdit', compact('location', 'type', 'rooms', 'lodge_units', 'privatesite'));
     }
 
     public function locationUpdate(Request $request, $id)
@@ -103,13 +121,37 @@ class LocationController extends Controller
         $type = $request->input('type');
         $data = $request->only(['name', 'address', 'phone']);
         $data['updated_at'] = now();
-        $data['author'] = auth()->user()->name ?? 'Unknown'; 
+        $data['author'] = auth()->user()->name ?? 'Unknown';
 
         if ($type === 'Hotel') {
             \DB::table('hotel')->where('id', $id)->update($data);
         } elseif ($type === 'State Park') {
             \DB::table('statepark')->where('id', $id)->update($data);
+        } elseif ($type === 'Private Site') {
+            $privatesiteData = [
+                'name' => $request->input('name'),
+                'address' => $request->input('address'),
+                'phone' => $request->input('phone'),
+                'pow' => $request->has('pow') ? 1 : 0,
+                'h2o' => $request->has('h2o') ? 1 : 0,
+                'sew' => $request->has('sew') ? 1 : 0,
+                'own' => $request->has('own') ? 1 : 0,
+                'res' => $request->has('res') ? 1 : 0,
+                'damage_assessment' => $request->input('damage_assessment'),
+                'ehp' => $request->input('ehp'),
+                'ehp_notes' => $request->input('ehp_notes'),
+                'dow_long' => $request->input('dow_long'),
+                'dow_lat' => $request->input('dow_lat'),
+                'zon' => $request->input('zon'),
+                'dow_response' => $request->input('dow_response'),
+                'updated_at' => now(),
+            ];
+            $updated = \DB::table('privatesite')->where('id', $id)->update($privatesiteData);
+            if ($updated === 0) {
+                \Log::warning("No privatesite row updated for id=$id");
+            }
         }
+
         return redirect()->route('admin.locations')->with('success', 'Location updated!');
     }
 

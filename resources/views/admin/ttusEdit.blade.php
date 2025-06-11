@@ -282,15 +282,15 @@
                                 <div>
                                     <div class="form-group">
                                         <label for="name">Name:</label>
-                                        <input type="text" id="name" name="name" value={{ old('name', $privatesite->name ?? '') }}>
+                                        <input type="text" id="name" name="name" value="{{ old('name', $privatesite->name ?? '') }}">
                                     </div>
                                     <div class="form-group">
                                         <label for="address">Address:</label>
-                                        <input type="text" id="address" name="address" value={{ old('address', $privatesite->address ?? '') }}>
+                                        <input type="text" id="address" name="address" value="{{ old('address', $privatesite->address ?? '') }}">
                                     </div>
                                     <div class="form-group">
                                         <label for="phone">Phone:</label>
-                                        <input type="text" id="phone" name="phone" value={{ old('phone', $privatesite->phone ?? '') }}>
+                                        <input type="text" id="phone" name="phone" value="{{ old('phone', $privatesite->phone ?? '') }}">
                                     </div>
                                 </div>
                                 <table>

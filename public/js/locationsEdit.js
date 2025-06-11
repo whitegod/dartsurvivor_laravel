@@ -19,10 +19,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Optional: Close modal when clicking outside content
-    document.getElementById('roomUnitModal').addEventListener('click', function(e) {
-        if (e.target === this) {
+    // document.getElementById('roomUnitModal').addEventListener('click', function(e) {
+    //     if (e.target === this) {
+    //         this.style.display = 'none';
+    //         document.getElementById('roomUnitForm').reset();
+    //     }
+    // });
+
+    const roomUnitModal = document.getElementById('roomUnitModal');
+    if (roomUnitModal) {
+        roomUnitModal.addEventListener('click', function() {
             this.style.display = 'none';
             document.getElementById('roomUnitForm').reset();
-        }
-    });
+        });
+    }
 });
