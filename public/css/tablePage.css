@@ -23,7 +23,8 @@
 
 /* Buttons */
 .filter-icon,
-.add-new-button {
+.add-new-button,
+.search-button {
     display: inline-block;
     padding: 8px 16px;
     background-color: #007bff;
@@ -37,7 +38,8 @@
 }
 
 .filter-icon:hover,
-.add-new-button:hover {
+.add-new-button:hover,
+.search-button:hover {
     background-color: #0056b3;
     color: #fff;
 }

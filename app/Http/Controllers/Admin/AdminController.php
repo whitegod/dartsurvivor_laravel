@@ -264,48 +264,6 @@ class AdminController extends Controller
         return view('admin.dashboard',$data);
     }
 
-    public function detailedSearch(Request $request)
-    {
-        $query = \DB::table('author');
-
-        // Determine which field to group by
-        $countBy = $request->input('countBy', 'author'); // default to 'author'
-        $groupField = $countBy === 'address' ? 'address' : 'author_name';
-
-        // Keyword filter (optional, keep if you want)
-        if ($request->filled('keyword')) {
-            $query->where(function($q) use ($request) {
-                $q->where('author_name', 'like', '%' . $request->keyword . '%')
-                  ->orWhere('address', 'like', '%' . $request->keyword . '%');
-            });
-        }
-
-        // Text filter by selected field
-        if ($request->filled('text') && $request->filled('search_by_field')) {
-            $field = $request->input('search_by_field') === 'author' ? 'author_name' : 'address';
-            $query->where($field, 'like', '%' . $request->input('text') . '%');
-        }
-
-        // Group and count by selected field
-        $results = $query->select("$groupField as group_value")
-            ->selectRaw('COUNT(*) as count')
-            ->groupBy($groupField)
-            ->get();
-
-        // For display
-        foreach ($results as $row) {
-            if ($countBy === 'author') {
-                $row->author = $row->group_value;
-                $row->address = '';
-            } else {
-                $row->author = '';
-                $row->address = $row->group_value;
-            }
-        }
-
-        return view('admin.detailedSearch', compact('results', 'countBy'));
-    }
-
     public function reporting()
     {
         $data=[];
