@@ -14,16 +14,15 @@
                     <div class="form-group" style="flex: 1;">
                         <label for="scope">Scope</label>
                         <select id="scope" name="scope" class="table-select">
-                            <option value="all">All</option>
-                            <option value="survivors">Survivors</option>
-                            <option value="ttus">TTUs</option>
-                            <option value="locations">Locations</option>
-                            <!-- Add other options as needed -->
+                            <option value="all" {{ request('scope', $scope ?? 'all') == 'all' ? 'selected' : '' }}>All</option>
+                            <option value="survivors" {{ request('scope', $scope ?? '') == 'survivors' ? 'selected' : '' }}>Survivors</option>
+                            <option value="ttus" {{ request('scope', $scope ?? '') == 'ttus' ? 'selected' : '' }}>TTUs</option>
+                            <option value="locations" {{ request('scope', $scope ?? '') == 'locations' ? 'selected' : '' }}>Locations</option>
                         </select>
                     </div>
                     <div class="form-group" style="flex: 2;">
                         <label for="keyword">Keyword</label>
-                        <input type="text" id="keyword" name="keyword" class="table-input" placeholder="Type Here" style="flex: 1;">
+                        <input type="text" id="keyword" name="keyword" class="table-input" placeholder="Type Here" style="flex: 1;" value="{{ request('keyword', $keyword ?? '') }}">
                     </div>
                     <div class="form-group" style="flex: 1;">
                         <label for="count_by">Count By (Field)</label>

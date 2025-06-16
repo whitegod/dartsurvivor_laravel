@@ -11,66 +11,129 @@ class DetailedSearchController extends Controller
     public function detailedSearch(Request $request)
     {
         $scope = $request->input('scope', 'all');
+        $keyword = $request->input('keyword');
         $results = collect();
-        $columns = [];
+
+        // Define the columns to show in all cases
+        $detailedSearchColumns = [
+            ['key' => 'index', 'label' => 'No.'],
+            ['key' => 'scope', 'label' => 'Scope'],
+            ['key' => 'name', 'label' => 'Name'],
+            ['key' => 'address', 'label' => 'Address'],
+            ['key' => 'phone', 'label' => 'Phone'],
+            ['key' => 'author', 'label' => 'Author'],
+        ];
 
         if ($scope === 'survivors') {
-            $results = DB::table('survivor')->get();
-            // Dynamically get all columns
-            $columns = array_keys((array)($results->first() ?? []));
-        } elseif ($scope === 'ttus') {
-            $results = DB::table('ttu')->get();
-            $columns = array_keys((array)($results->first() ?? []));
-        } elseif ($scope === 'locations') {
-            $hotels = DB::table('hotel')->select('*', DB::raw("'Hotel' as location_type"))->get();
-            $stateparks = DB::table('statepark')->select('*', DB::raw("'State Park' as location_type"))->get();
-            $privatesites = DB::table('privatesite')->select('*', DB::raw("'Private Site' as location_type"))->get();
-            $results = $hotels->merge($stateparks)->merge($privatesites);
-            $columns = array_keys((array)($results->first() ?? []));
-        } else { // all
-            $columns = [
-                'scope' => 'Scope',
-                'name' => 'Name',
-                'address' => 'Address',
-                'phone' => 'Phone',
-                'author' => 'Author',
-            ];
-            $survivors = DB::table('survivor')
+            $query = DB::table('survivor')
                 ->select(
+                    DB::raw("'Survivor' as scope"),
                     DB::raw("CONCAT(fname, ' ', lname) as name"),
                     'address',
                     DB::raw("CONCAT_WS('\n', primary_phone, secondary_phone) as phone"),
                     DB::raw("'' as author")
-                )->get()->map(function($row) {
-                    $row->scope = 'Survivor';
-                    return $row;
+                );
+            if ($keyword) {
+                $query->where(function($q) use ($keyword) {
+                    $q->where(DB::raw("CONCAT(fname, ' ', lname)"), 'like', "%$keyword%")
+                      ->orWhere('address', 'like', "%$keyword%")
+                      ->orWhere('primary_phone', 'like', "%$keyword%")
+                      ->orWhere('secondary_phone', 'like', "%$keyword%");
                 });
-            $ttus = DB::table('ttu')
+            }
+            $results = $query->get();
+        } elseif ($scope === 'ttus') {
+            $query = DB::table('ttu')
                 ->select(
+                    DB::raw("'TTU' as scope"),
                     DB::raw("'' as name"),
                     DB::raw("'' as address"),
                     DB::raw("'' as phone"),
                     'author'
-                )->get()->map(function($row) {
-                    $row->scope = 'TTU';
-                    return $row;
+                );
+            if ($keyword) {
+                $query->where('author', 'like', "%$keyword%");
+            }
+            $results = $query->get();
+        } elseif ($scope === 'locations') {
+            $locations = collect()
+                ->merge(DB::table('hotel')->select(
+                    DB::raw("'Location' as scope"),
+                    'name', 'address', 'phone', 'author'
+                )->get())
+                ->merge(DB::table('statepark')->select(
+                    DB::raw("'Location' as scope"),
+                    'name', 'address', 'phone', 'author'
+                )->get())
+                ->merge(DB::table('privatesite')->select(
+                    DB::raw("'Location' as scope"),
+                    'name', 'address', 'phone', 'author'
+                )->get());
+            if ($keyword) {
+                $locations = $locations->filter(function($row) use ($keyword) {
+                    return (stripos($row->name, $keyword) !== false)
+                        || (stripos($row->address, $keyword) !== false)
+                        || (stripos($row->phone, $keyword) !== false)
+                        || (stripos($row->author, $keyword) !== false);
                 });
-            $hotels = DB::table('hotel')->select('name', 'address', 'phone', 'author')->get()->map(function($row) {
-                $row->scope = 'Hotel';
-                return $row;
-            });
-            $stateparks = DB::table('statepark')->select('name', 'address', 'phone', 'author')->get()->map(function($row) {
-                $row->scope = 'State Park';
-                return $row;
-            });
-            $privatesites = DB::table('privatesite')->select('name', 'address', 'phone', 'author')->get()->map(function($row) {
-                $row->scope = 'Private Site';
-                return $row;
-            });
+            }
+            $results = $locations->values();
+        } else { // all
+            $survivors = DB::table('survivor')
+                ->select(
+                    DB::raw("'Survivor' as scope"),
+                    DB::raw("CONCAT(fname, ' ', lname) as name"),
+                    'address',
+                    DB::raw("CONCAT_WS('\n', primary_phone, secondary_phone) as phone"),
+                    DB::raw("'' as author")
+                );
+            $ttus = DB::table('ttu')
+                ->select(
+                    DB::raw("'TTU' as scope"),
+                    DB::raw("'' as name"),
+                    DB::raw("'' as address"),
+                    DB::raw("'' as phone"),
+                    'author'
+                );
+            $locations = collect()
+                ->merge(DB::table('hotel')->select(
+                    DB::raw("'Location' as scope"),
+                    'name', 'address', 'phone', 'author'
+                )->get())
+                ->merge(DB::table('statepark')->select(
+                    DB::raw("'Location' as scope"),
+                    'name', 'address', 'phone', 'author'
+                )->get())
+                ->merge(DB::table('privatesite')->select(
+                    DB::raw("'Location' as scope"),
+                    'name', 'address', 'phone', 'author'
+                )->get());
 
-            $results = $survivors->merge($ttus)->merge($hotels)->merge($stateparks)->merge($privatesites);
+            if ($keyword) {
+                $survivors->where(function($q) use ($keyword) {
+                    $q->where(DB::raw("CONCAT(fname, ' ', lname)"), 'like', "%$keyword%")
+                      ->orWhere('address', 'like', "%$keyword%")
+                      ->orWhere('primary_phone', 'like', "%$keyword%")
+                      ->orWhere('secondary_phone', 'like', "%$keyword%");
+                });
+                $ttus->where('author', 'like', "%$keyword%");
+                $locations = $locations->filter(function($row) use ($keyword) {
+                    return (stripos($row->name, $keyword) !== false)
+                        || (stripos($row->address, $keyword) !== false)
+                        || (stripos($row->phone, $keyword) !== false)
+                        || (stripos($row->author, $keyword) !== false);
+                });
+            }
+
+            $results = $survivors->get()->merge($ttus->get())->merge($locations->values());
         }
 
-        return view('admin.detailedsearch', compact('results', 'scope', 'columns'));
+        return view('admin.detailedSearch', [
+            'results' => $results,
+            // 'detailedSearchColumns' => $detailedSearchColumns,
+            'columns' => $detailedSearchColumns, // add this line
+            'scope' => $scope,
+            'keyword' => $keyword,
+        ]);
     }
 }
