@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-<section id="Global">
+<section id="TTUEdit">
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <form method="POST" action="{{ isset($ttu) ? route('admin.ttus.update', $ttu->id) : route('admin.ttus.store') }}">

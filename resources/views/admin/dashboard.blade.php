@@ -62,7 +62,7 @@
 @endsection
 
 @section('content')
-<section id="Global">
+<section id="Dashboard">
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="stats-container">
