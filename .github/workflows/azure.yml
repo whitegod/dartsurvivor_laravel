@@ -19,6 +19,12 @@ jobs:
         php-version: '8.2'
         extensions: mbstring, bcmath, xml, curl, mysql, zip
         coverage: none
+    
+    - name: Install Composer
+      run: |
+        php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+        php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+        composer --version
 
     - name: Install Composer Dependencies
       run: composer install --no-dev --optimize-autoloader
