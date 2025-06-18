@@ -7,4 +7,4 @@ cd /home/site/wwwroot
 # php artisan migrate --force
 
 # Start Laravel with the correct root directory
-php -S 0.0.0.0:8080 -t public
+php artisan serve --host=0.0.0.0 --port=8080
