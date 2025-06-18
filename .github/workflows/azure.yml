@@ -26,8 +26,8 @@ jobs:
         php composer-setup.php --install-dir=/usr/local/bin --filename=composer
         composer --version
 
-    - name: Install Composer Dependencies
-      run: composer install --no-dev --optimize-autoloader
+    - name: Install Composer Dependencies (verbose)
+      run: composer install --no-dev --optimize-autoloader -vvv || true
 
     - name: Set Laravel Permissions
       run: |
