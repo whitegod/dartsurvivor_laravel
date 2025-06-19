@@ -26,12 +26,9 @@ jobs:
     - name: Set Laravel Permissions
       run: chmod -R 775 storage bootstrap/cache
 
-    - name: Prepare Deployment Directory
+    - name: Zip Laravel App for Deployment
       run: |
-        mkdir deploy
-        shopt -s dotglob
-        cp -r * deploy
-        shopt -u dotglob
+        zip -r deploy.zip . -x ".git/*" ".github/*" "tests/*" "node_modules/*" "vendor/*"
 
     - name: Create .env file
       run: |
@@ -52,4 +49,4 @@ jobs:
         app-name: DartTest
         slot-name: 'production'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: ./deploy
+        package: deploy.zip
