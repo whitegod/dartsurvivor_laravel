@@ -3,7 +3,7 @@ name: Deploy Laravel App to Azure
 on:
   push:
     branches:
-      - main  # or your deployment branch
+      - main
 
 jobs:
   build-and-deploy:
@@ -19,26 +19,28 @@ jobs:
         php-version: '8.2'
         extensions: mbstring, bcmath, xml, curl, mysql, zip
         coverage: none
-    
-    - name: Install Composer
-      run: |
-        php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-        php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-        composer --version
 
-    - name: Install Composer Dependencies (verbose)
-      run: composer install --no-dev --optimize-autoloader -vvv || true
+    - name: Install Composer Dependencies
+      run: composer install --no-dev --optimize-autoloader
 
     - name: Set Laravel Permissions
+      run: chmod -R 775 storage bootstrap/cache
+
+    - name: Copy Laravel project to wwwroot folder
       run: |
-        chmod -R 775 storage bootstrap/cache
+        mkdir -p site/wwwroot
+        shopt -s dotglob
+        cp -r * site/wwwroot
+        shopt -u dotglob
 
-    - name: Generate Application Key (optional)
-      run: php artisan key:generate
-      env:
-        APP_KEY: ${{ secrets.APP_KEY }}
+    - name: Create .env file
+      run: |
+        cp .env.example .env
+        echo "APP_KEY=${{ secrets.APP_KEY }}" >> .env
+        echo "APP_ENV=production" >> .env
+        echo "APP_DEBUG=false" >> .env
 
-    - name: Cache Laravel Config
+    - name: Laravel Artisan Commands
       run: |
         php artisan config:cache
         php artisan route:cache
@@ -50,4 +52,4 @@ jobs:
         app-name: DartTest
         slot-name: 'production'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: .
+        package: ./site/wwwroot
