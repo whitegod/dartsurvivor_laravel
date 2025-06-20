@@ -46,6 +46,47 @@ if (Array.isArray(detailedSearchColumns)) {
 // Initial render
 document.addEventListener('DOMContentLoaded', function() {
     renderDetailedSearchTable(columnsArr, detailedSearchData);
+    // Add filter row logic (already present)
+    const addFilterBtn = document.getElementById('add-filter');
+    if (addFilterBtn) {
+        addFilterBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const allFilters = document.querySelectorAll('[id^="sub-filter_"]');
+            const nextIndex = allFilters.length;
+            const subFilter = document.getElementById('sub-filter_0');
+            const clone = subFilter.cloneNode(true);
+            clone.id = 'sub-filter_' + nextIndex;
+            clone.classList.add('sub-filter-clone');
+            // Clear select and input
+            const select = clone.querySelector('select[name="filter_field[]"]');
+            if (select) select.value = '';
+            const input = clone.querySelector('input[name="filter_value[]"]');
+            if (input) input.value = '';
+            // Enable remove button
+            const removeBtn = clone.querySelector('.remove-sub-filter');
+            if (removeBtn) removeBtn.disabled = false;
+            // Insert after last filter row
+            const lastSubFilter = allFilters[allFilters.length - 1];
+            lastSubFilter.after(clone);
+            attachRemoveHandlers();
+        });
+    }
+
+    // Attach remove handler to all remove buttons
+    function attachRemoveHandlers() {
+        document.querySelectorAll('.remove-sub-filter').forEach(function(btn) {
+            btn.onclick = function() {
+                // Only remove if more than one filter row remains
+                const allRows = document.querySelectorAll('[id^="sub-filter_"]');
+                if (allRows.length > 1) {
+                    btn.closest('.form-row').remove();
+                }
+            };
+        });
+    }
+
+    // Initial attach for existing rows
+    attachRemoveHandlers();
 });
 
 

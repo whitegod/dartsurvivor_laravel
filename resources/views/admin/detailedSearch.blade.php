@@ -27,21 +27,44 @@
                     <div class="form-group" style="flex: 1;">
                         <label for="count_by">Count By (Field)</label>
                         <select id="count_by" name="count_by" class="table-select">
-                            <option value="author">Author</option>
+                            <option value="" {{ request('count_by', $count_by ?? '') == '' ? 'selected' : '' }}>Select Option</option>
+                            <option value="scope" {{ request('count_by', $count_by ?? '') == 'scope' ? 'selected' : '' }}>Scope</option>
+                            <option value="name" {{ request('count_by', $count_by ?? '') == 'name' ? 'selected' : '' }}>Name</option>
+                            <option value="address" {{ request('count_by', $count_by ?? '') == 'address' ? 'selected' : '' }}>Address</option>
+                            <option value="phone" {{ request('count_by', $count_by ?? '') == 'phone' ? 'selected' : '' }}>Phone Number</option>
+                            <option value="author" {{ request('count_by', $count_by ?? '') == 'author' ? 'selected' : '' }}>Author</option>
                             <!-- Add other options as needed -->
                         </select>
                     </div>
                 </div>
-                <div class="form-row" style="display: flex; gap: 12px; align-items: center; margin-top: 18px;">
-                    <span><i class="fa fa-arrow-right" style="font-size: 1.2em;"></i></span>
-                    <select name="filter_field[]" class="table-select" style="width: 120px;">
-                        <option value="address">Address</option>
-                        <!-- Add other filter fields as needed -->
-                    </select>
-                    <input type="text" name="filter_value[]" class="table-input" value="5309 Aerosmith Rd." placeholder="Enter value" style="flex: 1;">
+                @php
+                    $filterFields = request()->input('filter_field', []);
+                    $filterValues = request()->input('filter_value', []);
+                    $filterCount = max(1, count($filterFields));
+                @endphp
+
+                <div id="sub-filter-group">
+                    @for($i = 0; $i < $filterCount; $i++)
+                        <div id="sub-filter_{{ $i }}" class="form-row" style="display: flex; gap: 12px; align-items: center; margin-top: 18px;">
+                            <span><i class="fa fa-arrow-right" style="font-size: 1.2em;"></i></span>
+                            <select name="filter_field[]" class="table-select" style="width: 120px;">
+                                <option value="">Select Option</option>
+                                <option value="name" {{ ($filterFields[$i] ?? '') == 'name' ? 'selected' : '' }}>Name</option>
+                                <option value="address" {{ ($filterFields[$i] ?? '') == 'address' ? 'selected' : '' }}>Address</option>
+                                <option value="phone" {{ ($filterFields[$i] ?? '') == 'phone' ? 'selected' : '' }}>Phone</option>
+                                <option value="author" {{ ($filterFields[$i] ?? '') == 'author' ? 'selected' : '' }}>Author</option>
+                            </select>
+                            <input type="text" name="filter_value[]" class="table-input" placeholder="Enter value" style="flex: 1;"
+                                value="{{ $filterValues[$i] ?? '' }}">
+                            <button type="button" class="remove-sub-filter" style="background: none; border: none; ">
+                                <i class="fa fa-trash" style="font-size: 1.2em;"></i>
+                            </button>
+                        </div>
+                    @endfor
                 </div>
+
                 <div class="form-row" style="margin-top: 8px; justify-content: space-between">
-                    <button type="button" class="table-btn" style="background: none; border: none;">
+                    <button type="button" id="add-filter" class="table-btn" style="background: none; border: none;">
                         + Add Filter
                     </button>
                     <button type="submit" class="search-button table-btn" >

@@ -12,9 +12,9 @@ class DetailedSearchController extends Controller
     {
         $scope = $request->input('scope', 'all');
         $keyword = $request->input('keyword');
+        $countBy = $request->input('count_by');
         $results = collect();
 
-        // Define the columns to show in all cases
         $detailedSearchColumns = [
             ['key' => 'index', 'label' => 'No.'],
             ['key' => 'scope', 'label' => 'Scope'],
@@ -128,12 +128,60 @@ class DetailedSearchController extends Controller
             $results = $survivors->get()->merge($ttus->get())->merge($locations->values());
         }
 
+        // Apply additional filters
+        $filterFields = $request->input('filter_field', []);
+        $filterValues = $request->input('filter_value', []);
+
+        $hasActiveFilter = false;
+        foreach ($filterFields as $i => $field) {
+            $value = $filterValues[$i] ?? null;
+            if ($field && $value !== null && $value !== '') {
+                $hasActiveFilter = true;
+                $results = $results->filter(function($row) use ($field, $value) {
+                    return stripos($row->$field ?? '', $value) !== false;
+                });
+            }
+        }
+
+        // GROUPING LOGIC
+        if ($countBy && in_array($countBy, ['scope', 'name', 'address', 'phone', 'author'])) {
+            // Group and count
+            $grouped = $results->groupBy($countBy)->map(function($group, $key) use ($countBy, $scope) {
+                $first = $group->first();
+                $row = [];
+                // Always include the countBy column
+                $row[$countBy] = $key;
+                // If scope is not 'all', include the scope value from the first row
+                if ($scope !== 'all') {
+                    $row['scope'] = $first->scope ?? '';
+                }
+                $row['count'] = $group->count();
+                return (object)$row;
+            })->values();
+
+            // Build columns array
+            $detailedSearchColumns = [
+                ['key' => 'index', 'label' => 'No.'],
+            ];
+            if ($scope !== 'all') {
+                $detailedSearchColumns[] = ['key' => 'scope', 'label' => 'Scope'];
+            }
+            // Only add $countBy column if not already present
+            if (!collect($detailedSearchColumns)->pluck('key')->contains($countBy)) {
+                $detailedSearchColumns[] = ['key' => $countBy, 'label' => ucfirst($countBy)];
+            }
+            $detailedSearchColumns[] = ['key' => 'count', 'label' => 'Count'];
+
+            $results = $grouped;
+        }
+
         return view('admin.detailedSearch', [
-            'results' => $results,
-            // 'detailedSearchColumns' => $detailedSearchColumns,
-            'columns' => $detailedSearchColumns, // add this line
+            'results' => $results instanceof \Illuminate\Support\Collection ? $results->values()->all() : $results,
+            'detailedSearchColumns' => $detailedSearchColumns,
+            'columns' => $detailedSearchColumns, // for your JS
             'scope' => $scope,
             'keyword' => $keyword,
+            'count_by' => $countBy,
         ]);
     }
 }
