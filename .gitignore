@@ -11,7 +11,7 @@ npm-debug.log
 yarn-error.log
 
 /vendor
-# .env
+.env
 
 # /public/js
 # /public/css
