@@ -1,9 +1,36 @@
 {
-    "name": "DartSurvivor/dartsurvivor_laravel",
+    "name": "dart/dartsurvivor_laravel",
     "description": "A Laravel project.",
     "type": "project",
     "require": {
         "php": "^8.1",
         "laravel/framework": "^10.18"
+    },
+    "require-dev": {
+
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "php artisan package:discover"
+        ],
+        "post-update-cmd": [
+            "php artisan vendor:publish --tag=laravel-assets --force"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
     }
 }
