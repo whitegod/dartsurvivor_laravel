@@ -10,24 +10,13 @@
 
     },
     "autoload": {
-        "psr-4": {
-            "App\\": "app/"
-        }
     },
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
         }
     },
-    "scripts": {
-        "post-autoload-dump": [
-            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "php artisan package:discover"
-        ],
-        "post-update-cmd": [
-            "php artisan vendor:publish --tag=laravel-assets --force"
-        ]
-    },
+
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
