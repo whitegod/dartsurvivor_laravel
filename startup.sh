@@ -1,10 +1,17 @@
 #!/bin/bash
 
-# Navigate to the app root
 cd /home/site/wwwroot
 
-# Run migrations or other commands if needed
-# php artisan migrate --force
+# PHP dependencies
+composer install --no-dev --optimize-autoloader
 
-# Start Laravel with the correct root directory
-php artisan serve --host=0.0.0.0 --port=8080
+# Laravel setup
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# File permissions (optional, but recommended)
+chmod -R 775 storage bootstrap/cache
+
+# Run PHP's built-in server from the public directory
+php -S 0.0.0.0:8080 -t public
