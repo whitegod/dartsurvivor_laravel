@@ -9,17 +9,17 @@
 <section id="EditLocation">
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="margin: 0 auto;">
-            <form method="POST" action="{{ ($type ?? '') === 'Private Site' && isset($privatesite) 
+            <form method="POST" action="{{ ($type ?? '') === 'privatesite' && isset($privatesite) 
             ? route('admin.locations.update', $privatesite->id) 
             : (isset($location) ? route('admin.locations.update', $location->id) : route('admin.locations.store')) }}">
                 @csrf
-                @if(($type ?? '') === 'Private Site' && isset($privatesite))
+                @if(($type ?? '') === 'privatesite' && isset($privatesite))
                     @method('PUT')
                 @elseif(isset($location))
                     @method('PUT')
                 @endif
-                {{-- Only show the top row for Hotel or State Park --}}
-                @if(($type ?? '') !== 'Private Site')
+                {{-- Only show the top row for hotel or statepark --}}
+                @if(($type ?? '') !== 'privatesite')
                     <div class="form-row" style="display: flex; gap: 24px; margin-bottom: 24px;">
                         @if(isset($location))
                             <input type="hidden" name="type" value="{{ $type }}">
@@ -28,9 +28,9 @@
                                 <label for="type">Location Type</label>
                                 <select name="type" id="type" required>
                                     <option value="">Select Type</option>
-                                    <option value="Hotel" {{ (old('type', $type ?? '') == 'Hotel') ? 'selected' : '' }}>Hotel</option>
-                                    <option value="State Park" {{ (old('type', $type ?? '') == 'State Park') ? 'selected' : '' }}>State Park</option>
-                                    <option value="Private Site" {{ (old('type', $type ?? '') == 'Private Site') ? 'selected' : '' }}>Private Site</option>
+                                    <option value="hotel" {{ (old('type', $type ?? '') == 'hotel') ? 'selected' : '' }}>hotel</option>
+                                    <option value="statepark" {{ (old('type', $type ?? '') == 'statepark') ? 'selected' : '' }}>statepark</option>
+                                    <option value="privatesite" {{ (old('type', $type ?? '') == 'privatesite') ? 'selected' : '' }}>privatesite</option>
                                 </select>
                             </div>
                         @endif
@@ -47,18 +47,18 @@
                             <input type="text" name="phone" id="phone" value="{{ old('phone', $location->phone ?? '') }}">
                         </div>
                     </div>
-                @elseif(($type ?? '') === 'Private Site')
-                    <input type="hidden" name="type" value="Private Site">
+                @elseif(($type ?? '') === 'privatesite')
+                    <input type="hidden" name="type" value="privatesite">
                 @endif
 
                 {{-- Show rooms or lodge_units --}}
-                @if(isset($location) && (($type === 'Hotel' && isset($rooms)) || ($type === 'State Park' && isset($lodge_units))))
+                @if(isset($location) && (($type === 'hotel' && isset($rooms)) || ($type === 'statepark' && isset($lodge_units))))
                     @php
-                        $isHotel = $type === 'Hotel';
-                        $items = $isHotel ? $rooms : $lodge_units;
-                        $numberLabel = $isHotel ? 'Room #' : 'Unit #';
-                        $addBtnId = $isHotel ? 'addRoomButton' : 'addUnitButton';
-                        $title = $isHotel ? 'Rooms' : 'Lodge Units';
+                        $ishotel = $type === 'hotel';
+                        $items = $ishotel ? $rooms : $lodge_units;
+                        $numberLabel = $ishotel ? 'Room #' : 'Unit #';
+                        $addBtnId = $ishotel ? 'addRoomButton' : 'addUnitButton';
+                        $title = $ishotel ? 'Rooms' : 'Lodge Units';
                     @endphp
                     <div class="form-section" style="margin-bottom: 24px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -76,7 +76,7 @@
                             <tbody>
                                 @foreach($items as $item)
                                     <tr>
-                                        <td>{{ $isHotel ? $item->room_num : $item->unit_name }}</td>
+                                        <td>{{ $ishotel ? $item->room_num : $item->unit_name }}</td>
                                         <td>{{ $item->survivor_name ?? '-' }}</td>
                                         <td>{{ $item->hh_size ?? '-' }}</td>
                                     </tr>
@@ -86,9 +86,9 @@
                     </div>
                 @endif
 
-                {{-- Only show privatesite-section if type is Private Site --}}
-                @if(($type ?? '') === 'Private Site')
-                    <input type="hidden" name="type" value="Private Site">
+                {{-- Only show privatesite-section if type is privatesite --}}
+                @if(($type ?? '') === 'privatesite')
+                    <input type="hidden" name="type" value="privatesite">
                     <div id="privatesite-section" class="form-row" style="align-items: unset">
                         <div class="column">
                             <div>
@@ -195,15 +195,15 @@
                 <div class="modal-content">
                     <span class="close-modal">&times;</span>
                     <h4 id="modalTitle">Add New Room</h4>
-                    <form id="roomUnitForm" method="POST" action="{{ $type === 'Hotel' ? route('admin.rooms.store') : route('admin.lodge_units.store') }}">
+                    <form id="roomUnitForm" method="POST" action="{{ $type === 'hotel' ? route('admin.rooms.store') : route('admin.lodge_units.store') }}">
                         @csrf
                         <div class="form-group">
-                            <label for="modalLocationName">{{ $type === 'Hotel' ? 'Hotel' : 'State Park' }} Name</label>
+                            <label for="modalLocationName">{{ $type === 'hotel' ? 'Hotel' : 'State Park' }} Name</label>
                             <input type="text" id="modalLocationName" class="form-control" value="{{ $location->name ?? '' }}" readonly>
                         </div>
                         <input type="hidden" name="location_id" value="{{ $location->id }}">
                         <div class="form-group">
-                            <label id="modalLabelNumber" for="number">{{ $type === 'Hotel' ? 'Room #' : 'Unit #' }}</label>
+                            <label id="modalLabelNumber" for="number">{{ $type === 'hotel' ? 'Room #' : 'Unit #' }}</label>
                             <input type="text" name="number" id="modalNumber" class="form-control" required>
                         </div>
                         <div style="margin-top:16px;">

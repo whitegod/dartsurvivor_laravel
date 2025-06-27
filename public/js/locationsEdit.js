@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.add-new-button').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            const isHotel = window.locationType === "Hotel";
+            const isHotel = window.locationType === "hotel";
             document.getElementById('modalTitle').textContent = isHotel ? "Add New Room" : "Add New Lodge Unit";
             document.getElementById('modalLabelNumber').textContent = isHotel ? "Room #" : "Unit #";
             document.getElementById('roomUnitModal').style.display = 'block';

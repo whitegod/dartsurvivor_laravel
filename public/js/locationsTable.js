@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
         data.forEach(location => {
             const tr = document.createElement('tr');
             checkedFields.forEach(field => {
-                const td = document.createElement('td');
+                const td = document.createElement('td');                
                 td.textContent = location[field] ?? '';
                 tr.appendChild(td);
             });

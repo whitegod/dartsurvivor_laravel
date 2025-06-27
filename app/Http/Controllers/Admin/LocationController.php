@@ -13,7 +13,7 @@ class LocationController extends Controller
         $hotels = \DB::table('hotel')
             ->select(
                 'hotel.id',
-                \DB::raw("'Hotel' as type"),
+                \DB::raw("'hotel' as type"),
                 'hotel.name as location_name',
                 'hotel.address',
                 'hotel.phone',
@@ -32,7 +32,7 @@ class LocationController extends Controller
         $stateparks = \DB::table('statepark')
             ->select(
                 'statepark.id', // <-- Add this line!
-                \DB::raw("'State Park' as type"),
+                \DB::raw("'statepark' as type"),
                 'statepark.name as location_name',
                 'statepark.address',
                 'statepark.phone',
@@ -53,7 +53,7 @@ class LocationController extends Controller
             ->leftJoin('survivor', 'ttu.survivor_id', '=', 'survivor.id')
             ->select(
                 'privatesite.id',
-                \DB::raw("'Private Site' as type"),
+                \DB::raw("'privatesite' as type"),
                 'privatesite.name as location_name',
                 'privatesite.address',
                 'privatesite.phone',
@@ -87,7 +87,7 @@ class LocationController extends Controller
         $lodge_units = null;
         $privatesite = null;
 
-        if ($id && $type === 'Hotel') {
+        if ($id && $type === 'hotel') {
             $location = \DB::table('hotel')->where('id', $id)->first();
             $rooms = \DB::table('room')
                 ->leftJoin('survivor', 'room.survivor_id', '=', 'survivor.id')
@@ -98,7 +98,7 @@ class LocationController extends Controller
                     $r->survivor_name = $r->fname ? $r->fname . ' ' . $r->lname : null;
                     return $r;
                 });
-        } elseif ($id && $type === 'State Park') {
+        } elseif ($id && $type === 'statepark') {
             $location = \DB::table('statepark')->where('id', $id)->first();
             $lodge_units = \DB::table('lodge_unit')
                 ->leftJoin('survivor', 'lodge_unit.survivor_id', '=', 'survivor.id')
@@ -109,7 +109,7 @@ class LocationController extends Controller
                     $u->survivor_name = $u->fname ? $u->fname . ' ' . $u->lname : null;
                     return $u;
                 });
-        } elseif ($id && $type === 'Private Site') {
+        } elseif ($id && $type === 'privatesite') {
             $privatesite = \DB::table('privatesite')->where('id', $id)->first();
         }
 
@@ -123,11 +123,11 @@ class LocationController extends Controller
         $data['updated_at'] = now();
         $data['author'] = auth()->user()->name ?? 'Unknown';
 
-        if ($type === 'Hotel') {
+        if ($type === 'hotel') {
             \DB::table('hotel')->where('id', $id)->update($data);
-        } elseif ($type === 'State Park') {
+        } elseif ($type === 'statepark') {
             \DB::table('statepark')->where('id', $id)->update($data);
-        } elseif ($type === 'Private Site') {
+        } elseif ($type === 'privatesite') {
             $privatesiteData = [
                 'name' => $request->input('name'),
                 'address' => $request->input('address'),
@@ -163,9 +163,9 @@ class LocationController extends Controller
         $data['created_at'] = now(); // Optional: ensure created_at is set
         $data['updated_at'] = now(); // Optional: ensure updated_at is set
 
-        if ($type === 'Hotel') {
+        if ($type === 'hotel') {
             \DB::table('hotel')->insert($data);
-        } elseif ($type === 'State Park') {
+        } elseif ($type === 'statepark') {
             \DB::table('statepark')->insert($data);
         }
         return redirect()->route('admin.locations')->with('success', 'Location added!');
@@ -176,10 +176,10 @@ class LocationController extends Controller
         $type = $request->query('type');
         \Log::info("DeleteLocation called for id=$id, type=$type");
 
-        if ($type === 'Hotel') {
+        if ($type === 'hotel') {
             \DB::table('room')->where('hotel_id', $id)->delete();
             \DB::table('hotel')->where('id', $id)->delete();
-        } elseif ($type === 'State Park') {
+        } elseif ($type === 'statepark') {
             \DB::table('lodge_unit')->where('statepark_id', $id)->delete();
             \DB::table('statepark')->where('id', $id)->delete();
         }

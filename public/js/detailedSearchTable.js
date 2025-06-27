@@ -4,6 +4,10 @@ function renderDetailedSearchTable(columnsArr, tableData) {
     thead.innerHTML = '';
     tbody.innerHTML = '';
 
+    // Ensure "View" column is always present at the end
+    columnsArr = columnsArr.filter(col => col.key !== 'view');
+    columnsArr.push({ key: 'view', label: '' });
+
     // Render header
     const trHead = document.createElement('tr');
     columnsArr.forEach(col => {
@@ -22,6 +26,17 @@ function renderDetailedSearchTable(columnsArr, tableData) {
                 td.textContent = idx + 1;
             } else if (col.key === 'phone' && row[col.key]) {
                 td.innerHTML = String(row[col.key]).replace(/\n/g, '<br>');
+            } else if (col.key === 'view') {
+                // Generate edit URL based on scope and location_type
+                let editUrl = '#';
+                if (row.scope && row.id) {
+                    if(row.scope === 'Location') {
+                        editUrl = `/admin/locations/edit?type=${row.location_type}&id=${row.id}`;
+                    } else {
+                        editUrl = `/admin/${row.scope.toLowerCase()}s/edit/${row.id}`;
+                    }
+                }
+                td.innerHTML = `<a href="${editUrl}" class="view-link">View</a>`;
             } else {
                 td.textContent = row[col.key] ?? '';
             }

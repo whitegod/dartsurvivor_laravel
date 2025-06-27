@@ -1,7 +1,6 @@
 @extends('template.template')
 
 @section('content-header')
-<link rel="stylesheet" href="\plugins\datatables\dataTables.bootstrap.css">
 <link rel="stylesheet" href="{{ asset('css/tablePage.css') }}">
 @endsection
 
