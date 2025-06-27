@@ -60,8 +60,8 @@
                             @foreach($allLocations as $location)
                                 <tr>
                                     <td>{{ $location->name }}</td>
-                                    <td>0</td> <!-- Replace with real data if available -->
-                                    <td>0</td> <!-- Replace with real data if available -->
+                                    <td>{{ $location->onsite }}</td>
+                                    <td>{{ $location->occupied }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

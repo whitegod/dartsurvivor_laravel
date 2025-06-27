@@ -73,16 +73,52 @@ class DashboardController extends Controller
             ->toArray();
 
         $hotels = DB::table('hotel')
-            ->select('name', 'address', DB::raw("'hotel' as type"))
-            ->get();
+            ->select('id', 'name', 'address', DB::raw("'hotel' as type"))
+            ->get()
+            ->map(function($hotel) {
+                // Count all rooms for this hotel
+                $hotel->onsite = DB::table('room')
+                    ->where('hotel_id', $hotel->id)
+                    ->count();
+                // Count assigned rooms (assuming 'assigned' column is boolean or status)
+                $hotel->occupied = DB::table('room')
+                    ->where('hotel_id', $hotel->id)
+                    ->where('survivor_id', '!=', null)
+                    ->count();
+                return $hotel;
+            });
 
         $stateparks = DB::table('statepark')
-            ->select('name', 'address', DB::raw("'statepark' as type"))
-            ->get();
+            ->select('id', 'name', 'address', DB::raw("'statepark' as type"))
+            ->get()
+            ->map(function($sp) {
+                // Count all lodge_units for this statepark
+                $sp->onsite = DB::table('lodge_unit')
+                    ->where('statepark_id', $sp->id)
+                    ->count();
+                // Count assigned lodge_units (assuming 'assigned' column is boolean or status)
+                $sp->occupied = DB::table('lodge_unit')
+                    ->where('statepark_id', $sp->id)
+                    ->where('survivor_id', '!=', null)
+                    ->count();
+                return $sp;
+            });
 
         $privatesites = DB::table('privatesite')
-            ->select('name', 'address', DB::raw("'privatesite' as type"))
-            ->get();
+            ->select('id', 'name', 'address', DB::raw("'privatesite' as type"))
+            ->get()
+            ->map(function($ps) {
+                // Count all TTUs assigned to this privatesite
+                $ps->onsite = DB::table('ttu')
+                    ->where('privatesite', $ps->id)
+                    ->count();
+                // Count assigned TTUs (assuming 'assigned' column is boolean or status)
+                $ps->occupied = DB::table('ttu')
+                    ->where('privatesite', $ps->id)
+                    ->where('survivor_id', '!=', null)
+                    ->count();
+                return $ps;
+            });
 
         $allLocations = $hotels->merge($stateparks)->merge($privatesites);
 
