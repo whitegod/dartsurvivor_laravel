@@ -32,7 +32,7 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     Route::group(['middleware' => 'role:Admin', 'namespace' => 'Admin'], function () {
-        Route::get('/admin/dashboard', 'AdminController@dashboard')->name('admin.dashboard');
+        Route::get('/admin/dashboard', 'DashboardController@dashboard')->name('admin.dashboard');
         Route::get('/admin/detailed-search', 'DetailedSearchController@detailedSearch')->name('admin.detailedSearch');
         Route::get('/admin/reporting', 'AdminController@reporting')->name('admin.reporting');
 

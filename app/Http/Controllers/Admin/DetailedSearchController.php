@@ -58,15 +58,21 @@ class DetailedSearchController extends Controller
         } elseif ($scope === 'locations') {
             $locations = collect()
                 ->merge(DB::table('hotel')->select(
+                    'id',
                     DB::raw("'Location' as scope"),
+                    DB::raw("'hotel' as location_type"), // Add location_type
                     'name', 'address', 'phone', 'author'
                 )->get())
                 ->merge(DB::table('statepark')->select(
+                    'id',
                     DB::raw("'Location' as scope"),
+                    DB::raw("'statepark' as location_type"), // Add location_type
                     'name', 'address', 'phone', 'author'
                 )->get())
                 ->merge(DB::table('privatesite')->select(
+                    'id',
                     DB::raw("'Location' as scope"),
+                    DB::raw("'privatesite' as location_type"), // Add location_type
                     'name', 'address', 'phone', 'author'
                 )->get());
             if ($keyword) {
@@ -81,6 +87,7 @@ class DetailedSearchController extends Controller
         } else { // all
             $survivors = DB::table('survivor')
                 ->select(
+                    'id',
                     DB::raw("'Survivor' as scope"),
                     DB::raw("CONCAT(fname, ' ', lname) as name"),
                     'address',
@@ -89,6 +96,7 @@ class DetailedSearchController extends Controller
                 );
             $ttus = DB::table('ttu')
                 ->select(
+                    'id',
                     DB::raw("'TTU' as scope"),
                     DB::raw("'' as name"),
                     DB::raw("'' as address"),
@@ -97,15 +105,21 @@ class DetailedSearchController extends Controller
                 );
             $locations = collect()
                 ->merge(DB::table('hotel')->select(
+                    'id',
                     DB::raw("'Location' as scope"),
+                    DB::raw("'hotel' as location_type"), // Add location_type
                     'name', 'address', 'phone', 'author'
                 )->get())
                 ->merge(DB::table('statepark')->select(
+                    'id',
                     DB::raw("'Location' as scope"),
+                    DB::raw("'statepark' as location_type"), // Add location_type
                     'name', 'address', 'phone', 'author'
                 )->get())
                 ->merge(DB::table('privatesite')->select(
+                    'id',
                     DB::raw("'Location' as scope"),
+                    DB::raw("'privatesite' as location_type"), // Add location_type
                     'name', 'address', 'phone', 'author'
                 )->get());
 
