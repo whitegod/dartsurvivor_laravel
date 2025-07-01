@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 01, 2025 at 09:10 AM
+-- Generation Time: Jul 01, 2025 at 04:26 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -107,7 +107,7 @@ CREATE TABLE `hotel` (
   `name` varchar(255) NOT NULL,
   `address` varchar(255) NOT NULL,
   `phone` char(50) NOT NULL,
-  `created_at` date NOT NULL DEFAULT current_timestamp(),
+  `created_at` date DEFAULT NULL,
   `updated_at` date DEFAULT NULL,
   `author` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -190,8 +190,8 @@ CREATE TABLE `privatesite` (
   `own` tinyint(1) DEFAULT NULL,
   `res` tinyint(1) DEFAULT NULL,
   `zon` varchar(255) DEFAULT NULL,
-  `created_at` date NOT NULL DEFAULT current_timestamp(),
-  `updated_at` date NOT NULL DEFAULT current_timestamp(),
+  `created_at` date DEFAULT NULL,
+  `updated_at` date DEFAULT NULL,
   `author` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -284,8 +284,8 @@ CREATE TABLE `statepark` (
   `name` varchar(255) NOT NULL,
   `address` varchar(255) NOT NULL,
   `phone` varchar(50) NOT NULL,
-  `created_at` date NOT NULL DEFAULT current_timestamp(),
-  `updated_at` date NOT NULL DEFAULT current_timestamp(),
+  `created_at` date DEFAULT NULL,
+  `updated_at` date DEFAULT NULL,
   `author` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
