@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 28, 2025 at 06:30 PM
+-- Generation Time: Jul 01, 2025 at 09:10 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -86,8 +86,15 @@ INSERT INTO `author` (`id`, `author_name`, `address`, `description`, `scope`) VA
 CREATE TABLE `caseworker` (
   `id` int(11) NOT NULL,
   `fname` varchar(255) NOT NULL,
-  `lanme` varchar(255) NOT NULL
+  `lname` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `caseworker`
+--
+
+INSERT INTO `caseworker` (`id`, `fname`, `lname`) VALUES
+(1, 'Cristinao', 'Ronaldo');
 
 -- --------------------------------------------------------
 
@@ -99,16 +106,19 @@ CREATE TABLE `hotel` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `address` varchar(255) NOT NULL,
-  `phone` char(50) NOT NULL
+  `phone` char(50) NOT NULL,
+  `created_at` date NOT NULL DEFAULT current_timestamp(),
+  `updated_at` date DEFAULT NULL,
+  `author` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `hotel`
 --
 
-INSERT INTO `hotel` (`id`, `name`, `address`, `phone`) VALUES
-(1, 'kings hotel', 'address dummy', '123123141'),
-(2, 'queen\'s hotel', 'dsafdsafdsafds fdf', '432143456');
+INSERT INTO `hotel` (`id`, `name`, `address`, `phone`, `created_at`, `updated_at`, `author`) VALUES
+(1, 'king\'s hotel', 'address dummy', '123123141', '2025-05-22', NULL, ''),
+(2, 'queen\'s hotel', 'dsafdsafdsafds fdf', '432143456', '2025-03-30', '2025-06-27', 'Dart Admin');
 
 -- --------------------------------------------------------
 
@@ -130,8 +140,10 @@ CREATE TABLE `lodge_unit` (
 --
 
 INSERT INTO `lodge_unit` (`id`, `unit_name`, `survivor_id`, `statepark_id`, `li_date`, `lo_date`) VALUES
-(1, 'lot 12', 3, 1, '2025-05-27', '2025-05-30'),
-(2, 'lot ABC', NULL, 2, NULL, NULL);
+(1, 'lot 12', NULL, 1, '2025-05-27', '2025-05-30'),
+(2, 'lot ABC', 2, 2, '2025-05-29', '2025-05-31'),
+(3, 'lot 15', NULL, 1, NULL, NULL),
+(5, 'lot 23', NULL, 2, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -152,6 +164,43 @@ CREATE TABLE `migrations` (
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (1, '2025_05_15_094256_update_ttus_table', 1),
 (2, '2025_05_15_102431_create_survivors_table', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `privatesite`
+--
+
+CREATE TABLE `privatesite` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `phone` char(50) DEFAULT NULL,
+  `ttu_id` int(11) DEFAULT NULL,
+  `damage_assessment` varchar(255) DEFAULT NULL,
+  `ehp` varchar(255) DEFAULT NULL,
+  `ehp_notes` varchar(255) DEFAULT NULL,
+  `dow_lat` float DEFAULT NULL,
+  `dow_long` float DEFAULT NULL,
+  `dow_response` varchar(255) DEFAULT NULL,
+  `kytc` tinyint(1) DEFAULT NULL,
+  `pow` tinyint(1) DEFAULT NULL,
+  `h2o` tinyint(1) DEFAULT NULL,
+  `sew` tinyint(1) DEFAULT NULL,
+  `own` tinyint(1) DEFAULT NULL,
+  `res` tinyint(1) DEFAULT NULL,
+  `zon` varchar(255) DEFAULT NULL,
+  `created_at` date NOT NULL DEFAULT current_timestamp(),
+  `updated_at` date NOT NULL DEFAULT current_timestamp(),
+  `author` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `privatesite`
+--
+
+INSERT INTO `privatesite` (`id`, `name`, `address`, `phone`, `ttu_id`, `damage_assessment`, `ehp`, `ehp_notes`, `dow_lat`, `dow_long`, `dow_response`, `kytc`, `pow`, `h2o`, `sew`, `own`, `res`, `zon`, `created_at`, `updated_at`, `author`) VALUES
+(1, 'Brexit County State Park of Florida', '4831 Wetstone Dr.', '342343465', 3, 'fdfsafew', NULL, NULL, 4342430, 123213, NULL, NULL, 1, 1, 1, 1, 0, NULL, '2025-06-10', '2025-06-11', NULL);
 
 -- --------------------------------------------------------
 
@@ -204,7 +253,7 @@ INSERT INTO `role_user` (`id`, `role_id`, `user_id`, `created_at`, `updated_at`)
 
 CREATE TABLE `room` (
   `id` int(11) NOT NULL,
-  `room_num` int(11) NOT NULL,
+  `room_num` char(50) NOT NULL,
   `survivor_id` int(11) DEFAULT NULL,
   `hotel_id` int(11) NOT NULL,
   `li_date` date DEFAULT NULL,
@@ -216,9 +265,13 @@ CREATE TABLE `room` (
 --
 
 INSERT INTO `room` (`id`, `room_num`, `survivor_id`, `hotel_id`, `li_date`, `lo_date`) VALUES
-(1, 101, 2, 1, '2025-05-27', '2025-05-31'),
-(2, 202, NULL, 1, NULL, NULL),
-(3, 1102, NULL, 2, NULL, NULL);
+(1, '101', NULL, 1, '2025-05-27', '2025-05-31'),
+(2, '202', 4, 1, '2025-05-31', '2025-06-03'),
+(3, '1102', NULL, 2, NULL, NULL),
+(4, '102', NULL, 1, NULL, NULL),
+(5, '201', NULL, 1, NULL, NULL),
+(6, '103', NULL, 1, NULL, NULL),
+(8, '203', NULL, 1, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -230,16 +283,19 @@ CREATE TABLE `statepark` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `address` varchar(255) NOT NULL,
-  `phone` varchar(50) NOT NULL
+  `phone` varchar(50) NOT NULL,
+  `created_at` date NOT NULL DEFAULT current_timestamp(),
+  `updated_at` date NOT NULL DEFAULT current_timestamp(),
+  `author` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `statepark`
 --
 
-INSERT INTO `statepark` (`id`, `name`, `address`, `phone`) VALUES
-(1, 'statepark1', 'adrerehrerh', ''),
-(2, 'test park 3', 'dsfaeererwerew', '214321414');
+INSERT INTO `statepark` (`id`, `name`, `address`, `phone`, `created_at`, `updated_at`, `author`) VALUES
+(1, 'statepark1', 'adrerehrerh', '34234346123', '2025-05-26', '2025-06-11', 'Dart Admin'),
+(2, 'test park 3', 'updated address', '214321414', '2025-05-24', '2025-05-30', '');
 
 -- --------------------------------------------------------
 
@@ -262,6 +318,7 @@ CREATE TABLE `survivor` (
   `hh_size` int(11) DEFAULT NULL,
   `pets` int(11) DEFAULT NULL,
   `email` char(50) DEFAULT NULL,
+  `tpm` date DEFAULT NULL,
   `li_date` date DEFAULT NULL,
   `own_rent` tinyint(1) DEFAULT NULL,
   `author` varchar(100) DEFAULT NULL,
@@ -278,10 +335,11 @@ CREATE TABLE `survivor` (
 -- Dumping data for table `survivor`
 --
 
-INSERT INTO `survivor` (`id`, `fema_id`, `fname`, `lname`, `address`, `city`, `state`, `zip`, `county`, `primary_phone`, `secondary_phone`, `hh_size`, `pets`, `email`, `li_date`, `own_rent`, `author`, `location_type`, `opt_out`, `opt_out_reason`, `caseworker_id`, `notes`, `created_at`, `updated_at`) VALUES
-(1, '364783292634', 'test', 'dfsd', NULL, NULL, NULL, NULL, NULL, '(890) 903-5768', '(890) 903-2344', 3, 1, NULL, NULL, 0, 'Dart Admin', 'TTU', 0, 'N/A', NULL, NULL, '2025-05-26 15:29:38', '2025-05-26 15:32:27'),
-(2, '343256765', 'dd', 'fdge', 'address 2', NULL, 'CA', '12345', NULL, NULL, NULL, 3, 2, NULL, NULL, 0, 'Dart Admin', 'State Park', 0, 'N/A', NULL, NULL, '2025-05-26 15:43:18', '2025-05-28 09:38:27'),
-(3, '343256243', 'adsa', 'fewfw', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 3, 1, NULL, NULL, 0, 'Dart Admin', 'State Park', 0, 'Personal', NULL, NULL, '2025-05-26 15:43:36', '2025-05-26 17:45:50');
+INSERT INTO `survivor` (`id`, `fema_id`, `fname`, `lname`, `address`, `city`, `state`, `zip`, `county`, `primary_phone`, `secondary_phone`, `hh_size`, `pets`, `email`, `tpm`, `li_date`, `own_rent`, `author`, `location_type`, `opt_out`, `opt_out_reason`, `caseworker_id`, `notes`, `created_at`, `updated_at`) VALUES
+(1, '364783292634', 'test', 'dfsd', NULL, NULL, NULL, NULL, NULL, '(890) 903-5768', '(890) 903-2344', 3, 1, NULL, NULL, NULL, 0, 'Dart Admin', 'TTU', 0, 'N/A', NULL, NULL, '2025-05-26 15:29:38', '2025-05-26 15:32:27'),
+(2, '343256765', 'dd', 'fdge', 'address 2', NULL, 'CA', '12345', NULL, NULL, NULL, 2, 2, NULL, '2025-05-12', NULL, 0, 'Dart Admin', 'State Park', 0, 'N/A', NULL, NULL, '2025-05-26 15:43:18', '2025-06-10 15:30:49'),
+(3, '343256243', 'adsa', 'fewfw', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 4, 1, NULL, '2025-06-25', NULL, 0, 'Dart Admin', 'TTU', 0, 'Personal', NULL, NULL, '2025-05-26 15:43:36', '2025-06-10 15:00:59'),
+(4, 'Mdj304827', 'victor', 'tester', 'add4', NULL, NULL, NULL, NULL, '(890) 903-1212', NULL, 2, 3, NULL, '2025-06-26', NULL, 0, 'Dart Admin', 'Hotel', 0, 'N/A', NULL, NULL, '2025-06-17 19:25:40', '2025-06-22 19:32:31');
 
 -- --------------------------------------------------------
 
@@ -306,7 +364,7 @@ CREATE TABLE `transfer` (
 --
 
 INSERT INTO `transfer` (`id`, `ttu_id`, `donated`, `recipient_type`, `donation_agency`, `donation_category`, `auction`, `sold_at_auction_price`, `recipient`) VALUES
-(1, 2, 0, 0, 'asd', 'cat234', 0, 353453, 'tester');
+(1, 2, 1, 0, 'asd', 'cat234', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -318,21 +376,21 @@ CREATE TABLE `ttu` (
   `id` int(10) UNSIGNED NOT NULL,
   `survivor_id` int(11) DEFAULT NULL,
   `vin` varchar(64) DEFAULT NULL,
+  `location` varchar(50) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
   `manufacturer` varchar(100) DEFAULT NULL,
   `brand` varchar(100) DEFAULT NULL,
   `model` varchar(100) DEFAULT NULL,
   `year` varchar(10) DEFAULT NULL,
-  `status` varchar(100) DEFAULT NULL,
   `title_manufacturer` varchar(100) DEFAULT NULL,
   `title_brand` varchar(100) DEFAULT NULL,
   `title_model` varchar(100) DEFAULT NULL,
   `has_title` varchar(10) DEFAULT NULL,
   `unit_loc` varchar(10) DEFAULT NULL,
-  `location` varchar(50) DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
   `county` varchar(100) DEFAULT NULL,
   `imei` varchar(64) DEFAULT NULL,
   `purchase_price` decimal(10,2) DEFAULT NULL,
+  `status` varchar(100) DEFAULT NULL,
   `total_beds` int(11) DEFAULT NULL,
   `disposition` varchar(50) DEFAULT NULL,
   `transpo_agency` varchar(100) DEFAULT NULL,
@@ -342,6 +400,7 @@ CREATE TABLE `ttu` (
   `lo` varchar(10) DEFAULT NULL,
   `lo_date` date DEFAULT NULL,
   `est_lo_date` date DEFAULT NULL,
+  `privatesite` tinyint(4) NOT NULL DEFAULT 0,
   `has_200sqft` tinyint(1) DEFAULT 0,
   `has_propanefire` tinyint(1) DEFAULT 0,
   `has_tv` tinyint(1) DEFAULT 0,
@@ -367,11 +426,11 @@ CREATE TABLE `ttu` (
 -- Dumping data for table `ttu`
 --
 
-INSERT INTO `ttu` (`id`, `survivor_id`, `vin`, `manufacturer`, `brand`, `model`, `year`, `status`, `title_manufacturer`, `title_brand`, `title_model`, `has_title`, `unit_loc`, `location`, `address`, `county`, `imei`, `purchase_price`, `total_beds`, `disposition`, `transpo_agency`, `remarks`, `comments`, `fdec`, `lo`, `lo_date`, `est_lo_date`, `has_200sqft`, `has_propanefire`, `has_tv`, `has_hydraul`, `has_steps`, `has_teardrop`, `has_foldwalls`, `has_extkitchen`, `is_onsite`, `is_occupied`, `is_winterized`, `is_deblocked`, `is_cleaned`, `is_gps_removed`, `is_being_donated`, `is_sold_at_auction`, `author`, `created_at`, `updated_at`) VALUES
-(1, NULL, 'S0VM9145645', 'Forest River', 'Apex Ultra Lite', 'D23', '2023', 'Demobilized (#ffd700)', NULL, NULL, NULL, 'Yes', NULL, NULL, NULL, 'Brexit County', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'NO', '0000-00-00', '0000-00-00', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', NULL, NULL),
-(2, 1, '3SD2CXSBXSM046291', 'Forest River', NULL, NULL, NULL, 'Not Ready for Occupancy (#b22222)', NULL, NULL, NULL, 'Yes', NULL, 'Ramada Inn', NULL, NULL, NULL, NULL, 4, 'Awaiting Signatures', 'fedex', NULL, NULL, NULL, 'NO', '2025-05-27', '2025-06-07', 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, '1', '2025-05-27 15:35:51', '2025-05-28 16:25:34'),
-(3, 3, '3SD2CXBNMSM043391', 'Forest River', NULL, NULL, NULL, 'Transferred to Auction (#007bff)', NULL, NULL, NULL, 'Yes', NULL, NULL, NULL, NULL, NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, 'NO', '2025-05-29', '2025-05-31', 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, '', NULL, NULL),
-(4, NULL, 'MSV2937294', NULL, NULL, NULL, '2023', 'Transferred to City/County/State Entity (#800080)', NULL, NULL, NULL, 'Yes', '123', 'Ramada Inn', NULL, NULL, NULL, NULL, 5, NULL, NULL, NULL, NULL, NULL, 'NO', '0000-00-00', '0000-00-00', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', NULL, NULL);
+INSERT INTO `ttu` (`id`, `survivor_id`, `vin`, `location`, `address`, `manufacturer`, `brand`, `model`, `year`, `title_manufacturer`, `title_brand`, `title_model`, `has_title`, `unit_loc`, `county`, `imei`, `purchase_price`, `status`, `total_beds`, `disposition`, `transpo_agency`, `remarks`, `comments`, `fdec`, `lo`, `lo_date`, `est_lo_date`, `privatesite`, `has_200sqft`, `has_propanefire`, `has_tv`, `has_hydraul`, `has_steps`, `has_teardrop`, `has_foldwalls`, `has_extkitchen`, `is_onsite`, `is_occupied`, `is_winterized`, `is_deblocked`, `is_cleaned`, `is_gps_removed`, `is_being_donated`, `is_sold_at_auction`, `author`, `created_at`, `updated_at`) VALUES
+(1, NULL, 'S0VM9145645', 'Brexit County State Park of Florida', NULL, 'Forest River', 'Apex Ultra Lite', 'D23', '2023', NULL, NULL, NULL, 'Yes', NULL, 'Brexit County', NULL, NULL, 'Demobilized (#ffd700)', 3, 'Available', NULL, NULL, NULL, NULL, 'NO', NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Carol Hughes\n', '2025-05-12 16:19:11', '2025-05-29 02:41:52'),
+(2, 1, '3SD2CXSBXSM046291', 'Ramada Inn', 'address test test', 'Forest River', NULL, NULL, NULL, NULL, NULL, NULL, 'Yes', NULL, NULL, NULL, NULL, 'Not Ready for Occupancy (#b22222)', 4, 'Awaiting Signatures', 'fedex', NULL, NULL, NULL, 'NO', '2025-05-27', '2025-06-07', 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 'Damien Weyas	\n', '2025-05-27 15:35:51', '2025-05-28 17:08:18'),
+(3, 3, '3SD2CXBNMSM043391', NULL, NULL, 'Forest River', NULL, NULL, NULL, NULL, NULL, NULL, 'Yes', '13', NULL, NULL, NULL, 'Transferred to Auction (#007bff)', 3, 'Available', NULL, NULL, NULL, NULL, 'NO', '2025-06-08', '2025-06-14', 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 'Sweet Caroline\n', '2025-06-01 16:19:32', '2025-06-10 20:37:08'),
+(4, NULL, 'MSV2937294', 'Ramada Inn', NULL, NULL, NULL, NULL, '2023', NULL, NULL, NULL, 'Yes', '123', NULL, NULL, NULL, 'Transferred to City/County/State Entity (#800080)', 5, NULL, NULL, NULL, NULL, NULL, 'NO', '0000-00-00', '0000-00-00', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Damien Weyas	', '2025-06-25 16:19:44', '2025-06-26 16:19:51');
 
 -- --------------------------------------------------------
 
@@ -426,7 +485,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `client_id`, `status`, `token`, `password`, `remember_token`, `admin_id`, `payroll_id`, `worker_id`, `contact_id`, `account_manager_id`, `created_at`, `updated_at`, `email_token`, `verified`) VALUES
-(1, 'Dart Admin', 'admin@dart.com', '000', 1, '', '$2y$10$6E8oWaxqgaMrETR/IYtHEegfRejR9fVqg0f/OfISMJFtqyybQpQYu', 'LCVvFvLKNjN941Mf1pdEOiOjMcREUZ54S0y2mT1rDsVfADTpsKUDQUkyNTxo', NULL, NULL, NULL, NULL, NULL, '2017-10-13 22:59:32', '2019-03-10 13:14:56', NULL, NULL);
+(1, 'Dart Admin', 'admin@dart.com', '000', 1, '', '$2y$10$6E8oWaxqgaMrETR/IYtHEegfRejR9fVqg0f/OfISMJFtqyybQpQYu', 'sxP3pbh7QGPHaXtqaSMyBkufuJRGkESEZJVGvk27CGU9kz8nE5jR6Jepi8KF', NULL, NULL, NULL, NULL, NULL, '2017-10-13 22:59:32', '2019-03-10 13:14:56', NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -454,6 +513,12 @@ ALTER TABLE `hotel`
 -- Indexes for table `lodge_unit`
 --
 ALTER TABLE `lodge_unit`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `privatesite`
+--
+ALTER TABLE `privatesite`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -525,19 +590,25 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT for table `caseworker`
 --
 ALTER TABLE `caseworker`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `hotel`
 --
 ALTER TABLE `hotel`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `lodge_unit`
 --
 ALTER TABLE `lodge_unit`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `privatesite`
+--
+ALTER TABLE `privatesite`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -555,19 +626,19 @@ ALTER TABLE `role_user`
 -- AUTO_INCREMENT for table `room`
 --
 ALTER TABLE `room`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `statepark`
 --
 ALTER TABLE `statepark`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `survivor`
 --
 ALTER TABLE `survivor`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `transfer`
