@@ -71,6 +71,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/admin/lodge-units/edit/{id?}', 'LocationController@lodgeUnitEdit')->name('admin.lodge_units.edit');
 
         Route::get('/admin/caseworkers', 'CaseworkerController@caseworkers')->name('admin.caseworkers');
+        Route::post('/admin/caseworkers/store', 'CaseworkerController@store')->name('admin.caseworkers.store');
+        Route::put('/admin/caseworkers/{id}', 'CaseworkerController@update')->name('admin.caseworkers.update');
+        Route::delete('/admin/caseworkers/{id}', 'CaseworkerController@destroy')->name('admin.caseworkers.destroy');
     });
 
     Route::get('/admin/ttus/vin-autocomplete', function(\Illuminate\Http\Request $request) {
