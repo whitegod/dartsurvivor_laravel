@@ -27,6 +27,7 @@ class DetailedSearchController extends Controller
         if ($scope === 'survivors') {
             $query = DB::table('survivor')
                 ->select(
+                    'id',
                     DB::raw("'Survivor' as scope"),
                     DB::raw("CONCAT(fname, ' ', lname) as name"),
                     'address',
@@ -44,12 +45,33 @@ class DetailedSearchController extends Controller
             $results = $query->get();
         } elseif ($scope === 'ttus') {
             $query = DB::table('ttu')
+                ->leftJoin('hotel', function($join) {
+                    $join->on('ttu.location', '=', 'hotel.name')
+                         ->where('ttu.location_type', '=', 'hotel');
+                })
+                ->leftJoin('statepark', function($join) {
+                    $join->on('ttu.location', '=', 'statepark.name')
+                         ->where('ttu.location_type', '=', 'statepark');
+                })
+                ->leftJoin('privatesite', function($join) {
+                    $join->on('ttu.location', '=', 'privatesite.name')
+                         ->where('ttu.location_type', '=', 'privatesite');
+                })
                 ->select(
+                    'ttu.id',
                     DB::raw("'TTU' as scope"),
                     DB::raw("'' as name"),
-                    DB::raw("'' as address"),
-                    DB::raw("'' as phone"),
-                    'author'
+                    DB::raw("CASE 
+                        WHEN ttu.location_type = 'hotel' THEN hotel.address
+                        WHEN ttu.location_type = 'statepark' THEN statepark.address
+                        WHEN ttu.location_type = 'privatesite' THEN privatesite.address
+                        ELSE '' END as address"),
+                    DB::raw("CASE 
+                        WHEN ttu.location_type = 'hotel' THEN hotel.phone
+                        WHEN ttu.location_type = 'statepark' THEN statepark.phone
+                        WHEN ttu.location_type = 'privatesite' THEN privatesite.phone
+                        ELSE '' END as phone"),
+                    'ttu.author'
                 );
             if ($keyword) {
                 $query->where('author', 'like', "%$keyword%");
@@ -58,19 +80,19 @@ class DetailedSearchController extends Controller
         } elseif ($scope === 'locations') {
             $locations = collect()
                 ->merge(DB::table('hotel')->select(
-                    'id',
+                    'hotel.id',
                     DB::raw("'Location' as scope"),
                     DB::raw("'hotel' as location_type"), // Add location_type
                     'name', 'address', 'phone', 'author'
                 )->get())
                 ->merge(DB::table('statepark')->select(
-                    'id',
+                    'statepark.id',
                     DB::raw("'Location' as scope"),
                     DB::raw("'statepark' as location_type"), // Add location_type
                     'name', 'address', 'phone', 'author'
                 )->get())
                 ->merge(DB::table('privatesite')->select(
-                    'id',
+                    'privatesite.id',
                     DB::raw("'Location' as scope"),
                     DB::raw("'privatesite' as location_type"), // Add location_type
                     'name', 'address', 'phone', 'author'
@@ -95,13 +117,33 @@ class DetailedSearchController extends Controller
                     DB::raw("'' as author")
                 );
             $ttus = DB::table('ttu')
+                ->leftJoin('hotel', function($join) {
+                    $join->on('ttu.location', '=', 'hotel.name')
+                         ->where('ttu.location_type', '=', 'hotel');
+                })
+                ->leftJoin('statepark', function($join) {
+                    $join->on('ttu.location', '=', 'statepark.name')
+                         ->where('ttu.location_type', '=', 'statepark');
+                })
+                ->leftJoin('privatesite', function($join) {
+                    $join->on('ttu.location', '=', 'privatesite.name')
+                         ->where('ttu.location_type', '=', 'privatesite');
+                })
                 ->select(
-                    'id',
+                    'ttu.id',
                     DB::raw("'TTU' as scope"),
                     DB::raw("'' as name"),
-                    DB::raw("'' as address"),
-                    DB::raw("'' as phone"),
-                    'author'
+                    DB::raw("CASE 
+                        WHEN ttu.location_type = 'hotel' THEN hotel.address
+                        WHEN ttu.location_type = 'statepark' THEN statepark.address
+                        WHEN ttu.location_type = 'privatesite' THEN privatesite.address
+                        ELSE '' END as address"),
+                    DB::raw("CASE 
+                        WHEN ttu.location_type = 'hotel' THEN hotel.phone
+                        WHEN ttu.location_type = 'statepark' THEN statepark.phone
+                        WHEN ttu.location_type = 'privatesite' THEN privatesite.phone
+                        ELSE '' END as phone"),
+                    'ttu.author'
                 );
             $locations = collect()
                 ->merge(DB::table('hotel')->select(
