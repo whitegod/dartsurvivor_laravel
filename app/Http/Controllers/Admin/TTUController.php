@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use DB;
+use App\Privatesite; 
 
 class TTUController extends Controller
 {
@@ -150,104 +152,83 @@ class TTUController extends Controller
 
     public function updateTTU(Request $request, $id)
     {
+        $ttu = \App\TTU::findOrFail($id);
+
+        // If privatesite, set location to privatesite name
         $data = $request->except([
-                '_token', '_method', 'fema_id', 'survivor_name',
-                // privatesite fields (do not store in TTU)
-                'name', 'address', 'phone', 'pow', 'h2o', 'sew', 'own', 'res',
-                'damage_assessment', 'ehp', 'ehp_notes', 'dow_long', 'dow_lat', 'zon', 'dow_response', 'privatesite'
-            ]);
-        // Remove transfer-only fields before saving TTU
-        unset(
-            $data['recipient_type'],
-            $data['donation_agency'],
-            $data['donation_category'],
-            $data['sold_at_auction_price'],
-            $data['recipient']
-        );
+            'survivor_name',
+            'name', 'address', 'phone', 'pow', 'h2o', 'sew', 'own', 'res',
+            'damage_assessment', 'ehp', 'ehp_notes', 'dow_long', 'dow_lat', 'zon', 'dow_response', 'privatesite'
+        ]);
 
-        // Only keep donation fields if is_being_donated is checked
-        if (empty($request->is_being_donated)) {
-            unset($data['recipient_type'], $data['donation_agency'], $data['donation_category']);
-        }
-        
-        if (empty($request->is_sold_at_auction)) {
-            unset($data['sold_at_auction_price'], $data['recipient']);
+        if ($request->location_type === 'privatesite') {
+            $data['location'] = $request->input('name'); // Set location to privatesite name
         }
 
-        // Map expect_lo_date to est_lo_date if present
-        if (isset($data['expect_lo_date'])) {
-            $data['est_lo_date'] = $data['expect_lo_date'];
-            unset($data['expect_lo_date']);
-        }
+        $ttu->fill($data);
+        $ttu->save();
 
-        $featureFields = [
-            'has_200sqft', 'has_propanefire', 'has_tv', 'has_hydraul',
-            'has_steps', 'has_teardrop', 'has_foldwalls', 'has_extkitchen'
-        ];
-        $statusFields = [
-            'is_onsite', 'is_occupied', 'is_winterized', 'is_deblocked',
-            'is_cleaned', 'is_gps_removed', 'is_being_donated', 'is_sold_at_auction'
-        ];
-        foreach (array_merge($featureFields, $statusFields) as $field) {
-            $data[$field] = $request->has($field) ? 1 : 0;
-        }
-
-        $data['author'] = auth()->id();
-        \App\TTU::where('id', $id)->update($data);
-
-        $ttu = \App\TTU::find($id);
-
-        if ($request->has('privatesite')) {
-            $privatesiteData = [
-                'ttu_id' => $ttu->id,
-                'name' => $request->input('name'),
-                'address' => $request->input('address'),
-                'phone' => $request->input('phone'),
-                'pow' => $request->has('pow') ? 1 : 0,
-                'h2o' => $request->has('h2o') ? 1 : 0,
-                'sew' => $request->has('sew') ? 1 : 0,
-                'own' => $request->has('own') ? 1 : 0,
-                'res' => $request->has('res') ? 1 : 0,
-                'damage_assessment' => $request->input('damage_assessment'),
-                'ehp' => $request->input('ehp'),
-                'ehp_notes' => $request->input('ehp_notes'),
-                'dow_long' => $request->input('dow_long'),
-                'dow_lat' => $request->input('dow_lat'),
-                'zon' => $request->input('zon'),
-                'dow_response' => $request->input('dow_response'),
-                'created_at' => now(), // <-- add created_at for update
-            ];
-            if (\DB::table('privatesite')->where('ttu_id', $id)->exists()) {
-                \DB::table('privatesite')->where('ttu_id', $id)->update($privatesiteData);
-            } else {
-                \DB::table('privatesite')->insert($privatesiteData);
+        // If location_type is privatesite, update privatesite
+        if ($request->location_type === 'privatesite') {
+            // Always fetch privatesite by TTU id
+            $privatesite = Privatesite::where('ttu_id', $ttu->id)->first();
+            if (!$privatesite) {
+                $privatesite = new Privatesite();
+                $privatesite->ttu_id = $ttu->id;
             }
-        } else {
-            \DB::table('privatesite')->where('ttu_id', $id)->delete();
-        }
+            $privatesite->name = $request->input('name');
+            $privatesite->address = $request->input('address');
+            $privatesite->phone = $request->input('phone');
+            $privatesite->damage_assessment = $request->input('damage_assessment');
+            $privatesite->ehp = $request->input('ehp');
+            $privatesite->ehp_notes = $request->input('ehp_notes');
+            $privatesite->dow_long = $request->input('dow_long');
+            $privatesite->dow_lat = $request->input('dow_lat');
+            $privatesite->zon = $request->input('zon');
+            $privatesite->dow_response = $request->input('dow_response');
+            $privatesite->pow = $request->has('pow');
+            $privatesite->h2o = $request->has('h2o');
+            $privatesite->sew = $request->has('sew');
+            $privatesite->own = $request->has('own');
+            $privatesite->res = $request->has('res');
+            $privatesite->save();
 
-        // Save or update transfer table if needed (keep original logic)
-        if ($request->is_being_donated || $request->is_sold_at_auction) {
-            $transferData = [
-                'ttu_id' => $id,
-                'recipient_type' => $request->recipient_type,
-                'donation_agency' => $request->donation_agency,
-                'donation_category' => $request->donation_category,
-                'sold_at_auction_price' => $request->sold_at_auction_price,
-                'recipient' => $request->recipient,
-                'donated' => $request->has('is_being_donated') ? 1 : 0,
-                'auction' => $request->has('is_sold_at_auction') ? 1 : 0,
-            ];
-            if (\DB::table('transfer')->where('ttu_id', $id)->exists()) {
-                \DB::table('transfer')->where('ttu_id', $id)->update($transferData);
-            } else {
-                \DB::table('transfer')->insert($transferData);
-            }
-        } else {
-            // Optionally, remove transfer if neither is checked
-            \DB::table('transfer')->where('ttu_id', $id)->delete();
         }
 
         return redirect()->route('admin.ttus')->with('success', 'TTU updated!');
+    }
+
+    public function locationSuggestions(Request $request)
+    {
+        $type = $request->input('type');
+        $query = $request->input('query', '');
+
+        if ($type === 'hotel') {
+            $results = DB::table('hotel')
+                ->where('name', 'like', "%$query%")
+                ->pluck('name');
+        } elseif ($type === 'statepark') {
+            $results = DB::table('statepark')
+                ->where('name', 'like', "%$query%")
+                ->pluck('name');
+        } elseif ($type === 'privatesite') {
+            $results = DB::table('privatesite')
+                ->where('name', 'like', "%$query%")
+                ->pluck('name');
+        } else {
+            $results = collect();
+        }
+
+        return response()->json($results);
+    }
+
+    public function getPrivatesiteByTTU($ttu_id)
+    {
+        $ttu = \App\TTU::find($ttu_id);
+        if (!$ttu || !$ttu->location_id) {
+            return response()->json(['success' => false]);
+        }
+        $privatesite = \DB::table('privatesite')->where('id', $ttu->location_id)->first();
+        return response()->json(['success' => true, 'privatesite' => $privatesite]);
     }
 }

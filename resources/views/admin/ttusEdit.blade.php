@@ -74,14 +74,21 @@
 
                 <!-- Location & Details -->
                 <div class="form-row">
+                    <!-- Location Type Selector -->
+                    <div class="form-group">
+                        <label for="location_type">Location Type</label>
+                        <select id="location_type" name="location_type">
+                            <option value="">Select Type</option>
+                            <option value="hotel" {{ old('location_type', $ttu->location_type ?? '') == 'hotel' ? 'selected' : '' }}>Hotel</option>
+                            <option value="statepark" {{ old('location_type', $ttu->location_type ?? '') == 'statepark' ? 'selected' : '' }}>State Park</option>
+                            <option value="privatesite" {{ old('location_type', $ttu->location_type ?? '') == 'privatesite' ? 'selected' : '' }}>Private Site</option>
+                        </select>
+                    </div>
+                    <!-- Location Field -->
                     <div class="form-group" style="position: relative;">
                         <label for="location">Location</label>
                         <input type="text" id="location" name="location" value="{{ old('location', $ttu->location ?? '') }}" autocomplete="off">
                         <div id="location-suggestions" class="autocomplete-suggestions" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ccc; z-index:1000; max-height:200px; overflow-y:auto;"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="unit_loc">Unit Loc./Lot #</label>
-                        <input type="text" id="unit_loc" name="unit_loc" value="{{ old('unit_loc', $ttu->unit_loc ?? '') }}">
                     </div>
                     <div class="form-group">
                         <label for="county">County</label>
@@ -98,6 +105,85 @@
                     <div class="form-group">
                         <label for="total_beds">Total beds</label>
                         <input type="number" id="total_beds" name="total_beds" value="{{ old('total_beds', $ttu->total_beds ?? '') }}">
+                    </div>
+                </div>
+                <div id="privatesite-section" class="container form-section" style="display: {{ old('privatesite', $ttu->privatesite ?? false) ? 'flex' : 'none' }};">
+                    <div class="column">
+                        <div>
+                            <div class="form-group">
+                                <label for="name">Name:</label>
+                                <input type="text" id="name" name="name" value="{{ old('name', $privatesite->name ?? '') }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="address">Address:</label>
+                                <input type="text" id="address" name="address" value="{{ old('address', $privatesite->address ?? '') }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone:</label>
+                                <input type="text" id="phone" name="phone" value="{{ old('phone', $privatesite->phone ?? '') }}">
+                            </div>
+                        </div>
+                        <table>
+                            @php
+                                $siteFeatureMap = [
+                                    'Power' => 'pow',
+                                    'Water' => 'h2o',
+                                    'Sewage' => 'sew',
+                                    'Own Property' => 'own',
+                                    'Residential' => 'res',
+                                ];
+                            @endphp
+                            @foreach($siteFeatureMap as $label => $field)
+                            <tr>
+                                <td>{{ $label }}</td>
+                                <td>
+                                    <label class="switch">
+                                        <input type="checkbox" name="{{ $field }}" value="1"
+                                            {{ old($field, $privatesite->$field ?? false) ? 'checked' : '' }}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </table>
+                    </div>
+                    <div class="form-column">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="damage_assessment">Damage Assessment:</label>
+                                <textarea id="damage_assessment" name="damage_assessment">{{ old('damage_assessment', $privatesite->damage_assessment ?? '') }}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ehp">EHP:</label>
+                                <input type="text" id="ehp" name="ehp" value="{{ old('ehp', $privatesite->ehp ?? '') }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="ehp_notes">EHP Notes:</label>
+                                <textarea id="ehp_notes" name="ehp_notes">{{ old('ehp_notes', $privatesite->ehp_notes ?? '') }}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dow_long">DOW Longitude:</label>
+                                <input type="text" id="dow_long" name="dow_long" value="{{ old('dow_long', $privatesite->dow_long ?? '') }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="dow_lat">DOW Latitude:</label>
+                                <input type="text" id="dow_lat" name="dow_lat" value="{{ old('dow_lat', $privatesite->dow_lat ?? '') }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="zon">Zoning:</label>
+                                <input type="text" id="zon" name="zon" value="{{ old('zon', $privatesite->zon ?? '') }}">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dow_response">DOW Response:</label>
+                                <textarea id="dow_response" name="dow_response">{{ old('dow_response', $privatesite->dow_response ?? '') }}</textarea>
+                            </div>                                    
+                        </div>                           
                     </div>
                 </div>
 
@@ -260,103 +346,18 @@
                             </div>
                             <div class="form-group">
                                 <label for="lo-date">LO Date</label>
-                                <input type="date" id="lo-date" name="lo_date" value="{{ old('lo_date', $ttu->lo_date ?? 'N/A') }}">
+                                @php
+                                    $loDate = (isset($ttu->lo_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ttu->lo_date) && $ttu->lo_date !== '0000-00-00') ? $ttu->lo_date : '';
+                                    $estLoDate = (isset($ttu->est_lo_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ttu->est_lo_date) && $ttu->est_lo_date !== '0000-00-00') ? $ttu->est_lo_date : '';
+                                @endphp
+                                <input type="date" id="lo_date" name="lo_date" value="{{ old('lo_date', $loDate) }}">
                             </div>
                             <div class="form-group">
                                 <label for="est_lo_date">Est. LO Date</label>
-                                <input type="date" id="est_lo_date" name="est_lo_date" value="{{ old('est_lo_date', $ttu->est_lo_date ?? 'N/A') }}">
+                                <input type="date" id="est_lo_date" name="est_lo_date" value="{{ old('est_lo_date', $estLoDate) }}">
                             </div>
                         </div>
 
-                        <!-- PrivateSite Features -->
-                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 10px;">
-                            <h4 style="margin: 0;">Private Site</h4>
-                            <label class="switch" style="margin: 0;">
-                                <input type="checkbox" id="privatesite-switch" name="privatesite" value="1"
-                                    {{ old('privatesite', $ttu->privatesite ?? false) ? 'checked' : '' }}>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div id="privatesite-section" class="container form-section" style="display: {{ old('privatesite', $ttu->privatesite ?? false) ? 'flex' : 'none' }};">
-                            <div class="column">
-                                <div>
-                                    <div class="form-group">
-                                        <label for="name">Name:</label>
-                                        <input type="text" id="name" name="name" value="{{ old('name', $privatesite->name ?? '') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="address">Address:</label>
-                                        <input type="text" id="address" name="address" value="{{ old('address', $privatesite->address ?? '') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="phone">Phone:</label>
-                                        <input type="text" id="phone" name="phone" value="{{ old('phone', $privatesite->phone ?? '') }}">
-                                    </div>
-                                </div>
-                                <table>
-                                    @php
-                                        $siteFeatureMap = [
-                                            'Power' => 'pow',
-                                            'Water' => 'h2o',
-                                            'Sewage' => 'sew',
-                                            'Own Property' => 'own',
-                                            'Residential' => 'res',
-                                        ];
-                                    @endphp
-                                    @foreach($siteFeatureMap as $label => $field)
-                                    <tr>
-                                        <td>{{ $label }}</td>
-                                        <td>
-                                            <label class="switch">
-                                                <input type="checkbox" name="{{ $field }}" value="1"
-                                                    {{ old($field, $privatesite->$field ?? false) ? 'checked' : '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </table>
-                            </div>
-                            <div class="form-column">
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="damage_assessment">Damage Assessment:</label>
-                                        <textarea id="damage_assessment" name="damage_assessment">{{ old('damage_assessment', $privatesite->damage_assessment ?? '') }}</textarea>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="ehp">EHP:</label>
-                                        <input type="text" id="ehp" name="ehp" value="{{ old('ehp', $privatesite->ehp ?? '') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="ehp_notes">EHP Notes:</label>
-                                        <textarea id="ehp_notes" name="ehp_notes">{{ old('ehp_notes', $privatesite->ehp_notes ?? '') }}</textarea>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="dow_long">DOW Longitude:</label>
-                                        <input type="text" id="dow_long" name="dow_long" value="{{ old('dow_long', $privatesite->dow_long ?? '') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="dow_lat">DOW Latitude:</label>
-                                        <input type="text" id="dow_lat" name="dow_lat" value="{{ old('dow_lat', $privatesite->dow_lat ?? '') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="zon">Zoning:</label>
-                                        <input type="text" id="zon" name="zon" value="{{ old('zon', $privatesite->zon ?? '') }}">
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="dow_response">DOW Response:</label>
-                                        <textarea id="dow_response" name="dow_response">{{ old('dow_response', $privatesite->dow_response ?? '') }}</textarea>
-                                    </div>                                    
-                                </div>                           
-                            </div>
-                        </div>                                           
-                                  
                         <div class="form-footer">
                             <div class="info">
                                 <div>
