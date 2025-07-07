@@ -110,12 +110,14 @@ class DashboardController extends Controller
             ->map(function($ps) {
                 // Count all TTUs assigned to this privatesite
                 $ps->onsite = DB::table('ttu')
-                    ->where('privatesite', $ps->id)
+                    ->where('location_type', 'privatesite')
+                    ->where('location', $ps->name)
                     ->count();
-                // Count assigned TTUs (assuming 'assigned' column is boolean or status)
+                // Count assigned TTUs (with a survivor)
                 $ps->occupied = DB::table('ttu')
-                    ->where('privatesite', $ps->id)
-                    ->where('survivor_id', '!=', null)
+                    ->where('location_type', 'privatesite')
+                    ->where('location', $ps->name)
+                    ->whereNotNull('survivor_id')
                     ->count();
                 return $ps;
             });
