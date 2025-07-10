@@ -31,50 +31,50 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="fname">First Name</label>
-                        <input type="text" id="fname" name="fname" value="{{ $survivor->fname ?? '' }}" required>
+                        <input type="text" id="fname" name="fname" value="{{ old('fname', $survivor->fname) }}" {{ !empty($readonly) ? 'readonly' : '' }} required>
                     </div>
                     <div class="form-group">
                         <label for="lname">Last Name</label>
-                        <input type="text" id="lname" name="lname" value="{{ $survivor->lname ?? '' }}" required>
+                        <input type="text" id="lname" name="lname" value="{{ old('lname', $survivor->lname) }}" {{ !empty($readonly) ? 'readonly' : '' }} required>
                     </div>
                     <div class="form-group">
                         <label for="address">Address</label>
-                        <input type="text" id="address" name="address" value="{{ $survivor->address ?? '' }}">
+                        <input type="text" id="address" name="address" value="{{ $survivor->address ?? '' }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
                     <div class="form-group" style="flex:4;">
                         <label for="city">City</label>
-                        <input type="text" id="city" name="city" value="{{ $survivor->city ?? '' }}">
+                        <input type="text" id="city" name="city" value="{{ $survivor->city ?? '' }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
                     <div class="form-group" style="flex:1.2;">
                         <label for="state">State</label>
-                        <input type="text" id="state" name="state" value="{{ $survivor->state ?? '' }}">
+                        <input type="text" id="state" name="state" value="{{ $survivor->state ?? '' }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
                     <div class="form-group" style="flex:1.2;">
                         <label for="zip">Zip</label>
-                        <input type="text" id="zip" name="zip" value="{{ $survivor->zip ?? '' }}">
+                        <input type="text" id="zip" name="zip" value="{{ $survivor->zip ?? '' }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="fema_id">FEMA-ID</label>
-                        <input type="text" id="fema_id" name="fema_id" value="{{ old('fema_id', $survivor->fema_id ?? '') }}">
+                        <input type="text" id="fema_id" name="fema_id" value="{{ old('fema_id', $survivor->fema_id ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="primary_phone">Primary Phone</label>
-                        <input type="text" id="primary_phone" name="primary_phone" value="{{ $survivor->primary_phone ?? '' }}">
+                        <input type="text" id="primary_phone" name="primary_phone" value="{{ $survivor->primary_phone ?? '' }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="secondary_phone">Secondary Phone</label>
-                        <input type="text" id="secondary_phone" name="secondary_phone" value="{{ $survivor->secondary_phone ?? '' }}">
+                        <input type="text" id="secondary_phone" name="secondary_phone" value="{{ $survivor->secondary_phone ?? '' }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="county">County</label>
-                        <input type="text" id="county" name="county" value="{{ $survivor->county ?? '' }}">
+                        <input type="text" id="county" name="county" value="{{ $survivor->county ?? '' }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="own_rent">Own/Rent</label>
-                        <select id="own_rent" name="own_rent">
+                        <select id="own_rent" name="own_rent" {{ !empty($readonly) ? 'disabled' : '' }}>
                             <option value="Own" {{ (old('own_rent', $survivor->own_rent ?? '') == 'Own') ? 'selected' : '' }}>Own</option>
                             <option value="Rent" {{ (old('own_rent', $survivor->own_rent ?? '') == 'Rent') ? 'selected' : '' }}>Rent</option>
                         </select>
@@ -85,11 +85,11 @@
                             <div style="border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 10px 0; width: 100%; margin-right: 8px;">
                                 <label for="hh_size" style="margin: 0 8px 0 0; min-width: 60px; font-weight: normal;">Household Size</label>
                             </div>    
-                            <input type="text" id="hh_size" name="hh_size" value="{{ $survivor->hh_size ?? '' }}" style="margin-bottom: 0; width: 40px;">
+                            <input type="text" id="hh_size" name="hh_size" value="{{ $survivor->hh_size ?? '' }}" style="margin-bottom: 0; width: 40px;" {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <label for="pets" style="margin: 0 8px 0 0; min-width: 60px; font-weight: normal;">Pets</label>
-                            <input type="text" id="pets" name="pets" value="{{ $survivor->pets ?? '' }}" style="width: 40px;">
+                            <input type="text" id="pets" name="pets" value="{{ $survivor->pets ?? '' }}" style="width: 40px;" {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                 <div class="form-row" style="align-items: end">
                     <div class="form-group" style="min-width:140px; max-width:260px; flex:1;">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" value="{{ $survivor->email ?? '' }}">
+                        <input type="email" id="email" name="email" value="{{ $survivor->email ?? '' }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
                     <div class="form-group" style="min-width:220px;">
                         <div style="display: flex; gap: 24px; align-items: center;">
@@ -105,19 +105,19 @@
                                 TTU
                                 <input type="radio" name="location_type" value="TTU"
                                     {{ $locationType == 'TTU' ? 'checked' : '' }}
-                                    class="custom-radio-square" onchange="toggleTTURow()">
+                                    class="custom-radio-square" onchange="toggleTTURow()" {{ !empty($readonly) ? 'disabled' : '' }}>
                             </label>
                             <label style="display: flex; align-items: center; gap: 8px;">
                                 Hotel
                                 <input type="radio" name="location_type" value="Hotel"
                                     {{ $locationType == 'Hotel' ? 'checked' : '' }}
-                                    class="custom-radio-square" onchange="toggleTTURow()">
+                                    class="custom-radio-square" onchange="toggleTTURow()" {{ !empty($readonly) ? 'disabled' : '' }}>
                             </label>
                             <label style="display: flex; align-items: center; gap: 8px;">
                                 State Park
                                 <input type="radio" name="location_type" value="State Park"
                                     {{ $locationType == 'State Park' ? 'checked' : '' }}
-                                    class="custom-radio-square" onchange="toggleTTURow()">
+                                    class="custom-radio-square" onchange="toggleTTURow()" {{ !empty($readonly) ? 'disabled' : '' }}>
                             </label>
                         </div>
                     </div>
@@ -138,18 +138,18 @@
                         </div>
                         <div class="form-group" style="flex:0.5; min-width:70px;">
                             <label for="lo">LO</label>
-                            <select id="lo" name="lo">
+                            <select id="lo" name="lo" {{ !empty($readonly) ? 'disabled' : '' }}>
                                 <option value="0" {{ old('lo', isset($ttu) ? $ttu->lo : '') == '0' ? 'selected' : '' }}>NO</option>
                                 <option value="1" {{ old('lo', isset($ttu) ? $ttu->lo : '') == '1' ? 'selected' : '' }}>YES</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="lo_date">LO Date</label>
-                            <input id="lo_date" name="lo_date" type="date" value="{{ old('lo_date', $ttu->lo_date ?? '') }}">
+                            <input id="lo_date" name="lo_date" type="date" value="{{ old('lo_date', $ttu->lo_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
                         <div class="form-group">
                             <label for="est_lo_date">Est. LO Date</label>
-                            <input id="est_lo_date" name="est_lo_date" type="date" value="{{ old('est_lo_date', $ttu->est_lo_date ?? '') }}">
+                            <input id="est_lo_date" name="est_lo_date" type="date" value="{{ old('est_lo_date', $ttu->est_lo_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
                     </div>
                 </div>
@@ -161,9 +161,9 @@
                             <div style="display:flex; gap:4px;">
                                 <input type="text" name="hotel_name"
                                     value="{{ old('hotel_name', $hotelName ?? $survivor->hotel_name ?? '') }}"
-                                    style="width: 200px;">
+                                    style="width: 200px;" {{ !empty($readonly) ? 'readonly' : '' }}>
 
-                                <select name="hotel_room" id="hotel_room_select" style="min-width:160px;">
+                                <select name="hotel_room" id="hotel_room_select" style="min-width:160px;" {{ !empty($readonly) ? 'disabled' : '' }}>
                                     @if(old('hotel_room', $hotelRoom ?? false))
                                         <option value="{{ old('hotel_room', $hotelRoom ?? '') }}" selected>
                                             {{ old('hotel_room', $hotelRoom ?? '') }}
@@ -176,12 +176,12 @@
                         <div class="form-group">
                             <label for="hotel_li_date">LI Date</label>
                             <input id="hotel_li_date" name="hotel_li_date" type="date"
-                                value="{{ old('hotel_li_date', $hotelLiDate ?? '') }}">
+                                value="{{ old('hotel_li_date', $hotelLiDate ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
                         <div class="form-group">
                             <label for="hotel_lo_date">LO Date</label>
                             <input id="hotel_lo_date" name="hotel_lo_date" type="date"
-                                value="{{ old('hotel_lo_date', $hotelLoDate ?? '') }}">
+                                value="{{ old('hotel_lo_date', $hotelLoDate ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
                     </div>
                 </div>
@@ -191,20 +191,20 @@
                         <div class="form-group" style="flex:4; min-width:220px; margin-right: 100px;">
                             <label class="info" style="margin-bottom:6px;">State Park Name</label>
                             <div style="position:relative; display:flex; gap:4px;">
-                                <input type="text" name="statepark_name" value="{{ old('statepark_name', $stateparkName ?? $survivor->statepark_name ?? '') }}">
+                                <input type="text" name="statepark_name" value="{{ old('statepark_name', $stateparkName ?? $survivor->statepark_name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                                 <div id="statepark-suggestions" style="position:absolute; top:100%; left:0; z-index:1000; background-color: #fff; border:1px solid #ddd;"></div>
-                                <select name="unit_name" id="unit_name_select">
+                                <select name="unit_name" id="unit_name_select" {{ !empty($readonly) ? 'disabled' : '' }}>
                                     <!-- JS will populate -->
                                 </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="statepark_li_date">LI Date</label>
-                            <input id="statepark_li_date" name="statepark_li_date" type="date" value="{{ old('statepark_li_date', $stateparkLiDate ?? '') }}">
+                            <input id="statepark_li_date" name="statepark_li_date" type="date" value="{{ old('statepark_li_date', $stateparkLiDate ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
                         <div class="form-group">
                             <label for="statepark_lo_date">LO Date</label>
-                            <input id="statepark_lo_date" name="statepark_lo_date" type="date" value="{{ old('statepark_lo_date', $stateparkLoDate ?? '') }}">
+                            <input id="statepark_lo_date" name="statepark_lo_date" type="date" value="{{ old('statepark_lo_date', $stateparkLoDate ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
                     </div>
                 </div>
@@ -214,7 +214,7 @@
                     <div style="flex: 1; min-width: 260px; max-width: 340px;">
                         <div class="form-group" style="min-width:120px; max-width:180px;">
                             <label for="opt_out">Opt Out?</label>
-                            <select id="opt_out" name="opt_out">
+                            <select id="opt_out" name="opt_out" {{ !empty($readonly) ? 'disabled' : '' }}>
                                 <option value="NO" {{ (old('opt_out', $survivor->opt_out ?? '') == 'NO') ? 'selected' : '' }}>NO</option>
                                 <option value="YES" {{ (old('opt_out', $survivor->opt_out ?? '') == 'YES') ? 'selected' : '' }}>YES</option>
                             </select>
@@ -222,7 +222,7 @@
                         <div style="display: flex; gap: 16px;">
                             <div class="form-group" style="min-width:120px; max-width:180px;">
                                 <label for="opt_out_reason">Reason</label>
-                                <select id="opt_out_reason" name="opt_out_reason">
+                                <select id="opt_out_reason" name="opt_out_reason" {{ !empty($readonly) ? 'disabled' : '' }}>
                                     <option value="N/A" {{ (old('opt_out_reason', $survivor->opt_out_reason ?? '') == 'N/A') ? 'selected' : '' }}>N/A</option>
                                     <option value="Personal" {{ (old('opt_out_reason', $survivor->opt_out_reason ?? '') == 'Personal') ? 'selected' : '' }}>Personal</option>
                                     <option value="Other" {{ (old('opt_out_reason', $survivor->opt_out_reason ?? '') == 'Other') ? 'selected' : '' }}>Other</option>
@@ -230,14 +230,14 @@
                             </div>
                             <div class="form-group" style="min-width:120px; max-width:180px;">
                                 <label for="caseworker_id">Case Worker ID</label>
-                                <input type="text" id="caseworker_id" name="caseworker_id" value="{{ old('caseworker_id', $survivor->caseworker_id ?? '') }}">
+                                <input type="text" id="caseworker_id" name="caseworker_id" value="{{ old('caseworker_id', $survivor->caseworker_id ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                             </div>
                         </div>
                     </div>
                     <!-- Right Column -->
                     <div style="flex: 2;">
                         <label for="notes">Comments/Notes:</label>
-                        <textarea id="notes" name="notes" rows="3">{{ old('notes', $survivor->notes ?? '') }}</textarea>
+                        <textarea id="notes" name="notes" rows="3" {{ !empty($readonly) ? 'readonly' : '' }}>{{ old('notes', $survivor->notes ?? '') }}</textarea>
                     </div>
                 </div>
                 <div class="form-footer">
@@ -254,8 +254,13 @@
                         @endif
                     </div>
                     <div class="buttons">
-                        <button type="button" class="btn btn-cancel" onclick="window.history.back();" style="margin-right: 16px;">Cancel</button>
-                        <button type="submit" class="btn btn-save">{{ isset($survivor) ? 'Update' : 'Save' }}</button>
+                        @if(!empty($readonly))
+                            <button type="button" class="btn btn-cancel" onclick="window.history.back();" style="margin-right: 16px;">Back</button>
+                            <a href="" class="btn btn-save">Show History</a>
+                        @else
+                            <button type="button" class="btn btn-cancel" onclick="window.history.back();" style="margin-right: 16px;">Cancel</button>
+                            <button type="submit" class="btn btn-save">{{ isset($survivor) ? 'Update' : 'Save' }}</button>
+                        @endif
                     </div>
                 </div>
             </form>

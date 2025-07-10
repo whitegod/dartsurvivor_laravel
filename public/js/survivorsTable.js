@@ -134,6 +134,7 @@ function renderTable() {
         tdOptions.style.position = 'relative';
         tdOptions.innerHTML = `⋮
             <div class="dropdown-menu" style="right:0; left:auto; min-width:120px; position:absolute;">
+                <a href="/admin/survivors/view/${survivor.id}">View</a>
                 <a href="/admin/survivors/edit/${survivor.id}">Edit</a>
                 <form action="/admin/survivors/delete/${survivor.id}" method="POST" style="margin: 0;">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">

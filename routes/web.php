@@ -37,6 +37,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/admin/reporting', 'AdminController@reporting')->name('admin.reporting');
 
         Route::get('/admin/survivors', 'SurvivorController@survivors')->name('admin.survivors');
+        Route::get('/admin/survivors/view/{id}', 'SurvivorController@viewSurvivor')->name('admin.survivors.view');
         Route::get('/admin/survivors/edit/{id?}', 'SurvivorController@editSurvivor')->name('admin.survivors.edit');
         Route::post('/admin/survivors/store', 'SurvivorController@storeSurvivor')->name('admin.survivors.store');
         Route::put('/admin/survivors/update/{id}', 'SurvivorController@updateSurvivor')->name('admin.survivors.update');

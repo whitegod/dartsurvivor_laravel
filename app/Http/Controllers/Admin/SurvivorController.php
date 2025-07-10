@@ -29,6 +29,53 @@ class SurvivorController extends Controller
         return view('admin.survivors', compact('survivors', 'fields'));
     }
 
+    public function viewSurvivor($id)
+    {
+        // Reuse the editSurvivor logic, but set $readonly = true
+        $survivor = $id === 'new' ? null : \App\Survivor::find($id);
+        $ttu = null;
+        $hotelName = '';
+        $hotelRoom = '';
+        $hotelLiDate = '';
+        $hotelLoDate = '';
+        $stateparkName = '';
+        $unitName = '';
+        $stateparkLiDate = '';
+        $stateparkLoDate = '';
+
+        if ($survivor && $survivor->location_type === 'TTU') {
+            $ttu = \App\TTU::where('survivor_id', $survivor->id)->first();
+        }
+        if ($survivor && $survivor->location_type === 'Hotel') {
+            $room = \App\Room::where('survivor_id', $survivor->id)->first();
+            if ($room) {
+                $hotel = \App\Hotel::find($room->hotel_id);
+                $hotelName = $hotel ? $hotel->name : '';
+                $hotelRoom = $room->room_num;
+                $hotelLiDate = $room->li_date;
+                $hotelLoDate = $room->lo_date;
+            }
+        }
+        if ($survivor && $survivor->location_type === 'State Park') {
+            $unit = \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->first();
+            if ($unit) {
+                $park = \DB::table('statepark')->where('id', $unit->statepark_id)->first();
+                $stateparkName = $park ? $park->name : '';
+                $unitName = $unit->unit_name;
+                $stateparkLiDate = $unit->li_date ? date('Y-m-d', strtotime($unit->li_date)) : '';
+                $stateparkLoDate = $unit->lo_date ? date('Y-m-d', strtotime($unit->lo_date)) : '';
+            }
+        }
+
+        $readonly = true;
+        return view('admin.survivorsEdit', compact(
+            'survivor', 'ttu',
+            'hotelName', 'hotelRoom', 'hotelLiDate', 'hotelLoDate',
+            'stateparkName', 'unitName', 'stateparkLiDate', 'stateparkLoDate',
+            'readonly'
+        ));
+    }
+
     public function editSurvivor($id = null)
     {
         $survivor = $id === 'new' ? null : \App\Survivor::find($id);
