@@ -52,6 +52,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/admin/privatesite-by-ttu/{ttu_id}', 'TTUController@getPrivatesiteByTTU');
 
         Route::get('/admin/locations', 'LocationController@locations')->name('admin.locations');
+        Route::get('/admin/locations/view/{id?}', 'LocationController@locationView')->name('admin.locations.view');
         Route::get('/admin/locations/edit/{id?}', 'LocationController@locationEdit')->name('admin.locations.edit');
         Route::put('/admin/locations/update/{id}', 'LocationController@locationUpdate')->name('admin.locations.update');
         Route::post('/admin/locations/store', 'LocationController@locationStore')->name('admin.locations.store');

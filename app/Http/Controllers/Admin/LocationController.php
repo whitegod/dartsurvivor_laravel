@@ -217,4 +217,43 @@ class LocationController extends Controller
 
         return redirect()->back()->with('success', 'Lodge Unit added successfully!');
     }
+
+    public function locationView(Request $request)
+    {
+        $id = $request->query('id');
+        $type = $request->query('type');
+        $location = null;
+        $rooms = null;
+        $lodge_units = null;
+        $privatesite = null;
+
+        if ($id && $type === 'hotel') {
+            $location = \DB::table('hotel')->where('id', $id)->first();
+            $rooms = \DB::table('room')
+                ->leftJoin('survivor', 'room.survivor_id', '=', 'survivor.id')
+                ->select('room.room_num', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->where('room.hotel_id', $id)
+                ->get()
+                ->map(function($r) {
+                    $r->survivor_name = $r->fname ? $r->fname . ' ' . $r->lname : null;
+                    return $r;
+                });
+        } elseif ($id && $type === 'statepark') {
+            $location = \DB::table('statepark')->where('id', $id)->first();
+            $lodge_units = \DB::table('lodge_unit')
+                ->leftJoin('survivor', 'lodge_unit.survivor_id', '=', 'survivor.id')
+                ->select('lodge_unit.unit_name', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->where('lodge_unit.statepark_id', $id)
+                ->get()
+                ->map(function($u) {
+                    $u->survivor_name = $u->fname ? $u->fname . ' ' . $u->lname : null;
+                    return $u;
+                });
+        } elseif ($id && $type === 'privatesite') {
+            $privatesite = \DB::table('privatesite')->where('id', $id)->first();
+        }
+
+        $readonly = true;
+        return view('admin.locationsEdit', compact('location', 'type', 'rooms', 'lodge_units', 'privatesite', 'readonly'));
+    }
 }

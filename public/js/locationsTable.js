@@ -94,6 +94,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tdOptions.innerHTML = `
                 <span style="cursor:pointer;font-size:22px;color:#888;">&#8942;</span>
                 <div class="dropdown-menu" style="right:0; left:auto; min-width:120px; position:absolute;">
+                    <a href="/admin/locations/view?type=${encodeURIComponent(location.type)}&id=${location.id}">View</a>
                     <a href="/admin/locations/edit?type=${encodeURIComponent(location.type)}&id=${location.id}">Edit</a>
                     <form action="/admin/locations/delete/${location.id}?type=${encodeURIComponent(location.type)}" method="POST" style="margin: 0;">
                         <input type="hidden" name="_token" value="${window.csrfToken}">
