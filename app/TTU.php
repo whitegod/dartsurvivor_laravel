@@ -11,7 +11,7 @@ class TTU extends Model
     protected $fillable = [
         'vin', 'manufacturer', 'brand', 'model', 'year', 'status',
         'title_manufacturer', 'title_brand', 'title_model', 'has_title',
-        'loc_id', 'county', 'imei', 'purchase_price', 'beds', 'queens', 'bunks',
+        'loc_id', 'county', 'imei', 'li_date', 'purchase_price', 'beds', 'queens', 'bunks',
         'transfer_num', 'author',
         'transpo_agency', 'remarks', 'comments', 'fdec', 'survivor_name',
         'lo', 'lo_date', 'est_lo_date', 'created_at',

@@ -99,6 +99,10 @@
                         <input type="text" id="imei" name="imei" value="{{ old('imei', $ttu->imei ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group">
+                        <label for="li_date">License In Date</label>
+                        <input type="date" id="li_date" name="li_date" value="{{ old('li_date', $ttu->li_date ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                    </div>
+                    <div class="form-group">
                         <label for="purchase_price">Purchase Price</label>
                         <input type="text" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
