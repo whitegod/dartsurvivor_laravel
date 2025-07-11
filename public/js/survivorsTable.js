@@ -139,7 +139,7 @@ function renderTable() {
                 <form action="/admin/survivors/delete/${survivor.id}" method="POST" style="margin: 0;">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
+                    <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
                 </form>
             </div>`;
         tr.appendChild(tdOptions);

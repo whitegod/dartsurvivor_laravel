@@ -75,6 +75,55 @@ class TTUController extends Controller
         ));
     }
 
+    public function ttusView($id)
+    {
+        $ttu = \DB::table('ttu')->where('id', $id)->first();
+        $locations = \DB::table('ttulocation')->pluck('loc_name', 'id');
+
+        // Fetch survivor name and FEMA-ID if survivor_id is set
+        $survivor_name = '';
+        $selectedFemaId = '';
+        if ($ttu && $ttu->survivor_id) {
+            $survivor = \DB::table('survivor')->where('id', $ttu->survivor_id)->first();
+            if ($survivor) {
+                $survivor_name = trim(($survivor->fname ?? '') . ' ' . ($survivor->lname ?? ''));
+                $selectedFemaId = $survivor->fema_id ?? '';
+            }
+        }
+
+        // Fetch author name if available
+        $authorName = '';
+        if ($ttu && $ttu->author) {
+            $author = \DB::table('users')->where('id', $ttu->author)->first();
+            if ($author) {
+                $authorName = trim(($author->name ?? $author->username ?? $author->email ?? ''));
+            }
+        }
+
+        // Fetch transfer data if exists
+        $transfer = null;
+        if ($ttu) {
+            $transfer = \DB::table('transfer')->where('ttu_id', $ttu->id)->first();
+        }
+
+        // Optionally, fetch all survivors for a dropdown
+        $survivors = \DB::table('survivor')->pluck(\DB::raw("CONCAT(fname, ' ', lname)"), 'id');
+
+        // Fetch privatesite with created_at
+        $privatesite = null;
+        if ($ttu) {
+            $privatesite = \DB::table('privatesite')
+                ->select('*', 'created_at')
+                ->where('ttu_id', $ttu->id)
+                ->first();
+        }
+
+        $readonly = true;
+        return view('admin.ttusEdit', compact(
+            'ttu', 'privatesite', 'locations', 'survivor_name', 'survivors', 'selectedFemaId', 'authorName', 'transfer', 'readonly'
+        ));
+    }
+
     public function deleteTTU($id)
     {
         $ttu = \App\TTU::findOrFail($id); // Find the record or throw a 404 error

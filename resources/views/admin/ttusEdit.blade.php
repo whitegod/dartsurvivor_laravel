@@ -21,27 +21,27 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="vin">VIN</label>
-                        <input type="text" id="vin" name="vin" value="{{ old('vin', $ttu->vin ?? '') }}">
+                        <input type="text" id="vin" name="vin" value="{{ old('vin', $ttu->vin ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="manufacturer">Manufacturer</label>
-                        <input type="text" id="manufacturer" name="manufacturer" value="{{ old('manufacturer', $ttu->manufacturer ?? '') }}">
+                        <input type="text" id="manufacturer" name="manufacturer" value="{{ old('manufacturer', $ttu->manufacturer ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="brand">Brand</label>
-                        <input type="text" id="brand" name="brand" value="{{ old('brand', $ttu->brand ?? '') }}">
+                        <input type="text" id="brand" name="brand" value="{{ old('brand', $ttu->brand ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="model">Model</label>
-                        <input type="text" id="model" name="model" value="{{ old('model', $ttu->model ?? '') }}">
+                        <input type="text" id="model" name="model" value="{{ old('model', $ttu->model ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="year">Year</label>
-                        <input type="text" id="year" name="year" value="{{ old('year', $ttu->year ?? '') }}">
+                        <input type="text" id="year" name="year" value="{{ old('year', $ttu->year ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="status">TTU Status</label>
-                        <select id="status" name="status">
+                        <select id="status" name="status" {{ !empty($readonly) ? 'disabled' : '' }}>
                             <option value="Not Ready for Occupancy (#b22222)" {{ old('status', $ttu->status ?? '') == 'Not Ready for Occupancy (#b22222)' ? 'selected' : '' }}>🔴 Not Ready for Occupancy</option>
                             <option value="Demobilized (#ffd700)" {{ old('status', $ttu->status ?? '') == 'Demobilized (#ffd700)' ? 'selected' : '' }}>🟡 Demobilized</option>
                             <option value="Ready for Transport (#228b22)" {{ old('status', $ttu->status ?? '') == 'Ready for Transport (#228b22)' ? 'selected' : '' }}>🟢 Ready for Transport</option>
@@ -55,17 +55,17 @@
                 <div class="form-row">
                     <div class="form-group form-group-title">Title Manufacturer, Brand, Model:</div>
                     <div class="form-group">
-                        <input type="text" name="title_manufacturer" placeholder="Enter manufacturer" value="{{ old('title_manufacturer', $ttu->title_manufacturer ?? '') }}">
+                        <input type="text" name="title_manufacturer" placeholder="Enter manufacturer" value="{{ old('title_manufacturer', $ttu->title_manufacturer ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group">
-                        <input type="text" name="title_brand" placeholder="Enter brand" value="{{ old('title_brand', $ttu->title_brand ?? '') }}">
+                        <input type="text" name="title_brand" placeholder="Enter brand" value="{{ old('title_brand', $ttu->title_brand ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group">
-                        <input type="text" name="title_model" placeholder="Enter model" value="{{ old('title_model', $ttu->title_model ?? '') }}">
+                        <input type="text" name="title_model" placeholder="Enter model" value="{{ old('title_model', $ttu->title_model ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group left-label-field">
                         <label for="title-select" style="margin-right: 5px; font-size: 13px;">Do&nbsp;we&nbsp;have&nbsp;the&nbsp;Title?</label>
-                        <select id="title-select" name="has_title">
+                        <select id="title-select" name="has_title" {{ !empty($readonly) ? 'disabled' : '' }}>
                             <option {{ old('has_title', $ttu->has_title ?? '') == 'Yes' ? 'selected' : '' }}>Yes</option>
                             <option {{ old('has_title', $ttu->has_title ?? '') == 'No' ? 'selected' : '' }}>No</option>
                         </select>
@@ -77,7 +77,7 @@
                     <!-- Location Type Selector -->
                     <div class="form-group">
                         <label for="location_type">Location Type</label>
-                        <select id="location_type" name="location_type">
+                        <select id="location_type" name="location_type" {{ !empty($readonly) ? 'disabled' : '' }}>
                             <option value="">Select Type</option>
                             <option value="hotel" {{ old('location_type', $ttu->location_type ?? '') == 'hotel' ? 'selected' : '' }}>Hotel</option>
                             <option value="statepark" {{ old('location_type', $ttu->location_type ?? '') == 'statepark' ? 'selected' : '' }}>State Park</option>
@@ -87,24 +87,24 @@
                     <!-- Location Field -->
                     <div class="form-group" style="position: relative;">
                         <label for="location">Location</label>
-                        <input type="text" id="location" name="location" value="{{ old('location', $ttu->location ?? '') }}" autocomplete="off">
+                        <input type="text" id="location" name="location" value="{{ old('location', $ttu->location ?? '') }}" autocomplete="off" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                         <div id="location-suggestions" class="autocomplete-suggestions" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ccc; z-index:1000; max-height:200px; overflow-y:auto;"></div>
                     </div>
                     <div class="form-group">
                         <label for="county">County</label>
-                        <input type="text" id="county" name="county" value="{{ old('county', $ttu->county ?? '') }}">
+                        <input type="text" id="county" name="county" value="{{ old('county', $ttu->county ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="imei">IMEI# (GPS)</label>
-                        <input type="text" id="imei" name="imei" value="{{ old('imei', $ttu->imei ?? '') }}">
+                        <input type="text" id="imei" name="imei" value="{{ old('imei', $ttu->imei ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="purchase_price">Purchase Price</label>
-                        <input type="text" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}">
+                        <input type="text" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="total_beds">Total beds</label>
-                        <input type="number" id="total_beds" name="total_beds" value="{{ old('total_beds', $ttu->total_beds ?? '') }}">
+                        <input type="number" id="total_beds" name="total_beds" value="{{ old('total_beds', $ttu->total_beds ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                 </div>
                 <div id="privatesite-section" class="container form-section" style="display: {{ old('privatesite', $ttu->privatesite ?? false) ? 'flex' : 'none' }};">
@@ -112,15 +112,15 @@
                         <div>
                             <div class="form-group">
                                 <label for="name">Name:</label>
-                                <input type="text" id="name" name="name" value="{{ old('name', $privatesite->name ?? '') }}">
+                                <input type="text" id="name" name="name" value="{{ old('name', $privatesite->name ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                             <div class="form-group">
                                 <label for="address">Address:</label>
-                                <input type="text" id="address" name="address" value="{{ old('address', $privatesite->address ?? '') }}">
+                                <input type="text" id="address" name="address" value="{{ old('address', $privatesite->address ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                             <div class="form-group">
                                 <label for="phone">Phone:</label>
-                                <input type="text" id="phone" name="phone" value="{{ old('phone', $privatesite->phone ?? '') }}">
+                                <input type="text" id="phone" name="phone" value="{{ old('phone', $privatesite->phone ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                         </div>
                         <table>
@@ -139,7 +139,8 @@
                                 <td>
                                     <label class="switch">
                                         <input type="checkbox" name="{{ $field }}" value="1"
-                                            {{ old($field, $privatesite->$field ?? false) ? 'checked' : '' }}>
+                                            {{ old($field, $privatesite->$field ?? false) ? 'checked' : '' }}
+                                            {{ !empty($readonly) ? 'disabled' : '' }}>
                                         <span class="slider"></span>
                                     </label>
                                 </td>
@@ -151,37 +152,37 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="damage_assessment">Damage Assessment:</label>
-                                <textarea id="damage_assessment" name="damage_assessment">{{ old('damage_assessment', $privatesite->damage_assessment ?? '') }}</textarea>
+                                <textarea id="damage_assessment" name="damage_assessment" {{ !empty($readonly) ? 'readonly disabled' : '' }}>{{ old('damage_assessment', $privatesite->damage_assessment ?? '') }}</textarea>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="ehp">EHP:</label>
-                                <input type="text" id="ehp" name="ehp" value="{{ old('ehp', $privatesite->ehp ?? '') }}">
+                                <input type="text" id="ehp" name="ehp" value="{{ old('ehp', $privatesite->ehp ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                             <div class="form-group">
                                 <label for="ehp_notes">EHP Notes:</label>
-                                <textarea id="ehp_notes" name="ehp_notes">{{ old('ehp_notes', $privatesite->ehp_notes ?? '') }}</textarea>
+                                <textarea id="ehp_notes" name="ehp_notes" {{ !empty($readonly) ? 'readonly disabled' : '' }}>{{ old('ehp_notes', $privatesite->ehp_notes ?? '') }}</textarea>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="dow_long">DOW Longitude:</label>
-                                <input type="text" id="dow_long" name="dow_long" value="{{ old('dow_long', $privatesite->dow_long ?? '') }}">
+                                <input type="text" id="dow_long" name="dow_long" value="{{ old('dow_long', $privatesite->dow_long ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                             <div class="form-group">
                                 <label for="dow_lat">DOW Latitude:</label>
-                                <input type="text" id="dow_lat" name="dow_lat" value="{{ old('dow_lat', $privatesite->dow_lat ?? '') }}">
+                                <input type="text" id="dow_lat" name="dow_lat" value="{{ old('dow_lat', $privatesite->dow_lat ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                             <div class="form-group">
                                 <label for="zon">Zoning:</label>
-                                <input type="text" id="zon" name="zon" value="{{ old('zon', $privatesite->zon ?? '') }}">
+                                <input type="text" id="zon" name="zon" value="{{ old('zon', $privatesite->zon ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="dow_response">DOW Response:</label>
-                                <textarea id="dow_response" name="dow_response">{{ old('dow_response', $privatesite->dow_response ?? '') }}</textarea>
+                                <textarea id="dow_response" name="dow_response" {{ !empty($readonly) ? 'readonly disabled' : '' }}>{{ old('dow_response', $privatesite->dow_response ?? '') }}</textarea>
                             </div>                                    
                         </div>                           
                     </div>
@@ -210,7 +211,8 @@
                                 <td>
                                     <label class="switch">
                                         <input type="checkbox" name="{{ $field }}" value="1"
-                                            {{ old($field, $ttu->$field ?? false) ? 'checked' : '' }}>
+                                            {{ old($field, $ttu->$field ?? false) ? 'checked' : '' }}
+                                            {{ !empty($readonly) ? 'disabled' : '' }}>
                                         <span class="slider"></span>
                                     </label>
                                 </td>
@@ -239,7 +241,8 @@
                                 <td>
                                     <label class="switch">
                                         <input type="checkbox" name="{{ $field }}" value="1"
-                                            {{ old($field, $ttu->$field ?? false) ? 'checked' : '' }}>
+                                            {{ old($field, $ttu->$field ?? false) ? 'checked' : '' }}
+                                            {{ !empty($readonly) ? 'disabled' : '' }}>
                                         <span class="slider"></span>
                                     </label>
                                 </td>
@@ -251,7 +254,7 @@
                         <div class="form-row">
                             <div class="form-group" style="flex:1;">
                                 <label for="disposition">Disposition:</label>
-                                <select id="disposition" name="disposition">
+                                <select id="disposition" name="disposition" {{ !empty($readonly) ? 'disabled' : '' }}>
                                     <option value="Available" {{ old('disposition', $ttu->disposition ?? '') == 'Available' ? 'selected' : '' }}>Available</option>
                                     <option value="Awaiting Field team inspection" {{ old('disposition', $ttu->disposition ?? '') == 'Awaiting Field team inspection' ? 'selected' : '' }}>Awaiting Field team inspection</option>
                                     <option value="Awaiting Maintenance" {{ old('disposition', $ttu->disposition ?? '') == 'Awaiting Maintenance' ? 'selected' : '' }}>Awaiting Maintenance</option>
@@ -274,25 +277,25 @@
                             </div>
                             <div class="form-group" style="flex:1; margin-right: 0;">
                                 <label for="transpo_agency">Transport Agency:</label>
-                                <input type="text" id="transpo_agency" name="transpo_agency" value="{{ old('transpo_agency', $ttu->transpo_agency ?? '') }}">
+                                <input type="text" id="transpo_agency" name="transpo_agency" value="{{ old('transpo_agency', $ttu->transpo_agency ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                         </div>
                         <!-- Donation Section -->
                         <div id="donation-section" class="form-section" style="margin-bottom: 10px; display: none;">
                             <div class="left-label-field">
                                 <label>Is the recipient a State, City, County, or NPO?</label>
-                                <select name="recipient_type" style="flex:0.2;">
+                                <select name="recipient_type" style="flex:0.2;" {{ !empty($readonly) ? 'disabled' : '' }}>
                                     <option {{ old('recipient_type', $transfer->recipient_type ?? '') == 'YES' ? 'selected' : '' }}>YES</option>
                                     <option {{ old('recipient_type', $transfer->recipient_type ?? '') == 'NO' ? 'selected' : '' }}>NO</option>
                                 </select>
                             </div>
                             <div class="left-label-field">
                                 <label for="donation_agency" style="white-space:nowrap;">What Agency Is being given to?</label>
-                                <input type="text" id="donation_agency" name="donation_agency" value="{{ old('donation_agency', $transfer->donation_agency ?? '') }}" style="max-width: 300px;">
+                                <input type="text" id="donation_agency" name="donation_agency" value="{{ old('donation_agency', $transfer->donation_agency ?? '') }}" style="max-width: 300px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                             <div class="left-label-field">
                                 <label for="donation_category" style="white-space:nowrap;">Donation Category:</label>
-                                <input type="text" id="donation_category" name="donation_category" value="{{ old('donation_category', $transfer->donation_category ?? '') }}" style="max-width: 300px;">
+                                <input type="text" id="donation_category" name="donation_category" value="{{ old('donation_category', $transfer->donation_category ?? '') }}" style="max-width: 300px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                         </div>
 
@@ -300,22 +303,22 @@
                         <div id="sold-at-auction-section" class="form-section" style="margin-bottom: 10px; display: none;">
                             <div class="left-label-field">
                                 <label for="sold_at_auction_price">Sold At Auction Price</label>
-                                <input type="text" id="sold_at_auction_price" name="sold_at_auction_price" value="{{ old('sold_at_auction_price', $transfer->sold_at_auction_price ?? '') }}" style="max-width: 150px;">
+                                <input type="text" id="sold_at_auction_price" name="sold_at_auction_price" value="{{ old('sold_at_auction_price', $transfer->sold_at_auction_price ?? '') }}" style="max-width: 150px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                             <div class="left-label-field">
                                 <label for="recipient" style="white-space:nowrap;">Who is recipient?</label>
-                                <input type="text" id="recipient" name="recipient" value="{{ old('recipient', $transfer->recipient ?? '') }}" style="max-width: 300px;">
+                                <input type="text" id="recipient" name="recipient" value="{{ old('recipient', $transfer->recipient ?? '') }}" style="max-width: 300px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                         </div>
                         <div class="form-section">    
                             <div class="remarks">
                                 <div>
                                     <label for="remarks">Remarks:</label>
-                                    <textarea id="remarks" name="remarks"></textarea>
+                                    <textarea id="remarks" name="remarks" {{ !empty($readonly) ? 'readonly disabled' : '' }}></textarea>
                                 </div>
                                 <div>
                                     <label for="comments">Comments/Notes:</label>
-                                    <textarea id="comments" name="comments"></textarea>
+                                    <textarea id="comments" name="comments" {{ !empty($readonly) ? 'readonly disabled' : '' }}></textarea>
                                 </div>
                             </div>
                         </div>
@@ -339,7 +342,7 @@
                             <input type="hidden" id="survivor_id" name="survivor_id" value="{{ old('survivor_id', $ttu->survivor_id ?? '') }}">
                             <div class="form-group">
                                 <label for="lo">LO</label>
-                                <select id="lo" name="lo">
+                                <select id="lo" name="lo" {{ !empty($readonly) ? 'disabled' : '' }}>
                                     <option {{ old('lo', $ttu->lo ?? '') == 'NO' ? 'selected' : '' }}>NO</option>
                                     <option {{ old('lo', $ttu->lo ?? '') == 'YES' ? 'selected' : '' }}>YES</option>
                                 </select>
@@ -350,11 +353,11 @@
                                     $loDate = (isset($ttu->lo_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ttu->lo_date) && $ttu->lo_date !== '0000-00-00') ? $ttu->lo_date : '';
                                     $estLoDate = (isset($ttu->est_lo_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ttu->est_lo_date) && $ttu->est_lo_date !== '0000-00-00') ? $ttu->est_lo_date : '';
                                 @endphp
-                                <input type="date" id="lo_date" name="lo_date" value="{{ old('lo_date', $loDate) }}">
+                                <input type="date" id="lo_date" name="lo_date" value="{{ old('lo_date', $loDate) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                             <div class="form-group">
                                 <label for="est_lo_date">Est. LO Date</label>
-                                <input type="date" id="est_lo_date" name="est_lo_date" value="{{ old('est_lo_date', $estLoDate) }}">
+                                <input type="date" id="est_lo_date" name="est_lo_date" value="{{ old('est_lo_date', $estLoDate) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                         </div>
 
@@ -372,8 +375,13 @@
                                 @endif
                             </div>
                             <div class="buttons">
-                                <button type="button" class="btn btn-cancel" onclick="window.history.back();">Cancel</button>
-                                <button type="submit" class="btn btn-save">{{ isset($ttu) ? 'Update' : 'Save' }}</button>
+                                @if(!empty($readonly))
+                                    <button type="button" class="btn btn-cancel" onclick="window.history.back();" style="margin-right: 16px;">Back</button>
+                                    <a href="" class="btn btn-save">Show History</a>
+                                @else
+                                    <button type="button" class="btn btn-cancel" onclick="window.history.back();" style="margin-right: 16px;">Cancel</button>
+                                    <button type="submit" class="btn btn-save">{{ isset($ttu) ? 'Update' : 'Save' }}</button>
+                                @endif
                             </div>
                         </div>
                     </div>
