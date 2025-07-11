@@ -61,6 +61,27 @@ document.addEventListener('DOMContentLoaded', function() {
         privatesiteSection.style.display = 'flex';
         locationInput.disabled = true;
     }
+
+    // Disable LO Date if LO is NO (for TTU edit page)
+    function toggleLODate() {
+        var lo = document.getElementById('lo');
+        var loDate = document.getElementById('lo_date');
+        if (lo && loDate) {
+            // Accept both string and numeric values for compatibility
+            if (lo.value === 'NO' || lo.value === '0') {
+                loDate.disabled = true;
+                loDate.value = '';
+            } else {
+                loDate.disabled = false;
+            }
+        }
+    }
+
+    var lo = document.getElementById('lo');
+    if (lo) {
+        lo.addEventListener('change', toggleLODate);
+        toggleLODate();
+    }
 });
 
 function updateStatusWithColor() {
@@ -69,3 +90,4 @@ function updateStatusWithColor() {
     var text = select.options[select.selectedIndex].textContent.replace(/^.\s*/, ''); // Remove emoji
     select.value = text + ' (' + color + ')';
 }
+
