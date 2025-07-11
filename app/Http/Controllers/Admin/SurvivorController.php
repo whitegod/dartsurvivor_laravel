@@ -130,6 +130,15 @@ class SurvivorController extends Controller
             'statepark_name', 'statepark_site', 'statepark_li_date', 'statepark_lo_date'
         ]);
 
+        // Ensure group fields are included for saving
+        $groupFields = [
+            'group0_2', 'group3_6', 'group7_12', 'group13_17',
+            'group18_21', 'group22_65', 'group65plus'
+        ];
+        foreach ($groupFields as $field) {
+            $data[$field] = $request->input($field, 0);
+        }
+
         // Set authored to current user name
         $data['author'] = auth()->user()->name ?? 'Unknown';
 
@@ -202,6 +211,15 @@ class SurvivorController extends Controller
             'hotel_name', 'hotel_room', 'hotel_li_date', 'hotel_lo_date',
             'statepark_name', 'statepark_site', 'statepark_li_date', 'statepark_lo_date'
         ]);
+
+        // Ensure group fields are included for updating
+        $groupFields = [
+            'group0_2', 'group3_6', 'group7_12', 'group13_17',
+            'group18_21', 'group22_65', 'group65plus'
+        ];
+        foreach ($groupFields as $field) {
+            $data[$field] = $request->input($field, 0);
+        }
 
         // Set author to current user name
         $data['author'] = auth()->user()->name ?? 'Unknown';
