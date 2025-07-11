@@ -350,3 +350,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     updateHouseholdSize();
 });
+
+// Disable LO Date if LO is NO
+function toggleLODate() {
+    var lo = document.getElementById('lo');
+    var loDate = document.getElementById('lo_date');
+    if (lo && loDate) {
+        if (lo.value === '0') {
+            loDate.disabled = true;
+            loDate.value = '';
+        } else {
+            loDate.disabled = false;
+        }
+    }
+}
+
+var lo = document.getElementById('lo');
+if (lo) {
+    lo.addEventListener('change', toggleLODate);
+    toggleLODate();
+}
