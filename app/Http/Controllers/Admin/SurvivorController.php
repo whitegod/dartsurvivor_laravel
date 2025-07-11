@@ -125,6 +125,13 @@ class SurvivorController extends Controller
 
     public function storeSurvivor(Request $request)
     {
+        // Validate pets field
+        $request->validate([
+            'pets' => ['nullable', 'integer', 'max:2'],
+        ], [
+            'pets.max' => 'FEMA limits pets as 2 at max.',
+        ]);
+
         $data = $request->except([
             'hotel_name', 'hotel_room', 'hotel_li_date', 'hotel_lo_date',
             'statepark_name', 'statepark_site', 'statepark_li_date', 'statepark_lo_date'
@@ -206,6 +213,13 @@ class SurvivorController extends Controller
 
     public function updateSurvivor(Request $request, $id)
     {
+        // Validate pets field
+        $request->validate([
+            'pets' => ['nullable', 'integer', 'max:2'],
+        ], [
+            'pets.max' => 'FEMA limits pets as 2 at max.',
+        ]);
+
         $data = $request->except([
             'vin', 'lo', 'lo_date', 'est_lo_date',
             'hotel_name', 'hotel_room', 'hotel_li_date', 'hotel_lo_date',
