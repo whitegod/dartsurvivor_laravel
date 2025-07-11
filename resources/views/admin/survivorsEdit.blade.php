@@ -171,7 +171,13 @@
                             <label class="info" style="margin-bottom:6px;">VIN</label>
                             <div style="display:flex; gap:4px;">
                                 <input type="text" name="vin" id="vin-autocomplete" value="{{ old('vin', $ttu->vin ?? '') }}" style="width: 260px;" autocomplete="off">
-                                <button class="btn btn-primary" type="button">
+                                <button class="btn btn-primary" type="button"
+                                    @if(!empty($ttu))
+                                        onclick="window.location.href='{{ route('admin.ttus.view', $ttu->id) }}'"
+                                    @else
+                                        disabled
+                                    @endif
+                                >
                                     Go-to Record
                                 </button>
                             </div>
