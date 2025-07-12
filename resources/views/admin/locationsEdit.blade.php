@@ -70,6 +70,9 @@
                         <table>
                             <thead>
                                 <tr>
+                                    @if(!$ishotel)
+                                        <th>Unit Type</th>
+                                    @endif
                                     <th>{{ $numberLabel }}</th>
                                     <th>Survivor</th>
                                     <th>HH Size</th>
@@ -78,6 +81,9 @@
                             <tbody>
                                 @foreach($items as $item)
                                     <tr>
+                                        @if(!$ishotel)
+                                            <td>{{ $item->unit_type ?? '-' }}</td>
+                                        @endif
                                         <td>{{ $ishotel ? $item->room_num : $item->unit_name }}</td>
                                         <td>{{ $item->survivor_name ?? '-' }}</td>
                                         <td>{{ $item->hh_size ?? '-' }}</td>
@@ -210,10 +216,22 @@
                             <input type="text" id="modalLocationName" class="form-control" value="{{ $location->name ?? '' }}" readonly>
                         </div>
                         <input type="hidden" name="location_id" value="{{ $location->id }}">
+                        @if($type === 'statepark')
+                        <div class="form-group">
+                            <label for="modalUnitType">Unit Type</label>
+                            <select name="unit_type" id="modalUnitType" class="form-control" required>
+                                <option value="">Select Type</option>
+                                <option value="lot">Lot</option>
+                                <option value="cabin">Cabin</option>
+                                <option value="lodge">Lodge</option>
+                            </select>
+                        </div>
+                        @endif
                         <div class="form-group">
                             <label id="modalLabelNumber" for="number">{{ $type === 'hotel' ? 'Room #' : 'Unit #' }}</label>
                             <input type="text" name="number" id="modalNumber" class="form-control" required>
                         </div>
+                        
                         <div style="margin-top:16px;">
                             <button type="button" class="btn btn-cancel" id="cancelModalBtn" style="margin-right:12px;">Cancel</button>
                             <button type="submit" class="btn btn-save">Save</button>

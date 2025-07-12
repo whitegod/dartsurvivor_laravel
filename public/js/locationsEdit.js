@@ -10,27 +10,38 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Close modal
-    document.querySelectorAll('.close-modal, #cancelModalBtn').forEach(el => {
-        el.addEventListener('click', function() {
-            document.getElementById('roomUnitModal').style.display = 'none';
-            document.getElementById('roomUnitForm').reset();
-        });
-    });
+    var modal = document.getElementById('roomUnitModal');
+    if (!modal) return;
 
-    // Optional: Close modal when clicking outside content
-    // document.getElementById('roomUnitModal').addEventListener('click', function(e) {
-    //     if (e.target === this) {
-    //         this.style.display = 'none';
-    //         document.getElementById('roomUnitForm').reset();
-    //     }
-    // });
+    var modalContent = modal.querySelector('.modal-content');
+    var closeBtn = modal.querySelector('.close-modal');
+    var cancelBtn = document.getElementById('cancelModalBtn');
 
-    const roomUnitModal = document.getElementById('roomUnitModal');
-    if (roomUnitModal) {
-        roomUnitModal.addEventListener('click', function() {
-            this.style.display = 'none';
-            document.getElementById('roomUnitForm').reset();
+    // Prevent modal from closing when clicking inside the modal content
+    if (modalContent) {
+        modalContent.addEventListener('click', function(event) {
+            event.stopPropagation();
         });
     }
+
+    // Close modal when clicking the close button
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
+
+    // Close modal when clicking the cancel button
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
+
+    // Close modal when clicking outside the modal content (on the modal background)
+    modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
 });

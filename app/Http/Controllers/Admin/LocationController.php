@@ -102,7 +102,7 @@ class LocationController extends Controller
             $location = \DB::table('statepark')->where('id', $id)->first();
             $lodge_units = \DB::table('lodge_unit')
                 ->leftJoin('survivor', 'lodge_unit.survivor_id', '=', 'survivor.id')
-                ->select('lodge_unit.unit_name', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('lodge_unit.unit_type', 'lodge_unit.unit_name', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('lodge_unit.statepark_id', $id)
                 ->get()
                 ->map(function($u) {
@@ -208,11 +208,13 @@ class LocationController extends Controller
         $validated = $request->validate([
             'location_id' => 'required|integer|exists:statepark,id',
             'number' => 'required|string|max:255',
+            'unit_type' => 'required|string', // <-- validate unit_type
         ]);
 
         \DB::table('lodge_unit')->insert([
             'statepark_id' => $validated['location_id'],
             'unit_name' => $validated['number'],
+            'unit_type' => $validated['unit_type'], // <-- save unit_type
         ]);
 
         return redirect()->back()->with('success', 'Lodge Unit added successfully!');
@@ -242,7 +244,7 @@ class LocationController extends Controller
             $location = \DB::table('statepark')->where('id', $id)->first();
             $lodge_units = \DB::table('lodge_unit')
                 ->leftJoin('survivor', 'lodge_unit.survivor_id', '=', 'survivor.id')
-                ->select('lodge_unit.unit_name', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('lodge_unit.unit_type', 'lodge_unit.unit_name', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('lodge_unit.statepark_id', $id)
                 ->get()
                 ->map(function($u) {
