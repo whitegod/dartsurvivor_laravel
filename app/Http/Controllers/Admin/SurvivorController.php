@@ -177,6 +177,7 @@ class SurvivorController extends Controller
         if ($request->location_type === 'TTU' && $request->vin) {
             $ttu = \App\TTU::where('vin', $request->vin)->first();
             if ($ttu) {
+                $ttu->li_date = $request->li_date;
                 $ttu->lo = $request->lo;
                 $ttu->lo_date = $request->lo_date;
                 $ttu->est_lo_date = $request->est_lo_date;
@@ -278,6 +279,7 @@ class SurvivorController extends Controller
         if ($request->location_type === 'TTU' && $request->vin) {
             $ttu = \App\TTU::where('vin', $request->vin)->first();
             if ($ttu) {
+                $ttu->li_date = $request->li_date; // <-- Add this line
                 $ttu->lo = $request->lo;
                 $ttu->lo_date = $request->lo_date;
                 $ttu->est_lo_date = $request->est_lo_date;
