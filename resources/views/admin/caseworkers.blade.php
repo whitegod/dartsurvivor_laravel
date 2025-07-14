@@ -24,6 +24,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
+                        <th>Phone</th>
                         <th>Action</th>
                         <!-- Add more columns as needed -->
                     </tr>
@@ -34,6 +35,7 @@
                             <tr>
                                 <td>{{ $cw->id }}</td>
                                 <td>{{ $cw->fname }} {{ $cw->lname }}</td>
+                                <td>{{ $cw->phone }}</td>
                                 <!-- Add more fields as needed -->
                                 <td>
                                     <button type="button"
@@ -90,6 +92,12 @@
                 <div class="form-group" style="flex:1;">
                     <label for="lname">Last Name</label>
                     <input id="lname" type="text" class="form-control" name="lname" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input id="phone" type="text" class="form-control" name="phone" required>
                 </div>
             </div>
         </div>

@@ -28,12 +28,14 @@ class CaseworkerController extends Controller
         $request->validate([
             'fname' => 'required|string|max:255',
             'lname' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:32',
             // Add more validation rules as needed
         ]);
 
         DB::table('caseworker')->insert([
             'fname' => $request->fname,
             'lname' => $request->lname,
+            'phone' => $request->phone,
             // Add more fields as needed
         ]);
 
@@ -45,10 +47,12 @@ class CaseworkerController extends Controller
         $request->validate([
             'fname' => 'required|string|max:255',
             'lname' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:32',
         ]);
         DB::table('caseworker')->where('id', $id)->update([
             'fname' => $request->fname,
             'lname' => $request->lname,
+            'phone' => $request->phone,
         ]);
         return redirect()->back()->with('success', 'Caseworker updated successfully!');
     }
