@@ -42,6 +42,7 @@
                     <div class="form-group">
                         <label for="status">TTU Status</label>
                         <select id="status" name="status" {{ !empty($readonly) ? 'disabled' : '' }}>
+                            <option value="" {{ old('status', $ttu->status ?? '') == '' ? 'selected' : '' }}>None</option>
                             <option value="Not Ready for Occupancy (#b22222)" {{ old('status', $ttu->status ?? '') == 'Not Ready for Occupancy (#b22222)' ? 'selected' : '' }}>🔴 Not Ready for Occupancy</option>
                             <option value="Demobilized (#ffd700)" {{ old('status', $ttu->status ?? '') == 'Demobilized (#ffd700)' ? 'selected' : '' }}>🟡 Demobilized</option>
                             <option value="Ready for Transport (#228b22)" {{ old('status', $ttu->status ?? '') == 'Ready for Transport (#228b22)' ? 'selected' : '' }}>🟢 Ready for Transport</option>
@@ -103,8 +104,8 @@
                         <input type="date" id="li_date" name="li_date" value="{{ old('li_date', $ttu->li_date ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group">
-                        <label for="purchase_price">Purchase Price</label>
-                        <input type="text" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                        <label for="purchase_price">Purchase Price (USD)</label>
+                        <input type="number" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="total_beds">Total beds</label>
