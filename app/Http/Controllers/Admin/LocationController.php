@@ -111,9 +111,13 @@ class LocationController extends Controller
                 });
         } elseif ($id && $type === 'privatesite') {
             $privatesite = \DB::table('privatesite')->where('id', $id)->first();
+            $ttu = null;
+            if ($privatesite && $privatesite->ttu_id) {
+                $ttu = \DB::table('ttu')->where('id', $privatesite->ttu_id)->first();
+            }
         }
 
-        return view('admin.locationsEdit', compact('location', 'type', 'rooms', 'lodge_units', 'privatesite'));
+        return view('admin.locationsEdit', compact('location', 'type', 'rooms', 'lodge_units', 'privatesite', 'ttu'));
     }
 
     public function locationUpdate(Request $request, $id)
@@ -253,9 +257,13 @@ class LocationController extends Controller
                 });
         } elseif ($id && $type === 'privatesite') {
             $privatesite = \DB::table('privatesite')->where('id', $id)->first();
+            $ttu = null;
+            if ($privatesite && $privatesite->ttu_id) {
+                $ttu = \DB::table('ttu')->where('id', $privatesite->ttu_id)->first();
+            }
         }
 
         $readonly = true;
-        return view('admin.locationsEdit', compact('location', 'type', 'rooms', 'lodge_units', 'privatesite', 'readonly'));
+        return view('admin.locationsEdit', compact('location', 'type', 'rooms', 'lodge_units', 'privatesite', 'ttu', 'readonly'));
     }
 }

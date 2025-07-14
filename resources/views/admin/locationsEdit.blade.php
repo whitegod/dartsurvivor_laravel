@@ -175,6 +175,43 @@
                                     <textarea id="dow_response" name="dow_response" {{ !empty($readonly) ? 'readonly' : '' }}>{{ old('dow_response', $privatesite->dow_response ?? '') }}</textarea>
                                 </div>
                             </div>
+                            @if($type === 'privatesite' && isset($privatesite))
+                                <div class="form-section" style="margin-bottom: 24px;">
+                                    <h4>Assigned TTU</h4>
+                                    @if(isset($ttu))
+                                        <div class="form-row" style="align-items: flex-end">
+                                            <div class="form-group">
+                                                <label for="vin">VIN:</label>
+                                                <input type="text" id="vin" name="vin" value="{{ $ttu->vin ?? '-' }}" readonly>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="status">Status:</label>
+                                                @php
+                                                    // Example: $status = "Occupied (#ffc107)"
+                                                    $statusRaw = $ttu->status ?? '-';
+                                                    $status = $statusRaw;
+                                                    $color = '#888';
+
+                                                    // Extract color code from status string if present in parentheses
+                                                    if (preg_match('/\((#[0-9a-fA-F]{6})\)/', $statusRaw, $matches)) {
+                                                        $color = $matches[1];
+                                                        // Remove the color code from the status string for display
+                                                        $status = trim(str_replace($matches[0], '', $statusRaw));
+                                                    }
+                                                @endphp
+                                                <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:{{ $color }}; margin-right:8px; vertical-align:middle;"></span>
+                                                <input type="text" id="status" name="status" value="{{ $status }}" readonly style="width:auto; display:inline-block;">
+                                            </div>                                           
+                                            <button class="btn btn-primary" type="button" style="margin-bottom: 10px"
+                                                onclick="window.location.href='{{ route('admin.ttus.view', $ttu->id) }}'">
+                                                Go-to Record
+                                            </button>
+                                        </div>
+                                    @else
+                                        <div>No TTU assigned to this Private Site.</div>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endif
