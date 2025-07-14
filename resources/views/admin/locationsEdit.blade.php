@@ -85,7 +85,15 @@
                                             <td>{{ $item->unit_type ?? '-' }}</td>
                                         @endif
                                         <td>{{ $ishotel ? $item->room_num : $item->unit_name }}</td>
-                                        <td>{{ $item->survivor_name ?? '-' }}</td>
+                                        <td>
+                                            @if(!empty($item->fname) && !empty($item->lname) && isset($item->id))
+                                                <a href="{{ route('admin.survivors.view', $item->id) }}">
+                                                    {{ $item->survivor_name }}
+                                                </a>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                         <td>{{ $item->hh_size ?? '-' }}</td>
                                     </tr>
                                 @endforeach

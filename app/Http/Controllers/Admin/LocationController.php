@@ -91,7 +91,7 @@ class LocationController extends Controller
             $location = \DB::table('hotel')->where('id', $id)->first();
             $rooms = \DB::table('room')
                 ->leftJoin('survivor', 'room.survivor_id', '=', 'survivor.id')
-                ->select('room.room_num', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('room.room_num', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('room.hotel_id', $id)
                 ->get()
                 ->map(function($r) {
@@ -102,7 +102,7 @@ class LocationController extends Controller
             $location = \DB::table('statepark')->where('id', $id)->first();
             $lodge_units = \DB::table('lodge_unit')
                 ->leftJoin('survivor', 'lodge_unit.survivor_id', '=', 'survivor.id')
-                ->select('lodge_unit.unit_type', 'lodge_unit.unit_name', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('lodge_unit.unit_type', 'lodge_unit.unit_name', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('lodge_unit.statepark_id', $id)
                 ->get()
                 ->map(function($u) {
@@ -120,7 +120,7 @@ class LocationController extends Controller
         if (!isset($ttu)) {
             $ttu = null;
         }
-        
+
         return view('admin.locationsEdit', compact('location', 'type', 'rooms', 'lodge_units', 'privatesite', 'ttu'));
     }
 
@@ -241,7 +241,7 @@ class LocationController extends Controller
             $location = \DB::table('hotel')->where('id', $id)->first();
             $rooms = \DB::table('room')
                 ->leftJoin('survivor', 'room.survivor_id', '=', 'survivor.id')
-                ->select('room.room_num', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('room.room_num', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('room.hotel_id', $id)
                 ->get()
                 ->map(function($r) {
@@ -252,7 +252,7 @@ class LocationController extends Controller
             $location = \DB::table('statepark')->where('id', $id)->first();
             $lodge_units = \DB::table('lodge_unit')
                 ->leftJoin('survivor', 'lodge_unit.survivor_id', '=', 'survivor.id')
-                ->select('lodge_unit.unit_type', 'lodge_unit.unit_name', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('lodge_unit.unit_type', 'lodge_unit.unit_name', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('lodge_unit.statepark_id', $id)
                 ->get()
                 ->map(function($u) {
