@@ -117,6 +117,10 @@ class LocationController extends Controller
             }
         }
 
+        if (!isset($ttu)) {
+            $ttu = null;
+        }
+        
         return view('admin.locationsEdit', compact('location', 'type', 'rooms', 'lodge_units', 'privatesite', 'ttu'));
     }
 
@@ -264,6 +268,12 @@ class LocationController extends Controller
         }
 
         $readonly = true;
-        return view('admin.locationsEdit', compact('location', 'type', 'rooms', 'lodge_units', 'privatesite', 'ttu', 'readonly'));
+        if (!isset($ttu)) {
+            $ttu = null;
+        }
+
+        return view('admin.locationsEdit', compact(
+            'location', 'type', 'rooms', 'lodge_units', 'privatesite', 'ttu', 'readonly'
+        ));
     }
 }
