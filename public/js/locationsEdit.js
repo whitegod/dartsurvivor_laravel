@@ -10,6 +10,31 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Edit button functionality
+    document.querySelectorAll('.edit-unit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Set modal title
+            document.getElementById('modalTitle').textContent = btn.dataset.type === 'hotel' ? 'Edit Room' : 'Edit Lodge Unit';
+
+            // Fill form fields
+            document.getElementById('modalNumber').value = btn.dataset.unit || '';
+            if (btn.dataset.type === 'statepark') {
+                document.getElementById('modalUnitType').value = btn.dataset.unitType || '';
+            }
+
+            // Set form action to update route (you need to implement these routes)
+            let form = document.getElementById('roomUnitForm');
+            if (btn.dataset.type === 'hotel') {
+                form.action = '/admin/rooms/update/' + btn.dataset.id;
+            } else {
+                form.action = '/admin/lodge_units/update/' + btn.dataset.id;
+            }
+
+            // Show modal
+            document.getElementById('roomUnitModal').style.display = 'block';
+        });
+    });
+
     var modal = document.getElementById('roomUnitModal');
     if (!modal) return;
 

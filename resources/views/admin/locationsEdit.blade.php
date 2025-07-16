@@ -76,6 +76,7 @@
                                     <th>{{ $numberLabel }}</th>
                                     <th>Survivor</th>
                                     <th>HH Size</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -95,6 +96,19 @@
                                             @endif
                                         </td>
                                         <td>{{ $item->hh_size ?? '-' }}</td>
+                                        <td>
+                                            <button type="button"
+                                                class="btn btn-sm btn-primary edit-unit-btn"
+                                                data-id="{{ $item->room_id ?? $item->lodge_unit_id ?? '' }}"
+                                                data-type="{{ $ishotel ? 'hotel' : 'statepark' }}"
+                                                data-unit="{{ $ishotel ? $item->room_num : $item->unit_name }}"
+                                                @if(!$ishotel)
+                                                    data-unit-type="{{ $item->unit_type ?? '' }}"
+                                                @endif
+                                            >
+                                                Edit
+                                            </button>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>

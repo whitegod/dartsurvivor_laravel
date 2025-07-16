@@ -91,7 +91,7 @@ class LocationController extends Controller
             $location = \DB::table('hotel')->where('id', $id)->first();
             $rooms = \DB::table('room')
                 ->leftJoin('survivor', 'room.survivor_id', '=', 'survivor.id')
-                ->select('room.room_num', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('room.id as room_id', 'room.room_num', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('room.hotel_id', $id)
                 ->get()
                 ->map(function($r) {
@@ -102,7 +102,7 @@ class LocationController extends Controller
             $location = \DB::table('statepark')->where('id', $id)->first();
             $lodge_units = \DB::table('lodge_unit')
                 ->leftJoin('survivor', 'lodge_unit.survivor_id', '=', 'survivor.id')
-                ->select('lodge_unit.unit_type', 'lodge_unit.unit_name', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('lodge_unit.id as lodge_unit_id', 'lodge_unit.unit_type', 'lodge_unit.unit_name', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('lodge_unit.statepark_id', $id)
                 ->get()
                 ->map(function($u) {
@@ -241,7 +241,7 @@ class LocationController extends Controller
             $location = \DB::table('hotel')->where('id', $id)->first();
             $rooms = \DB::table('room')
                 ->leftJoin('survivor', 'room.survivor_id', '=', 'survivor.id')
-                ->select('room.room_num', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('room.id as room_id', 'room.room_num', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('room.hotel_id', $id)
                 ->get()
                 ->map(function($r) {
@@ -252,7 +252,7 @@ class LocationController extends Controller
             $location = \DB::table('statepark')->where('id', $id)->first();
             $lodge_units = \DB::table('lodge_unit')
                 ->leftJoin('survivor', 'lodge_unit.survivor_id', '=', 'survivor.id')
-                ->select('lodge_unit.unit_type', 'lodge_unit.unit_name', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('lodge_unit.id as lodge_unit_id', 'lodge_unit.unit_type', 'lodge_unit.unit_name', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('lodge_unit.statepark_id', $id)
                 ->get()
                 ->map(function($u) {
@@ -275,5 +275,27 @@ class LocationController extends Controller
         return view('admin.locationsEdit', compact(
             'location', 'type', 'rooms', 'lodge_units', 'privatesite', 'ttu', 'readonly'
         ));
+    }
+
+    public function roomUpdate(Request $request, $id) {
+        $request->validate([
+            'number' => 'required|string|max:255',
+        ]);
+        \DB::table('room')->where('id', $id)->update([
+            'room_num' => $request->number,
+        ]);
+        return redirect()->back()->with('success', 'Room updated!');
+    }
+
+    public function lodgeUnitUpdate(Request $request, $id) {
+        $request->validate([
+            'number' => 'required|string|max:255',
+            'unit_type' => 'required|string',
+        ]);
+        \DB::table('lodge_unit')->where('id', $id)->update([
+            'unit_name' => $request->number,
+            'unit_type' => $request->unit_type,
+        ]);
+        return redirect()->back()->with('success', 'Lodge unit updated!');
     }
 }

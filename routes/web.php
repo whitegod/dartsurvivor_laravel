@@ -58,6 +58,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::put('/admin/locations/update/{id}', 'LocationController@locationUpdate')->name('admin.locations.update');
         Route::post('/admin/locations/store', 'LocationController@locationStore')->name('admin.locations.store');
         Route::delete('/admin/locations/delete/{id}', 'LocationController@deleteLocation')->name('admin.locations.delete');
+        Route::post('/admin/rooms/update/{id}', [\App\Http\Controllers\Admin\LocationController::class, 'roomUpdate'])->name('admin.rooms.update');
+        Route::post('/admin/lodge_units/update/{id}', [\App\Http\Controllers\Admin\LocationController::class, 'lodgeUnitUpdate'])->name('admin.lodge_units.update');
 
         Route::get('/admin/user_permissions', 'UserController@userPermissions')->name('admin.user_permissions');
         Route::post('/admin/user_permissions/add', 'UserController@addUser')->name('admin.user_permissions.add');
