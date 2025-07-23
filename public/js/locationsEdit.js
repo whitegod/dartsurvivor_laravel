@@ -10,27 +10,63 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Close modal
-    document.querySelectorAll('.close-modal, #cancelModalBtn').forEach(el => {
-        el.addEventListener('click', function() {
-            document.getElementById('roomUnitModal').style.display = 'none';
-            document.getElementById('roomUnitForm').reset();
+    // Edit button functionality
+    document.querySelectorAll('.edit-unit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Set modal title
+            document.getElementById('modalTitle').textContent = btn.dataset.type === 'hotel' ? 'Edit Room' : 'Edit Lodge Unit';
+
+            // Fill form fields
+            document.getElementById('modalNumber').value = btn.dataset.unit || '';
+            if (btn.dataset.type === 'statepark') {
+                document.getElementById('modalUnitType').value = btn.dataset.unitType || '';
+            }
+
+            // Set form action to update route (you need to implement these routes)
+            let form = document.getElementById('roomUnitForm');
+            if (btn.dataset.type === 'hotel') {
+                form.action = '/admin/rooms/update/' + btn.dataset.id;
+            } else {
+                form.action = '/admin/lodge_units/update/' + btn.dataset.id;
+            }
+
+            // Show modal
+            document.getElementById('roomUnitModal').style.display = 'block';
         });
     });
 
-    // Optional: Close modal when clicking outside content
-    // document.getElementById('roomUnitModal').addEventListener('click', function(e) {
-    //     if (e.target === this) {
-    //         this.style.display = 'none';
-    //         document.getElementById('roomUnitForm').reset();
-    //     }
-    // });
+    var modal = document.getElementById('roomUnitModal');
+    if (!modal) return;
 
-    const roomUnitModal = document.getElementById('roomUnitModal');
-    if (roomUnitModal) {
-        roomUnitModal.addEventListener('click', function() {
-            this.style.display = 'none';
-            document.getElementById('roomUnitForm').reset();
+    var modalContent = modal.querySelector('.modal-content');
+    var closeBtn = modal.querySelector('.close-modal');
+    var cancelBtn = document.getElementById('cancelModalBtn');
+
+    // Prevent modal from closing when clicking inside the modal content
+    if (modalContent) {
+        modalContent.addEventListener('click', function(event) {
+            event.stopPropagation();
         });
     }
+
+    // Close modal when clicking the close button
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
+
+    // Close modal when clicking the cancel button
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
+
+    // Close modal when clicking outside the modal content (on the modal background)
+    modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
 });

@@ -79,7 +79,48 @@
                             <option value="Rent" {{ (old('own_rent', $survivor->own_rent ?? '') == 'Rent') ? 'selected' : '' }}>Rent</option>
                         </select>
                     </div>
-                    <div class="form-group" style="display: flex; flex-direction: column;">
+                </div>
+
+                <label style="font-weight:bold; font-size:16px; margin-bottom:2px;">Family Information</label>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="group0_2">0-2 years old</label>
+                        <input type="text" id="group0_2" name="group0_2" value="{{ old('group0_2', $survivor->group0_2 ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+                    <div class="form-group">
+                        <label for="group3_6">3-6 years old</label>
+                        <input type="text" id="group3_6" name="group3_6" value="{{ old('group3_6', $survivor->group3_6 ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+                    <div class="form-group">
+                        <label for="group7_12">7-12 years old</label>
+                        <input type="text" id="group7_12" name="group7_12" value="{{ old('group7_12', $survivor->group7_12 ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+                    <div class="form-group">
+                        <label for="group13_17">13-17 years old</label>
+                        <input type="text" id="group13_17" name="group13_17" value="{{ old('group13_17', $survivor->group13_17 ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+                    <div class="form-group">
+                        <label for="group18_21">18-21 years old</label>
+                        <input type="text" id="group18_21" name="group18_21" value="{{ old('group18_21', $survivor->group18_21 ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+                    <div class="form-group">
+                        <label for="group22_65">22-65 years old</label>
+                        <input type="text" id="group22_65" name="group22_65" value="{{ old('group22_65', $survivor->group22_65 ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+                    <div class="form-group">
+                        <label for="group65plus">65+ years old</label>
+                        <input type="text" id="group65plus" name="group65plus" value="{{ old('group65plus', $survivor->group65plus ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+                    <div class="form-group">
+                        <label for="hh_size">Household Size</label>
+                        <input type="text" id="hh_size" name="hh_size" value="{{ $survivor->hh_size ?? '' }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="pets">Pets</label>
+                        <input type="text" id="pets" name="pets" value="{{ $survivor->pets ?? '' }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+
+                    <!-- <div class="form-group" style="display: flex; flex-direction: column;">
                         <label class="info" style="margin-bottom: 4px;">Family Information</label>
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                             <div style="border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 10px 0; width: 100%; margin-right: 8px;">
@@ -91,7 +132,7 @@
                             <label for="pets" style="margin: 0 8px 0 0; min-width: 60px; font-weight: normal;">Pets</label>
                             <input type="text" id="pets" name="pets" value="{{ $survivor->pets ?? '' }}" style="width: 40px;" {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
 
                 <div class="form-row" style="align-items: end">
@@ -130,11 +171,21 @@
                             <label class="info" style="margin-bottom:6px;">VIN</label>
                             <div style="display:flex; gap:4px;">
                                 <input type="text" name="vin" id="vin-autocomplete" value="{{ old('vin', $ttu->vin ?? '') }}" style="width: 260px;" autocomplete="off">
-                                <button class="btn btn-primary" type="button">
+                                <button class="btn btn-primary" type="button"
+                                    @if(!empty($ttu))
+                                        onclick="window.location.href='{{ route('admin.ttus.view', $ttu->id) }}'"
+                                    @else
+                                        disabled
+                                    @endif
+                                >
                                     Go-to Record
                                 </button>
                             </div>
                             <div id="vin-suggestions" style="position:relative; z-index:10;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="li_date">LI Date</label>
+                            <input id="li_date" name="li_date" type="date" value="{{ old('li_date', $ttu->li_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
                         <div class="form-group" style="flex:0.5; min-width:70px;">
                             <label for="lo">LO</label>
@@ -209,7 +260,7 @@
                     </div>
                 </div>
 
-                <div class="form-row" style="display: flex; gap: 32px;">
+                <div class="form-row" style="display: flex; align-items: start; gap: 32px;">
                     <!-- Left Column -->
                     <div style="flex: 1; min-width: 260px; max-width: 340px;">
                         <div class="form-group" style="min-width:120px; max-width:180px;">
@@ -236,8 +287,42 @@
                     </div>
                     <!-- Right Column -->
                     <div style="flex: 2;">
-                        <label for="notes">Comments/Notes:</label>
-                        <textarea id="notes" name="notes" rows="3" {{ !empty($readonly) ? 'readonly' : '' }}>{{ old('notes', $survivor->notes ?? '') }}</textarea>
+                        <div>
+                            <label for="notes">Comments/Notes:</label>
+                            <textarea id="notes" name="notes" rows="3" {{ !empty($readonly) ? 'readonly' : '' }}>{{ old('notes', $survivor->notes ?? '') }}</textarea>
+                        </div>
+                        <div class="info" style="margin-top: 35px;">
+                            <span>Total Dates:</span>
+                            <span>
+                                @php
+                                    // Determine which LI/LO fields to use based on location type
+                                    $locationType = old('location_type', $survivor->location_type ?? 'TTU');
+                                    if ($locationType === 'TTU') {
+                                        $li = old('li_date', $ttu->li_date ?? null);
+                                        $lo = old('lo_date', $ttu->lo_date ?? null);
+                                        $loFlag = old('lo', $ttu->lo ?? null);
+                                    } elseif ($locationType === 'Hotel') {
+                                        $li = old('hotel_li_date', $hotelLiDate ?? null);
+                                        $lo = old('hotel_lo_date', $hotelLoDate ?? null);
+                                        $loFlag = null; // Not used for hotel
+                                    } elseif ($locationType === 'State Park') {
+                                        $li = old('statepark_li_date', $stateparkLiDate ?? null);
+                                        $lo = old('statepark_lo_date', $stateparkLoDate ?? null);
+                                        $loFlag = null; // Not used for state park
+                                    } else {
+                                        $li = null;
+                                        $lo = null;
+                                        $loFlag = null;
+                                    }
+
+                                    $liDate = $li ? \Carbon\Carbon::parse($li) : null;
+                                    // If LO date is not set or LO is "NO" (0), use today as end date
+                                    $endDate = (!$lo || (isset($loFlag) && ($loFlag === '0' || $loFlag === 'NO'))) ? \Carbon\Carbon::today() : \Carbon\Carbon::parse($lo);
+                                    $totalDates = ($liDate) ? $liDate->diffInDays($endDate) + 1 : '';
+                                @endphp
+                                {{ $totalDates !== '' ? $totalDates : 'N/A' }}
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div class="form-footer">

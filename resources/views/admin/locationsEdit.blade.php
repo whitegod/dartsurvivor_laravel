@@ -70,17 +70,45 @@
                         <table>
                             <thead>
                                 <tr>
+                                    @if(!$ishotel)
+                                        <th>Unit Type</th>
+                                    @endif
                                     <th>{{ $numberLabel }}</th>
                                     <th>Survivor</th>
                                     <th>HH Size</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($items as $item)
                                     <tr>
+                                        @if(!$ishotel)
+                                            <td>{{ $item->unit_type ?? '-' }}</td>
+                                        @endif
                                         <td>{{ $ishotel ? $item->room_num : $item->unit_name }}</td>
-                                        <td>{{ $item->survivor_name ?? '-' }}</td>
+                                        <td>
+                                            @if(!empty($item->fname) && !empty($item->lname) && isset($item->id))
+                                                <a href="{{ route('admin.survivors.view', $item->id) }}">
+                                                    {{ $item->survivor_name }}
+                                                </a>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                         <td>{{ $item->hh_size ?? '-' }}</td>
+                                        <td>
+                                            <button type="button"
+                                                class="btn btn-sm btn-primary edit-unit-btn"
+                                                data-id="{{ $item->room_id ?? $item->lodge_unit_id ?? '' }}"
+                                                data-type="{{ $ishotel ? 'hotel' : 'statepark' }}"
+                                                data-unit="{{ $ishotel ? $item->room_num : $item->unit_name }}"
+                                                @if(!$ishotel)
+                                                    data-unit-type="{{ $item->unit_type ?? '' }}"
+                                                @endif
+                                            >
+                                                Edit
+                                            </button>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -169,6 +197,43 @@
                                     <textarea id="dow_response" name="dow_response" {{ !empty($readonly) ? 'readonly' : '' }}>{{ old('dow_response', $privatesite->dow_response ?? '') }}</textarea>
                                 </div>
                             </div>
+                            @if($type === 'privatesite' && isset($privatesite))
+                                <div class="form-section" style="margin-bottom: 24px;">
+                                    <h4>Assigned TTU</h4>
+                                    @if(isset($ttu))
+                                        <div class="form-row" style="align-items: flex-end">
+                                            <div class="form-group">
+                                                <label for="vin">VIN:</label>
+                                                <input type="text" id="vin" name="vin" value="{{ $ttu->vin ?? '-' }}" readonly>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="status">Status:</label>
+                                                @php
+                                                    // Example: $status = "Occupied (#ffc107)"
+                                                    $statusRaw = $ttu->status ?? '-';
+                                                    $status = $statusRaw;
+                                                    $color = '#888';
+
+                                                    // Extract color code from status string if present in parentheses
+                                                    if (preg_match('/\((#[0-9a-fA-F]{6})\)/', $statusRaw, $matches)) {
+                                                        $color = $matches[1];
+                                                        // Remove the color code from the status string for display
+                                                        $status = trim(str_replace($matches[0], '', $statusRaw));
+                                                    }
+                                                @endphp
+                                                <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:{{ $color }}; margin-right:8px; vertical-align:middle;"></span>
+                                                <input type="text" id="status" name="status" value="{{ $status }}" readonly style="width:auto; display:inline-block;">
+                                            </div>                                           
+                                            <button class="btn btn-primary" type="button" style="margin-bottom: 10px"
+                                                onclick="window.location.href='{{ route('admin.ttus.view', $ttu->id) }}'">
+                                                Go-to Record
+                                            </button>
+                                        </div>
+                                    @else
+                                        <div>No TTU assigned to this Private Site.</div>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endif
@@ -210,10 +275,22 @@
                             <input type="text" id="modalLocationName" class="form-control" value="{{ $location->name ?? '' }}" readonly>
                         </div>
                         <input type="hidden" name="location_id" value="{{ $location->id }}">
+                        @if($type === 'statepark')
+                        <div class="form-group">
+                            <label for="modalUnitType">Unit Type</label>
+                            <select name="unit_type" id="modalUnitType" class="form-control" required>
+                                <option value="">Select Type</option>
+                                <option value="lot">Lot</option>
+                                <option value="cabin">Cabin</option>
+                                <option value="lodge">Lodge</option>
+                            </select>
+                        </div>
+                        @endif
                         <div class="form-group">
                             <label id="modalLabelNumber" for="number">{{ $type === 'hotel' ? 'Room #' : 'Unit #' }}</label>
                             <input type="text" name="number" id="modalNumber" class="form-control" required>
                         </div>
+                        
                         <div style="margin-top:16px;">
                             <button type="button" class="btn btn-cancel" id="cancelModalBtn" style="margin-right:12px;">Cancel</button>
                             <button type="submit" class="btn btn-save">Save</button>

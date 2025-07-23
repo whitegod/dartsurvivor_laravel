@@ -125,10 +125,26 @@ class SurvivorController extends Controller
 
     public function storeSurvivor(Request $request)
     {
+        // Validate pets field
+        $request->validate([
+            'pets' => ['nullable', 'integer', 'max:2'],
+        ], [
+            'pets.max' => 'FEMA limits pets as 2 at max.',
+        ]);
+
         $data = $request->except([
             'hotel_name', 'hotel_room', 'hotel_li_date', 'hotel_lo_date',
             'statepark_name', 'statepark_site', 'statepark_li_date', 'statepark_lo_date'
         ]);
+
+        // Ensure group fields are included for saving
+        $groupFields = [
+            'group0_2', 'group3_6', 'group7_12', 'group13_17',
+            'group18_21', 'group22_65', 'group65plus'
+        ];
+        foreach ($groupFields as $field) {
+            $data[$field] = $request->input($field, 0);
+        }
 
         // Set authored to current user name
         $data['author'] = auth()->user()->name ?? 'Unknown';
@@ -161,6 +177,7 @@ class SurvivorController extends Controller
         if ($request->location_type === 'TTU' && $request->vin) {
             $ttu = \App\TTU::where('vin', $request->vin)->first();
             if ($ttu) {
+                $ttu->li_date = $request->li_date;
                 $ttu->lo = $request->lo;
                 $ttu->lo_date = $request->lo_date;
                 $ttu->est_lo_date = $request->est_lo_date;
@@ -197,11 +214,27 @@ class SurvivorController extends Controller
 
     public function updateSurvivor(Request $request, $id)
     {
+        // Validate pets field
+        $request->validate([
+            'pets' => ['nullable', 'integer', 'max:2'],
+        ], [
+            'pets.max' => 'FEMA limits pets as 2 at max.',
+        ]);
+
         $data = $request->except([
             'vin', 'lo', 'lo_date', 'est_lo_date',
             'hotel_name', 'hotel_room', 'hotel_li_date', 'hotel_lo_date',
             'statepark_name', 'statepark_site', 'statepark_li_date', 'statepark_lo_date'
         ]);
+
+        // Ensure group fields are included for updating
+        $groupFields = [
+            'group0_2', 'group3_6', 'group7_12', 'group13_17',
+            'group18_21', 'group22_65', 'group65plus'
+        ];
+        foreach ($groupFields as $field) {
+            $data[$field] = $request->input($field, 0);
+        }
 
         // Set author to current user name
         $data['author'] = auth()->user()->name ?? 'Unknown';
@@ -246,6 +279,7 @@ class SurvivorController extends Controller
         if ($request->location_type === 'TTU' && $request->vin) {
             $ttu = \App\TTU::where('vin', $request->vin)->first();
             if ($ttu) {
+                $ttu->li_date = $request->li_date; // <-- Add this line
                 $ttu->lo = $request->lo;
                 $ttu->lo_date = $request->lo_date;
                 $ttu->est_lo_date = $request->est_lo_date;

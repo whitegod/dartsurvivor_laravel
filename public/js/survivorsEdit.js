@@ -321,3 +321,52 @@ document.addEventListener('DOMContentLoaded', function() {
         populateUnits();
     }
 });
+
+function updateHouseholdSize() {
+    const hhSizeInput = document.getElementById('hh_size');
+    if (!hhSizeInput) return;
+    let total = 0;
+    const fields = [
+        'group0_2', 'group3_6', 'group7_12', 'group13_17',
+        'group18_21', 'group22_65', 'group65plus'
+    ];
+    fields.forEach(function(id) {
+        const el = document.getElementById(id);
+        const val = parseInt(el && el.value ? el.value : 0, 10);
+        total += isNaN(val) ? 0 : val;
+    });
+    hhSizeInput.value = total;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    [
+        'group0_2', 'group3_6', 'group7_12', 'group13_17',
+        'group18_21', 'group22_65', 'group65plus'
+    ].forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', updateHouseholdSize);
+        }
+    });
+    updateHouseholdSize();
+});
+
+// Disable LO Date if LO is NO
+function toggleLODate() {
+    var lo = document.getElementById('lo');
+    var loDate = document.getElementById('lo_date');
+    if (lo && loDate) {
+        if (lo.value === '0') {
+            loDate.disabled = true;
+            loDate.value = '';
+        } else {
+            loDate.disabled = false;
+        }
+    }
+}
+
+var lo = document.getElementById('lo');
+if (lo) {
+    lo.addEventListener('change', toggleLODate);
+    toggleLODate();
+}
