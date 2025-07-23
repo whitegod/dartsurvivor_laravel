@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 11, 2025 at 05:36 PM
+-- Generation Time: Jul 23, 2025 at 05:34 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -86,16 +86,17 @@ INSERT INTO `author` (`id`, `author_name`, `address`, `description`, `scope`) VA
 CREATE TABLE `caseworker` (
   `id` int(11) NOT NULL,
   `fname` varchar(255) NOT NULL,
-  `lname` varchar(255) NOT NULL
+  `lname` varchar(255) NOT NULL,
+  `phone` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `caseworker`
 --
 
-INSERT INTO `caseworker` (`id`, `fname`, `lname`) VALUES
-(4, 'snow', 'white'),
-(5, 'Cristiano', 'Ronaldo');
+INSERT INTO `caseworker` (`id`, `fname`, `lname`, `phone`) VALUES
+(4, 'snow', 'white', '1234214'),
+(5, 'Cristiano', 'Ronaldo', '383745675');
 
 -- --------------------------------------------------------
 
@@ -129,6 +130,7 @@ INSERT INTO `hotel` (`id`, `name`, `address`, `phone`, `created_at`, `updated_at
 
 CREATE TABLE `lodge_unit` (
   `id` int(11) NOT NULL,
+  `unit_type` varchar(20) NOT NULL,
   `unit_name` varchar(20) NOT NULL,
   `survivor_id` int(11) DEFAULT NULL,
   `statepark_id` int(11) NOT NULL,
@@ -140,11 +142,13 @@ CREATE TABLE `lodge_unit` (
 -- Dumping data for table `lodge_unit`
 --
 
-INSERT INTO `lodge_unit` (`id`, `unit_name`, `survivor_id`, `statepark_id`, `li_date`, `lo_date`) VALUES
-(1, 'lot 12', NULL, 1, '2025-05-27', '2025-05-30'),
-(2, 'lot ABC', 2, 2, '2025-05-29', '2025-05-31'),
-(3, 'lot 15', NULL, 1, NULL, NULL),
-(5, 'lot 23', NULL, 2, NULL, NULL);
+INSERT INTO `lodge_unit` (`id`, `unit_type`, `unit_name`, `survivor_id`, `statepark_id`, `li_date`, `lo_date`) VALUES
+(1, 'lot', 'lot 12', NULL, 1, '2025-05-27', '2025-05-30'),
+(2, 'cabin', '14-20', 2, 2, '2025-05-29', '2025-07-11'),
+(3, 'lodge', 'f25', NULL, 1, NULL, NULL),
+(5, 'lodge', 'lot 13', NULL, 2, NULL, NULL),
+(6, 'lot', 'lot 30', NULL, 2, NULL, NULL),
+(8, 'cabin', '12-3', NULL, 2, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -201,7 +205,7 @@ CREATE TABLE `privatesite` (
 --
 
 INSERT INTO `privatesite` (`id`, `name`, `address`, `phone`, `ttu_id`, `damage_assessment`, `ehp`, `ehp_notes`, `dow_lat`, `dow_long`, `dow_response`, `kytc`, `pow`, `h2o`, `sew`, `own`, `res`, `zon`, `created_at`, `updated_at`, `author`) VALUES
-(3, 'Dave\'s ranch', '12354 Federal Way', '(777) 654-0101', 1, NULL, NULL, 'something interesting', NULL, NULL, NULL, NULL, 1, 0, 1, 0, 0, NULL, '2025-07-02', '2025-07-02', NULL);
+(3, 'Dave\'s ranch', '12354 Federal Way', '(777) 654-0101', 1, NULL, NULL, 'something interesting', NULL, NULL, NULL, NULL, 1, 0, 1, 0, 0, NULL, '2025-07-02', '2025-07-14', NULL);
 
 -- --------------------------------------------------------
 
@@ -267,10 +271,10 @@ CREATE TABLE `room` (
 
 INSERT INTO `room` (`id`, `room_num`, `survivor_id`, `hotel_id`, `li_date`, `lo_date`) VALUES
 (1, '101', NULL, 1, '2025-05-27', '2025-05-31'),
-(2, '202', 4, 1, '2025-05-31', '2025-06-03'),
+(2, '203', 4, 1, '2025-05-31', '2025-06-03'),
 (3, '1102', NULL, 2, NULL, NULL),
-(4, '102', NULL, 1, NULL, NULL),
-(5, '201', NULL, 1, NULL, NULL),
+(4, '102', 3, 1, NULL, NULL),
+(5, '208', NULL, 1, NULL, NULL),
 (6, '103', NULL, 1, NULL, NULL),
 (8, '203', NULL, 1, NULL, NULL);
 
@@ -296,7 +300,7 @@ CREATE TABLE `statepark` (
 
 INSERT INTO `statepark` (`id`, `name`, `address`, `phone`, `created_at`, `updated_at`, `author`) VALUES
 (1, 'statepark1', 'adrerehrerh', '34234346123', '2025-05-26', '2025-06-11', 'Dart Admin'),
-(2, 'test park 3', 'updated address', '214321414', '2025-05-24', '2025-05-30', '');
+(2, 'test park 3', 'updated address', '214321414', '2025-05-24', '2025-07-12', 'Dart Admin');
 
 -- --------------------------------------------------------
 
@@ -317,6 +321,13 @@ CREATE TABLE `survivor` (
   `primary_phone` varchar(32) DEFAULT NULL,
   `secondary_phone` varchar(32) DEFAULT NULL,
   `hh_size` int(11) DEFAULT NULL,
+  `group0_2` int(11) DEFAULT NULL,
+  `group3_6` int(11) DEFAULT NULL,
+  `group7_12` int(11) DEFAULT NULL,
+  `group13_17` int(11) DEFAULT NULL,
+  `group18_21` int(11) DEFAULT NULL,
+  `group22_65` int(11) DEFAULT NULL,
+  `group65plus` int(11) DEFAULT NULL,
   `pets` int(11) DEFAULT NULL,
   `email` char(50) DEFAULT NULL,
   `tpm` date DEFAULT NULL,
@@ -336,11 +347,11 @@ CREATE TABLE `survivor` (
 -- Dumping data for table `survivor`
 --
 
-INSERT INTO `survivor` (`id`, `fema_id`, `fname`, `lname`, `address`, `city`, `state`, `zip`, `county`, `primary_phone`, `secondary_phone`, `hh_size`, `pets`, `email`, `tpm`, `li_date`, `own_rent`, `author`, `location_type`, `opt_out`, `opt_out_reason`, `caseworker_id`, `notes`, `created_at`, `updated_at`) VALUES
-(1, '364783292634', 'test', 'dfsd', 'att', NULL, NULL, NULL, NULL, '(890) 903-5768', '(890) 903-2344', 3, 1, NULL, NULL, NULL, 0, 'Dart Admin', 'TTU', 0, 'N/A', NULL, NULL, '2025-05-26 15:29:38', '2025-07-02 17:53:47'),
-(2, '343256765', 'dd', 'fdge', 'address 2', NULL, 'CA', '12345', NULL, NULL, NULL, 2, 2, NULL, '2025-05-12', NULL, 0, 'Dart Admin', 'State Park', 0, 'N/A', NULL, NULL, '2025-05-26 15:43:18', '2025-06-10 15:30:49'),
-(3, '343256243', 'adsa', 'fewfw', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 4, 1, NULL, '2025-06-25', NULL, 0, 'Dart Admin', 'TTU', 0, 'Personal', NULL, NULL, '2025-05-26 15:43:36', '2025-06-10 15:00:59'),
-(4, 'Mdj304827', 'victor', 'tester', 'add4', NULL, NULL, NULL, NULL, '(890) 903-1212', NULL, 2, 3, NULL, '2025-06-26', NULL, 0, 'Dart Admin', 'Hotel', 0, 'N/A', NULL, NULL, '2025-06-17 19:25:40', '2025-06-22 19:32:31');
+INSERT INTO `survivor` (`id`, `fema_id`, `fname`, `lname`, `address`, `city`, `state`, `zip`, `county`, `primary_phone`, `secondary_phone`, `hh_size`, `group0_2`, `group3_6`, `group7_12`, `group13_17`, `group18_21`, `group22_65`, `group65plus`, `pets`, `email`, `tpm`, `li_date`, `own_rent`, `author`, `location_type`, `opt_out`, `opt_out_reason`, `caseworker_id`, `notes`, `created_at`, `updated_at`) VALUES
+(1, '364783292634', 'test', 'dfsd', 'att', NULL, NULL, NULL, NULL, '(890) 903-5768', '(890) 903-2344', 4, 2, NULL, NULL, NULL, 2, NULL, NULL, 2, NULL, NULL, NULL, 0, 'Dart Admin', 'TTU', 0, 'N/A', NULL, NULL, '2025-05-26 15:29:38', '2025-07-12 18:51:21'),
+(2, '343256765', 'dd', 'fdge', 'address 2', NULL, 'CA', '12345', NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL, NULL, 2, NULL, 2, NULL, '2025-05-12', NULL, 0, 'Dart Admin', 'State Park', 0, 'N/A', NULL, NULL, '2025-05-26 15:43:18', '2025-07-12 18:53:14'),
+(3, '343256243', 'adsa', 'fewfw', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 5, NULL, NULL, 3, NULL, NULL, 1, 1, 1, NULL, '2025-06-25', NULL, 0, 'Dart Admin', 'Hotel', 0, 'Personal', NULL, NULL, '2025-05-26 15:43:36', '2025-07-14 18:36:15'),
+(4, 'Mdj304827', 'victor', 'tester', 'add4', NULL, NULL, NULL, NULL, '(890) 903-1212', NULL, 6, 1, NULL, NULL, 1, 2, NULL, 2, 2, NULL, '2025-06-26', NULL, 0, 'Dart Admin', 'Hotel', 0, 'N/A', NULL, NULL, '2025-06-17 19:25:40', '2025-07-11 17:00:36');
 
 -- --------------------------------------------------------
 
@@ -390,6 +401,7 @@ CREATE TABLE `ttu` (
   `unit_loc` varchar(10) DEFAULT NULL,
   `county` varchar(100) DEFAULT NULL,
   `imei` varchar(64) DEFAULT NULL,
+  `li_date` date DEFAULT NULL,
   `purchase_price` decimal(10,2) DEFAULT NULL,
   `status` varchar(100) DEFAULT NULL,
   `total_beds` int(11) DEFAULT NULL,
@@ -426,11 +438,11 @@ CREATE TABLE `ttu` (
 -- Dumping data for table `ttu`
 --
 
-INSERT INTO `ttu` (`id`, `survivor_id`, `vin`, `location_type`, `location`, `manufacturer`, `brand`, `model`, `year`, `title_manufacturer`, `title_brand`, `title_model`, `has_title`, `unit_loc`, `county`, `imei`, `purchase_price`, `status`, `total_beds`, `disposition`, `transpo_agency`, `remarks`, `comments`, `fdec`, `lo`, `lo_date`, `est_lo_date`, `has_200sqft`, `has_propanefire`, `has_tv`, `has_hydraul`, `has_steps`, `has_teardrop`, `has_foldwalls`, `has_extkitchen`, `is_onsite`, `is_occupied`, `is_winterized`, `is_deblocked`, `is_cleaned`, `is_gps_removed`, `is_being_donated`, `is_sold_at_auction`, `author`, `created_at`, `updated_at`) VALUES
-(1, NULL, 'S0VM9145645', 'privatesite', 'Dave\'s ranch', 'Forest River', 'Apex Ultra Lite', 'D23', '2023', NULL, NULL, NULL, 'Yes', NULL, 'Brexit County', NULL, NULL, 'Demobilized (#ffd700)', 3, 'Available', NULL, NULL, NULL, NULL, 'NO', '0000-00-00', NULL, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 'Damien Weyas	', '2025-05-12 16:19:11', '2025-07-02 18:29:15'),
-(2, 1, '3SD2CXSBXSM046291', 'hotel', 'king\'s hotel', 'Forest River', NULL, NULL, NULL, NULL, NULL, NULL, 'Yes', NULL, NULL, NULL, NULL, 'Not Ready for Occupancy (#b22222)', 4, 'Awaiting Signatures', 'fedex', NULL, NULL, NULL, '0', '2025-05-27', '2025-06-07', 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 'Damien Weyas	', '2025-05-27 15:35:51', '2025-07-02 17:53:47'),
-(3, 3, '3SD2CXBNMSM043391', 'hotel', 'queen\'s hotel', 'Forest River', NULL, NULL, NULL, NULL, NULL, NULL, 'Yes', '13', NULL, NULL, NULL, 'Transferred to Auction (#007bff)', 3, 'Available', NULL, NULL, NULL, NULL, 'NO', '2025-06-08', '2025-06-14', 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 'Damien Weyas	', '2025-06-01 16:19:32', '2025-07-02 16:33:16'),
-(4, NULL, 'MSV2937294', 'statepark', 'statepark1', NULL, NULL, NULL, '2023', NULL, NULL, NULL, 'Yes', '123', NULL, NULL, NULL, 'Transferred to City/County/State Entity (#800080)', 5, NULL, NULL, NULL, NULL, NULL, 'NO', '2025-07-03', NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Damien Weyas	', '2025-06-25 16:19:44', '2025-07-02 18:29:43');
+INSERT INTO `ttu` (`id`, `survivor_id`, `vin`, `location_type`, `location`, `manufacturer`, `brand`, `model`, `year`, `title_manufacturer`, `title_brand`, `title_model`, `has_title`, `unit_loc`, `county`, `imei`, `li_date`, `purchase_price`, `status`, `total_beds`, `disposition`, `transpo_agency`, `remarks`, `comments`, `fdec`, `lo`, `lo_date`, `est_lo_date`, `has_200sqft`, `has_propanefire`, `has_tv`, `has_hydraul`, `has_steps`, `has_teardrop`, `has_foldwalls`, `has_extkitchen`, `is_onsite`, `is_occupied`, `is_winterized`, `is_deblocked`, `is_cleaned`, `is_gps_removed`, `is_being_donated`, `is_sold_at_auction`, `author`, `created_at`, `updated_at`) VALUES
+(1, NULL, 'S0VM9145645', 'privatesite', 'Dave\'s ranch', 'Forest River', 'Apex Ultra Lite', 'D23', '2023', NULL, NULL, NULL, 'Yes', NULL, 'Brexit County', NULL, '2024-02-28', NULL, 'Demobilized (#ffd700)', 3, 'Available', NULL, NULL, NULL, NULL, 'NO', '0000-00-00', NULL, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 'Damien Weyas	', '2025-05-12 16:19:11', '2025-07-14 18:51:49'),
+(2, 1, '3SD2CXSBXSM046291', 'hotel', 'king\'s hotel', 'Forest River', NULL, NULL, NULL, NULL, NULL, NULL, 'Yes', NULL, NULL, NULL, '2025-06-02', NULL, 'Not Ready for Occupancy (#b22222)', 4, 'Awaiting Signatures', 'fedex', NULL, NULL, NULL, '0', '0000-00-00', '2025-06-07', 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 'Damien Weyas	', '2025-05-27 15:35:51', '2025-07-12 18:51:21'),
+(3, 3, '3SD2CXBNMSM043391', 'hotel', 'queen\'s hotel', 'Forest River', NULL, NULL, NULL, NULL, NULL, NULL, 'Yes', '13', NULL, NULL, '2025-06-18', NULL, 'Transferred to Auction (#007bff)', 3, 'Available', NULL, NULL, NULL, NULL, '1', '2025-07-12', '2025-06-14', 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 'Damien Weyas	', '2025-06-01 16:19:32', '2025-07-12 18:44:04'),
+(4, NULL, 'MSV2937294', 'statepark', 'statepark1', NULL, NULL, NULL, '2023', NULL, NULL, NULL, 'Yes', '123', NULL, NULL, NULL, NULL, 'Transferred to City/County/State Entity (#800080)', 5, NULL, NULL, NULL, NULL, NULL, 'NO', '2025-07-03', NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Damien Weyas	', '2025-06-25 16:19:44', '2025-07-02 18:29:43');
 
 -- --------------------------------------------------------
 
@@ -602,7 +614,7 @@ ALTER TABLE `hotel`
 -- AUTO_INCREMENT for table `lodge_unit`
 --
 ALTER TABLE `lodge_unit`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `privatesite`
