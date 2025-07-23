@@ -13,6 +13,7 @@ yarn-error.log
 
 /vendor
 .env
+composer.lock
 
 # /public/js
 # /public/css
