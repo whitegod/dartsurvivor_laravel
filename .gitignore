@@ -19,3 +19,4 @@ composer.lock
 # /public/css
 
 vendor/
+composer.lock
