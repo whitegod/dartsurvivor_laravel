@@ -31,11 +31,11 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="fname">First Name</label>
-                        <input type="text" id="fname" name="fname" value="{{ old('fname', $survivor->fname) }}" {{ !empty($readonly) ? 'readonly' : '' }} required>
+                        <input type="text" id="fname" name="fname" value="{{ old('fname', $survivor->fname ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }} required>
                     </div>
                     <div class="form-group">
                         <label for="lname">Last Name</label>
-                        <input type="text" id="lname" name="lname" value="{{ old('lname', $survivor->lname) }}" {{ !empty($readonly) ? 'readonly' : '' }} required>
+                        <input type="text" id="lname" name="lname" value="{{ old('lname', $survivor->lname ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }} required>
                     </div>
                     <div class="form-group">
                         <label for="address">Address</label>
