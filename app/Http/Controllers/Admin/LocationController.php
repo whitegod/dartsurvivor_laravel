@@ -127,7 +127,7 @@ class LocationController extends Controller
     public function locationUpdate(Request $request, $id)
     {
         $type = $request->input('type');
-        $data = $request->only(['name', 'address', 'phone']);
+        $data = $request->only(['name', 'address', 'phone', 'contact_name']); // <-- add contact_name
         $data['updated_at'] = now();
         $data['author'] = auth()->user()->name ?? 'Unknown';
 
@@ -166,7 +166,7 @@ class LocationController extends Controller
     public function locationStore(Request $request)
     {
         $type = $request->input('type');
-        $data = $request->only(['name', 'address', 'phone']);
+        $data = $request->only(['name', 'address', 'phone', 'contact_name']); // <-- add contact_name
         $data['author'] = auth()->user()->name ?? 'Unknown'; 
         $data['created_at'] = now(); // Optional: ensure created_at is set
         $data['updated_at'] = now(); // Optional: ensure updated_at is set

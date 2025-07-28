@@ -46,6 +46,10 @@
                             <label for="phone">Phone #</label>
                             <input type="text" name="phone" id="phone" value="{{ old('phone', $location->phone ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="contact_name">Contact Name</label>
+                            <input type="text" name="contact_name" id="contact_name" value="{{ old('contact_name', $location->contact_name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                        </div>
                     </div>
                 @elseif(($type ?? '') === 'privatesite')
                     <input type="hidden" name="type" value="privatesite">
