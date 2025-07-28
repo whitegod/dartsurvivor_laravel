@@ -334,35 +334,50 @@
                 <!-- Assigned Survivor -->
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <h4>Assigned Survivor</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="fema_id">FEMA-ID</label>
-                                <input type="text" id="fema_id" name="fema_id" value="{{ old('fema_id', $selectedFemaId ?? '') }}" readonly>
+                        <div class="form-section" style="margin-top: 20px;">
+                            <h4>Assigned Survivor</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fema_id">FEMA-ID</label>
+                                    <div style="display:flex; gap:4px;">
+                                        <input type="text" id="fema_id" name="fema_id" value="{{ old('fema_id', $selectedFemaId ?? '') }}" readonly>
+                                        <button class="btn btn-primary" type="button"
+                                            @if(!empty($ttu) && !empty($ttu->survivor_id))
+                                                onclick="window.location.href='{{ route('admin.survivors.view', $ttu->survivor_id) }}'"
+                                            @else
+                                                disabled
+                                            @endif
+                                        >
+                                            Go-to Record
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="survivor_name">Name</label>
+                                    <input type="text" id="survivor_name" name="survivor_name" value="{{ $survivor_name }}" readonly>
+                                </div>
+                                <input type="hidden" id="survivor_id" name="survivor_id" value="{{ old('survivor_id', $ttu->survivor_id ?? '') }}">
                             </div>
-                            <div class="form-group">
-                                <label for="survivor_name">Name</label>
-                                <input type="text" id="survivor_name" name="survivor_name" value="{{ $survivor_name }}" readonly>
-                            </div>
-                            <input type="hidden" id="survivor_id" name="survivor_id" value="{{ old('survivor_id', $ttu->survivor_id ?? '') }}">
-                            <div class="form-group">
-                                <label for="lo">LO</label>
-                                <select id="lo" name="lo" {{ !empty($readonly) ? 'disabled' : '' }}>
-                                    <option {{ old('lo', $ttu->lo ?? '') == 'NO' ? 'selected' : '' }}>NO</option>
-                                    <option {{ old('lo', $ttu->lo ?? '') == 'YES' ? 'selected' : '' }}>YES</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="lo-date">LO Date</label>
-                                @php
-                                    $loDate = (isset($ttu->lo_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ttu->lo_date) && $ttu->lo_date !== '0000-00-00') ? $ttu->lo_date : '';
-                                    $estLoDate = (isset($ttu->est_lo_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ttu->est_lo_date) && $ttu->est_lo_date !== '0000-00-00') ? $ttu->est_lo_date : '';
-                                @endphp
-                                <input type="date" id="lo_date" name="lo_date" value="{{ old('lo_date', $loDate) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
-                            </div>
-                            <div class="form-group">
-                                <label for="est_lo_date">Est. LO Date</label>
-                                <input type="date" id="est_lo_date" name="est_lo_date" value="{{ old('est_lo_date', $estLoDate) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="lo">LO</label>
+                                    <select id="lo" name="lo" {{ !empty($readonly) ? 'disabled' : '' }}>
+                                        <option {{ old('lo', $ttu->lo ?? '') == 'NO' ? 'selected' : '' }}>NO</option>
+                                        <option {{ old('lo', $ttu->lo ?? '') == 'YES' ? 'selected' : '' }}>YES</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lo-date">LO Date</label>
+                                    @php
+                                        $loDate = (isset($ttu->lo_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ttu->lo_date) && $ttu->lo_date !== '0000-00-00') ? $ttu->lo_date : '';
+                                        $estLoDate = (isset($ttu->est_lo_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ttu->est_lo_date) && $ttu->est_lo_date !== '0000-00-00') ? $ttu->est_lo_date : '';
+                                    @endphp
+                                    <input type="date" id="lo_date" name="lo_date" value="{{ old('lo_date', $loDate) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                                </div>
+                                <div class="form-group">
+                                    <label for="est_lo_date">Est. LO Date</label>
+                                    <input type="date" id="est_lo_date" name="est_lo_date" value="{{ old('est_lo_date', $estLoDate) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                                </div>
                             </div>
                         </div>
 
