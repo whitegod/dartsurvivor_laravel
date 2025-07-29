@@ -85,11 +85,21 @@
                             <option value="privatesite" {{ old('location_type', $ttu->location_type ?? '') == 'privatesite' ? 'selected' : '' }}>Private Site</option>
                         </select>
                     </div>
-                    <!-- Location Field -->
                     <div class="form-group" style="position: relative;">
                         <label for="location">Location</label>
                         <input type="text" id="location" name="location" value="{{ old('location', $ttu->location ?? '') }}" autocomplete="off" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                         <div id="location-suggestions" class="autocomplete-suggestions" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ccc; z-index:1000; max-height:200px; overflow-y:auto;"></div>
+                    </div>
+                    <div class="form-group" id="unit_num-group" style="position: relative;">
+                        <label for="unit_num">Unit #</label>
+                        <input type="text" id="unit_num" name="unit_num"
+                            value="{{ old('unit_num', $ttu->unit_num ?? '') }}"
+                            autocomplete="off"
+                            @if((old('location_type', $ttu->location_type ?? '') !== 'statepark') || !empty($readonly))
+                                disabled readonly
+                            @endif
+                        >
+                        <div id="unit-num-suggestions" class="autocomplete-suggestions" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ccc; z-index:1000; max-height:200px; overflow-y:auto;"></div>
                     </div>
                     <div class="form-group">
                         <label for="county">County</label>
@@ -99,6 +109,9 @@
                         <label for="imei">IMEI# (GPS)</label>
                         <input type="text" id="imei" name="imei" value="{{ old('imei', $ttu->imei ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
+                </div>
+                <div class="form-row">
+                    
                     <div class="form-group">
                         <label for="li_date">License In Date</label>
                         <input type="date" id="li_date" name="li_date" value="{{ old('li_date', $ttu->li_date ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
@@ -106,6 +119,10 @@
                     <div class="form-group">
                         <label for="purchase_price">Purchase Price (USD)</label>
                         <input type="number" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchase_origin">Purchase Origin</label>
+                        <input type="text" id="purchase_origin" name="purchase_origin" value="{{ old('purchase_origin', $ttu->purchase_origin ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group">
                         <label for="total_beds">Total beds</label>

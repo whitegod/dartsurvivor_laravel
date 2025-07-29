@@ -215,6 +215,7 @@ class TTUController extends Controller
         }
 
         $ttu->fill($data);
+        $ttu->unit_num = $request->input('unit_num');
         $ttu->save();
 
         // If location_type is privatesite, update privatesite
@@ -279,5 +280,27 @@ class TTUController extends Controller
         }
         $privatesite = \DB::table('privatesite')->where('id', $ttu->location_id)->first();
         return response()->json(['success' => true, 'privatesite' => $privatesite]);
+    }
+
+    public function unitSuggestions(Request $request)
+    {
+        $stateparkName = $request->input('statepark');
+        $query = $request->input('query');
+
+        // Get statepark id by name
+        $statepark = \DB::table('statepark')->where('name', $stateparkName)->first();
+        if (!$statepark) {
+            return response()->json([]);
+        }
+
+        // Get unit names for this statepark
+        $units = \DB::table('lodge_unit')
+            ->where('statepark_id', $statepark->id)
+            ->where('unit_name', 'like', '%' . $query . '%')
+            ->pluck('unit_name')
+            ->unique()
+            ->values();
+
+        return response()->json($units);
     }
 }

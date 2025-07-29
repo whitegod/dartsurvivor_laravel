@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const locationType = document.getElementById('location_type');
     const suggestionsBox = document.getElementById('location-suggestions');
     const privatesiteSection = document.getElementById('privatesite-section');
+    const unitNumGroup = document.getElementById('unit_num-group');
 
     let currentType = locationType.value;
 
@@ -18,6 +19,13 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             privatesiteSection.style.display = 'none';
             locationInput.disabled = false;
+        }
+
+        // Toggle unit number visibility
+        if (this.value === 'statepark') {
+            unitNumGroup.style.display = '';
+        } else {
+            unitNumGroup.style.display = 'none';
         }
     });
 
@@ -49,10 +57,44 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
+    const unitNumInput = document.getElementById('unit_num');
+    const unitNumSuggestions = document.getElementById('unit-num-suggestions');
+
+    unitNumInput.addEventListener('input', function() {
+        // Only fetch if statepark is selected and input is not empty
+        if (locationType.value !== 'statepark' || !locationInput.value || !unitNumInput.value) {
+            unitNumSuggestions.style.display = 'none';
+            return;
+        }
+        fetch(`/admin/unit-suggestions?statepark=${encodeURIComponent(locationInput.value)}&query=${encodeURIComponent(unitNumInput.value)}`)
+            .then(response => response.json())
+            .then(data => {
+                unitNumSuggestions.innerHTML = '';
+                if (data.length === 0) {
+                    unitNumSuggestions.style.display = 'none';
+                    return;
+                }
+                data.forEach(unit => {
+                    const div = document.createElement('div');
+                    div.textContent = unit;
+                    div.className = 'autocomplete-suggestion';
+                    div.onclick = function() {
+                        unitNumInput.value = unit;
+                        unitNumSuggestions.style.display = 'none';
+                    };
+                    unitNumSuggestions.appendChild(div);
+                });
+                unitNumSuggestions.style.display = 'block';
+            });
+    });
+
     // Hide suggestions when clicking outside
     document.addEventListener('click', function(e) {
         if (!suggestionsBox.contains(e.target) && e.target !== locationInput) {
             suggestionsBox.style.display = 'none';
+        }
+        if (!unitNumSuggestions.contains(e.target) && e.target !== unitNumInput) {
+            unitNumSuggestions.style.display = 'none';
         }
     });
 
