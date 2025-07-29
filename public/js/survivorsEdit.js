@@ -1,35 +1,3 @@
-function toggleTTURow() {
-    const ttuRow = document.getElementById('ttu-row');
-    const hotelRow = document.getElementById('hotel-row');
-    const stateparkRow = document.getElementById('statepark-row');
-    const ttuRadio = document.querySelector('input[name="location_type"][value="TTU"]');
-    const hotelRadio = document.querySelector('input[name="location_type"][value="Hotel"]');
-    const stateparkRadio = document.querySelector('input[name="location_type"][value="State Park"]');
-    if (ttuRadio && ttuRadio.checked) {
-        ttuRow.style.display = '';
-        hotelRow.style.display = 'none';
-        stateparkRow.style.display = 'none';
-    } else if (hotelRadio && hotelRadio.checked) {
-        ttuRow.style.display = 'none';
-        hotelRow.style.display = '';
-        stateparkRow.style.display = 'none';
-    } else if (stateparkRadio && stateparkRadio.checked) {
-        ttuRow.style.display = 'none';
-        hotelRow.style.display = 'none';
-        stateparkRow.style.display = '';
-    } else {
-        ttuRow.style.display = 'none';
-        hotelRow.style.display = 'none';
-        stateparkRow.style.display = 'none';
-    }
-}
-document.addEventListener('DOMContentLoaded', function() {
-    toggleTTURow();
-    document.querySelectorAll('input[name="location_type"]').forEach(function(radio) {
-        radio.addEventListener('change', toggleTTURow);
-    });
-});
-
 // Simple AJAX autocomplete for VIN field
 document.addEventListener('DOMContentLoaded', function() {
     const vinInput = document.getElementById('vin-autocomplete');
@@ -370,3 +338,16 @@ if (lo) {
     lo.addEventListener('change', toggleLODate);
     toggleLODate();
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    function toggleRows() {
+        const checked = Array.from(document.querySelectorAll('input[name="location_type[]"]:checked')).map(cb => cb.value);
+        document.getElementById('ttu-row').classList.toggle('hidden', !checked.includes('TTU'));
+        document.getElementById('hotel-row').classList.toggle('hidden', !checked.includes('Hotel'));
+        document.getElementById('statepark-row').classList.toggle('hidden', !checked.includes('State Park'));
+    }
+    document.querySelectorAll('input[name="location_type[]"]').forEach(cb => {
+        cb.addEventListener('change', toggleRows);
+    });
+    toggleRows(); // Initial state
+});

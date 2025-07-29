@@ -43,10 +43,18 @@ class SurvivorController extends Controller
         $stateparkLiDate = '';
         $stateparkLoDate = '';
 
-        if ($survivor && $survivor->location_type === 'TTU') {
+        $locationType = [];
+        if (!empty($survivor->location_type)) {
+            $locationType = json_decode($survivor->location_type, true) ?? [];
+        }
+
+        // TTU
+        if ($survivor && in_array('TTU', $locationType)) {
             $ttu = \App\TTU::where('survivor_id', $survivor->id)->first();
         }
-        if ($survivor && $survivor->location_type === 'Hotel') {
+
+        // Hotel
+        if ($survivor && in_array('Hotel', $locationType)) {
             $room = \App\Room::where('survivor_id', $survivor->id)->first();
             if ($room) {
                 $hotel = \App\Hotel::find($room->hotel_id);
@@ -56,7 +64,9 @@ class SurvivorController extends Controller
                 $hotelLoDate = $room->lo_date;
             }
         }
-        if ($survivor && $survivor->location_type === 'State Park') {
+
+        // State Park
+        if ($survivor && in_array('State Park', $locationType)) {
             $unit = \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->first();
             if ($unit) {
                 $park = \DB::table('statepark')->where('id', $unit->statepark_id)->first();
@@ -72,7 +82,7 @@ class SurvivorController extends Controller
             'survivor', 'ttu',
             'hotelName', 'hotelRoom', 'hotelLiDate', 'hotelLoDate',
             'stateparkName', 'unitName', 'stateparkLiDate', 'stateparkLoDate',
-            'readonly'
+            'locationType', 'readonly'
         ));
     }
 
@@ -88,12 +98,19 @@ class SurvivorController extends Controller
         $unitName = '';
         $stateparkLiDate = '';
         $stateparkLoDate = '';
+        
+        $locationType = [];
+        if (!empty($survivor->location_type)) {
+            $locationType = json_decode($survivor->location_type, true) ?? [];
+        }
 
-        if ($survivor && $survivor->location_type === 'TTU') {
+        // TTU
+        if ($survivor && in_array('TTU', $locationType)) {
             $ttu = \App\TTU::where('survivor_id', $survivor->id)->first();
         }
 
-        if ($survivor && $survivor->location_type === 'Hotel') {
+        // Hotel
+        if ($survivor && in_array('Hotel', $locationType)) {
             $room = \App\Room::where('survivor_id', $survivor->id)->first();
             if ($room) {
                 $hotel = \App\Hotel::find($room->hotel_id);
@@ -104,8 +121,8 @@ class SurvivorController extends Controller
             }
         }
 
-        // ADD THIS BLOCK FOR STATE PARK
-        if ($survivor && $survivor->location_type === 'State Park') {
+        // State Park
+        if ($survivor && in_array('State Park', $locationType)) {
             $unit = \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->first();
             if ($unit) {
                 $park = \DB::table('statepark')->where('id', $unit->statepark_id)->first();
@@ -119,7 +136,8 @@ class SurvivorController extends Controller
         return view('admin.survivorsEdit', compact(
             'survivor', 'ttu',
             'hotelName', 'hotelRoom', 'hotelLiDate', 'hotelLoDate',
-            'stateparkName', 'unitName', 'stateparkLiDate', 'stateparkLoDate'
+            'stateparkName', 'unitName', 'stateparkLiDate', 'stateparkLoDate',
+            'locationType'
         ));
     }
 
@@ -133,8 +151,9 @@ class SurvivorController extends Controller
         ]);
 
         $data = $request->except([
+            'vin', 'lo', 'lo_date', 'est_lo_date',
             'hotel_name', 'hotel_room', 'hotel_li_date', 'hotel_lo_date',
-            'statepark_name', 'statepark_site', 'statepark_li_date', 'statepark_lo_date'
+            'statepark_name', 'unit_name', 'statepark_li_date', 'statepark_lo_date'
         ]);
 
         // Ensure group fields are included for saving
@@ -149,16 +168,43 @@ class SurvivorController extends Controller
         // Set authored to current user name
         $data['author'] = auth()->user()->name ?? 'Unknown';
 
+        // Save location_type as JSON
+        $locationType = $request->input('location_type', []);
+        $data['location_type'] = json_encode($locationType);
+
         $survivor = Survivor::create($data);
 
-        if ($request->location_type === 'Hotel') {
-            // Save hotel (create if not exists)
+        // TTU
+        if (is_array($locationType) && in_array('TTU', $locationType) && $request->vin) {
+            $ttu = \App\TTU::where('vin', $request->vin)->first();
+            if ($ttu) {
+                $ttu->li_date = $request->li_date;
+                $ttu->lo = $request->lo;
+                $ttu->lo_date = $request->lo_date;
+                $ttu->est_lo_date = $request->est_lo_date;
+                $ttu->survivor_id = $survivor->id;
+                $ttu->save();
+            }
+        } else {
+            // If TTU is unchecked, clear TTU fields for this survivor
+            $ttu = \App\TTU::where('survivor_id', $survivor->id)->first();
+            if ($ttu) {
+                $ttu->li_date = null;
+                $ttu->lo = null;
+                $ttu->lo_date = null;
+                $ttu->est_lo_date = null;
+                $ttu->survivor_id = null;
+                $ttu->save();
+            }
+        }
+
+        // Hotel
+        if (is_array($locationType) && in_array('Hotel', $locationType)) {
             $hotel = \App\Hotel::firstOrCreate(
                 ['name' => $request->hotel_name],
                 ['name' => $request->hotel_name]
             );
 
-            // Save room (create or update)
             \App\Room::updateOrCreate(
                 [
                     'hotel_id' => $hotel->id,
@@ -172,32 +218,27 @@ class SurvivorController extends Controller
                     'survivor_id' => $survivor->id,
                 ]
             );
-        }
-
-        if ($request->location_type === 'TTU' && $request->vin) {
-            $ttu = \App\TTU::where('vin', $request->vin)->first();
-            if ($ttu) {
-                $ttu->li_date = $request->li_date;
-                $ttu->lo = $request->lo;
-                $ttu->lo_date = $request->lo_date;
-                $ttu->est_lo_date = $request->est_lo_date;
-                $ttu->survivor_id = $survivor->id; // Link TTU to this survivor
-                $ttu->save();
+        } else {
+            // If Hotel is unchecked, clear Room fields for this survivor
+            $room = \App\Room::where('survivor_id', $survivor->id)->first();
+            if ($room) {
+                $room->li_date = null;
+                $room->lo_date = null;
+                $room->survivor_id = null;
+                $room->save();
             }
         }
 
-        if ($request->location_type === 'State Park') {
-            // Find the state park row
+        // State Park
+        if (is_array($locationType) && in_array('State Park', $locationType)) {
             $parkRow = \DB::table('statepark')->where('name', $request->statepark_name)->first();
             if ($parkRow) {
-                // Find the lodge_unit row for this park and site
                 $unit = \DB::table('lodge_unit')
                     ->where('statepark_id', $parkRow->id)
                     ->where('unit_name', $request->unit_name)
                     ->first();
 
                 if ($unit) {
-                    // Assign survivor_id and dates to the unit
                     \DB::table('lodge_unit')
                         ->where('id', $unit->id)
                         ->update([
@@ -206,6 +247,18 @@ class SurvivorController extends Controller
                             'lo_date' => $request->statepark_lo_date,
                         ]);
                 }
+            }
+        } else {
+            // If State Park is unchecked, clear lodge_unit fields for this survivor
+            $unit = \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->first();
+            if ($unit) {
+                \DB::table('lodge_unit')
+                    ->where('id', $unit->id)
+                    ->update([
+                        'survivor_id' => null,
+                        'li_date' => null,
+                        'lo_date' => null,
+                    ]);
             }
         }
 
@@ -224,7 +277,7 @@ class SurvivorController extends Controller
         $data = $request->except([
             'vin', 'lo', 'lo_date', 'est_lo_date',
             'hotel_name', 'hotel_room', 'hotel_li_date', 'hotel_lo_date',
-            'statepark_name', 'statepark_site', 'statepark_li_date', 'statepark_lo_date'
+            'statepark_name', 'unit_name', 'statepark_li_date', 'statepark_lo_date'
         ]);
 
         // Ensure group fields are included for updating
@@ -239,19 +292,44 @@ class SurvivorController extends Controller
         // Set author to current user name
         $data['author'] = auth()->user()->name ?? 'Unknown';
 
+        // Save location_type as JSON
+        $locationType = $request->input('location_type', []);
+        $data['location_type'] = json_encode($locationType);
+
         $survivor = Survivor::findOrFail($id);
         $survivor->update($data);
 
-        if ($request->location_type === 'Hotel') {
+        // TTU
+        if (is_array($locationType) && in_array('TTU', $locationType) && $request->vin) {
+            $ttu = \App\TTU::where('vin', $request->vin)->first();
+            if ($ttu) {
+                $ttu->li_date = $request->li_date;
+                $ttu->lo = $request->lo;
+                $ttu->lo_date = $request->lo_date;
+                $ttu->est_lo_date = $request->est_lo_date;
+                $ttu->survivor_id = $survivor->id;
+                $ttu->save();
+            }
+        } else {
+            $ttu = \App\TTU::where('survivor_id', $survivor->id)->first();
+            if ($ttu) {
+                $ttu->li_date = null;
+                $ttu->lo = null;
+                $ttu->lo_date = null;
+                $ttu->est_lo_date = null;
+                $ttu->survivor_id = null;
+                $ttu->save();
+            }
+        }
+
+        // Hotel
+        if (is_array($locationType) && in_array('Hotel', $locationType)) {
             $hotel = \App\Hotel::firstOrCreate(
                 ['name' => $request->hotel_name],
                 ['name' => $request->hotel_name]
             );
 
-            // Find the old room assigned to this survivor (if any)
             $oldRoom = \App\Room::where('survivor_id', $survivor->id)->first();
-
-            // If editing, clear survivor_id, li_date, and lo_date from previous room if room number changed
             if ($oldRoom && $oldRoom->room_num !== $request->hotel_room) {
                 $oldRoom->survivor_id = null;
                 $oldRoom->li_date = null;
@@ -259,7 +337,6 @@ class SurvivorController extends Controller
                 $oldRoom->save();
             }
 
-            // Assign survivor_id and dates to the selected room
             \App\Room::updateOrCreate(
                 [
                     'hotel_id' => $hotel->id,
@@ -273,33 +350,26 @@ class SurvivorController extends Controller
                     'survivor_id' => $survivor->id,
                 ]
             );
-        }
-
-        // Update TTU row if location_type is TTU and VIN is present
-        if ($request->location_type === 'TTU' && $request->vin) {
-            $ttu = \App\TTU::where('vin', $request->vin)->first();
-            if ($ttu) {
-                $ttu->li_date = $request->li_date; // <-- Add this line
-                $ttu->lo = $request->lo;
-                $ttu->lo_date = $request->lo_date;
-                $ttu->est_lo_date = $request->est_lo_date;
-                $ttu->survivor_id = $survivor->id;
-                $ttu->save();
+        } else {
+            $room = \App\Room::where('survivor_id', $survivor->id)->first();
+            if ($room) {
+                $room->li_date = null;
+                $room->lo_date = null;
+                $room->survivor_id = null;
+                $room->save();
             }
         }
 
-        if ($request->location_type === 'State Park') {
-            // Find the state park row
+        // State Park
+        if (is_array($locationType) && in_array('State Park', $locationType)) {
             $parkRow = \DB::table('statepark')->where('name', $request->statepark_name)->first();
             if ($parkRow) {
-                // Find the lodge_unit row for this park and site
                 $unit = \DB::table('lodge_unit')
                     ->where('statepark_id', $parkRow->id)
                     ->where('unit_name', $request->unit_name)
                     ->first();
 
                 if ($unit) {
-                    // Assign survivor_id and dates to the unit
                     \DB::table('lodge_unit')
                         ->where('id', $unit->id)
                         ->update([
@@ -309,11 +379,19 @@ class SurvivorController extends Controller
                         ]);
                 }
             }
+        } else {
+            $unit = \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->first();
+            if ($unit) {
+                \DB::table('lodge_unit')
+                    ->where('id', $unit->id)
+                    ->update([
+                        'survivor_id' => null,
+                        'li_date' => null,
+                        'lo_date' => null,
+                    ]);
+            }
         }
 
-        // (Optional) Handle hotel and state park updates here as well
-
-        // Redirect or return as needed
         return redirect()->route('admin.survivors')->with('success', 'Survivor updated successfully.');
     }
 

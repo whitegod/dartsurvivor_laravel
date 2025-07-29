@@ -5,7 +5,9 @@
 @endsection
 
 @php
-    $locationType = old('location_type', $survivor->location_type ?? 'TTU');
+    $locationTypeRaw = old('location_type', $survivor->location_type ?? 'TTU');
+    $locationType = is_array($locationTypeRaw) ? $locationTypeRaw : json_decode($locationTypeRaw, true);
+    $checkedLocationType = $locationType ?? [];
 @endphp
 
 @section('content')
@@ -119,20 +121,6 @@
                         <label for="pets">Pets</label>
                         <input type="text" id="pets" name="pets" value="{{ $survivor->pets ?? '' }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
-
-                    <!-- <div class="form-group" style="display: flex; flex-direction: column;">
-                        <label class="info" style="margin-bottom: 4px;">Family Information</label>
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                            <div style="border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 10px 0; width: 100%; margin-right: 8px;">
-                                <label for="hh_size" style="margin: 0 8px 0 0; min-width: 60px; font-weight: normal;">Household Size</label>
-                            </div>    
-                            <input type="text" id="hh_size" name="hh_size" value="{{ $survivor->hh_size ?? '' }}" style="margin-bottom: 0; width: 40px;" {{ !empty($readonly) ? 'readonly' : '' }}>
-                        </div>
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <label for="pets" style="margin: 0 8px 0 0; min-width: 60px; font-weight: normal;">Pets</label>
-                            <input type="text" id="pets" name="pets" value="{{ $survivor->pets ?? '' }}" style="width: 40px;" {{ !empty($readonly) ? 'readonly' : '' }}>
-                        </div>
-                    </div> -->
                 </div>
 
                 <div class="form-row" style="align-items: end">
@@ -144,27 +132,31 @@
                         <div style="display: flex; gap: 24px; align-items: center;">
                             <label style="display: flex; align-items: center; gap: 8px;">
                                 TTU
-                                <input type="radio" name="location_type" value="TTU"
-                                    {{ $locationType == 'TTU' ? 'checked' : '' }}
-                                    class="custom-radio-square" onchange="toggleTTURow()" {{ !empty($readonly) ? 'disabled' : '' }}>
+                                @php
+                                    $checkedLocationType = old('location_type', $locationType ?? []);
+                                @endphp
+
+                                <input type="checkbox" name="location_type[]" value="TTU"
+                                    {{ is_array($checkedLocationType) && in_array('TTU', $checkedLocationType) ? 'checked' : '' }}
+                                    class="custom-checkbox-square" {{ !empty($readonly) ? 'disabled' : '' }}>
                             </label>
                             <label style="display: flex; align-items: center; gap: 8px;">
                                 Hotel
-                                <input type="radio" name="location_type" value="Hotel"
-                                    {{ $locationType == 'Hotel' ? 'checked' : '' }}
-                                    class="custom-radio-square" onchange="toggleTTURow()" {{ !empty($readonly) ? 'disabled' : '' }}>
+                                <input type="checkbox" name="location_type[]" value="Hotel"
+                                    {{ is_array(old('location_type', $locationType ?? [])) && in_array('Hotel', old('location_type', $locationType ?? [])) ? 'checked' : '' }}
+                                    class="custom-checkbox-square" {{ !empty($readonly) ? 'disabled' : '' }}>
                             </label>
                             <label style="display: flex; align-items: center; gap: 8px;">
                                 State Park
-                                <input type="radio" name="location_type" value="State Park"
-                                    {{ $locationType == 'State Park' ? 'checked' : '' }}
-                                    class="custom-radio-square" onchange="toggleTTURow()" {{ !empty($readonly) ? 'disabled' : '' }}>
+                                <input type="checkbox" name="location_type[]" value="State Park"
+                                    {{ is_array(old('location_type', $locationType ?? [])) && in_array('State Park', old('location_type', $locationType ?? [])) ? 'checked' : '' }}
+                                    class="custom-checkbox-square" {{ !empty($readonly) ? 'disabled' : '' }}>
                             </label>
                         </div>
                     </div>
                 </div>
 
-                <div id="ttu-row" style="{{ $locationType == 'TTU' ? '' : 'display:none;' }}; margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
+                <div id="ttu-row" class="hidden" style="margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
                     <label style="font-weight:bold; font-size:16px; margin-bottom:2px;">Assigned TTU</label>
                     <div class="form-row">
                         <div class="form-group" style="flex:4; min-width:220px; margin-right: 100px;">
@@ -204,7 +196,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="hotel-row" style="{{ $locationType == 'Hotel' ? '' : 'display:none;' }}; margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
+                <div id="hotel-row" class="{{ (is_array(old('location_type', $locationType ?? [])) && in_array('Hotel', old('location_type', $locationType ?? []))) ? '' : 'hidden' }}" style="margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
                     <label style="font-weight:bold; font-size:16px; margin-bottom:2px;">Assigned Hotel</label>
                     <div class="form-row">
                         <div class="form-group" style="flex:4; min-width:220px; margin-right: 100px;">
@@ -236,7 +228,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="statepark-row" style="{{ $locationType == 'State Park' ? '' : 'display:none;' }}; margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
+                <div id="statepark-row" class="{{ (is_array(old('location_type', $locationType ?? [])) && in_array('State Park', old('locationType', $locationType ?? []))) ? '' : 'hidden' }}" style="margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
                     <label style="font-weight:bold; font-size:16px; margin-bottom:2px;">Assigned State Park</label>
                     <div class="form-row">
                         <div class="form-group" style="flex:4; min-width:220px; margin-right: 100px;">
