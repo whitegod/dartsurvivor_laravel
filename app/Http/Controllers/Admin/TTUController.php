@@ -52,6 +52,14 @@ class TTUController extends Controller
             }
         }
 
+        // When passing $ttu to the view
+        if ($ttu && $ttu->purchase_origin) {
+            $vendor = \DB::table('vendor')->where('id', $ttu->purchase_origin)->first();
+            if ($vendor) {
+                $ttu->purchase_origin = $vendor->name;
+            }
+        }
+
         // Fetch transfer data if exists
         $transfer = null;
         if ($ttu) {
@@ -88,6 +96,14 @@ class TTUController extends Controller
             if ($survivor) {
                 $survivor_name = trim(($survivor->fname ?? '') . ' ' . ($survivor->lname ?? ''));
                 $selectedFemaId = $survivor->fema_id ?? '';
+            }
+        }
+
+        // When passing $ttu to the view
+        if ($ttu && $ttu->purchase_origin) {
+            $vendor = \DB::table('vendor')->where('id', $ttu->purchase_origin)->first();
+            if ($vendor) {
+                $ttu->purchase_origin = $vendor->name;
             }
         }
 
@@ -196,6 +212,23 @@ class TTUController extends Controller
             \DB::table('transfer')->insert($transferData);
         }
 
+        // Add vendor if purchase origin is set
+        $purchaseOrigin = $request->input('purchase_origin');
+        if ($purchaseOrigin) {
+            // Try to find vendor by name
+            $vendor = \DB::table('vendor')->where('name', $purchaseOrigin)->first();
+            if (!$vendor) {
+                // Insert new vendor and get its ID
+                $vendorId = \DB::table('vendor')->insertGetId(['name' => $purchaseOrigin]);
+            } else {
+                $vendorId = $vendor->id;
+            }
+            // Save vendor ID to TTU
+            $ttu->purchase_origin = $vendorId;
+        } else {
+            $ttu->purchase_origin = null;
+        }
+
         return redirect()->route('admin.ttus')->with('success', 'TTU created!');
     }
 
@@ -212,6 +245,22 @@ class TTUController extends Controller
 
         if ($request->location_type === 'privatesite') {
             $data['location'] = $request->input('name'); // Set location to privatesite name
+        }
+
+        $purchaseOrigin = $request->input('purchase_origin');
+        if ($purchaseOrigin) {
+            // Try to find vendor by name
+            $vendor = \DB::table('vendor')->where('name', $purchaseOrigin)->first();
+            if (!$vendor) {
+                // Insert new vendor and get its ID
+                $vendorId = \DB::table('vendor')->insertGetId(['name' => $purchaseOrigin]);
+            } else {
+                $vendorId = $vendor->id;
+            }
+            // Save vendor ID to TTU
+            $ttu->purchase_origin = $vendorId;
+        } else {
+            $ttu->purchase_origin = null;
         }
 
         $ttu->fill($data);
@@ -302,5 +351,16 @@ class TTUController extends Controller
             ->values();
 
         return response()->json($units);
+    }
+
+    public function vendorSuggestions(Request $request)
+    {
+        $query = $request->input('query');
+        $vendors = \DB::table('vendor')
+            ->where('name', 'like', '%' . $query . '%')
+            ->pluck('name')
+            ->unique()
+            ->values();
+        return response()->json($vendors);
     }
 }

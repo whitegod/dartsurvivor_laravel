@@ -120,9 +120,10 @@
                         <label for="purchase_price">Purchase Price (USD)</label>
                         <input type="number" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="position: relative;">
                         <label for="purchase_origin">Purchase Origin</label>
                         <input type="text" id="purchase_origin" name="purchase_origin" value="{{ old('purchase_origin', $ttu->purchase_origin ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                        <div id="purchase-origin-suggestions" class="autocomplete-suggestions" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ccc; z-index:1000; max-height:200px; overflow-y:auto;"></div>
                     </div>
                     <div class="form-group">
                         <label for="total_beds">Total beds</label>

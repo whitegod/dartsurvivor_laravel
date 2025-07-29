@@ -88,6 +88,37 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
+    const purchaseOriginInput = document.getElementById('purchase_origin');
+    const purchaseOriginSuggestions = document.getElementById('purchase-origin-suggestions');
+
+    purchaseOriginInput.addEventListener('input', function() {
+        const query = this.value;
+        if (!query) {
+            purchaseOriginSuggestions.style.display = 'none';
+            return;
+        }
+        fetch(`/admin/vendor-suggestions?query=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                purchaseOriginSuggestions.innerHTML = '';
+                if (data.length === 0) {
+                    purchaseOriginSuggestions.style.display = 'none';
+                    return;
+                }
+                data.forEach(vendor => {
+                    const div = document.createElement('div');
+                    div.textContent = vendor;
+                    div.className = 'autocomplete-suggestion';
+                    div.onclick = function() {
+                        purchaseOriginInput.value = vendor;
+                        purchaseOriginSuggestions.style.display = 'none';
+                    };
+                    purchaseOriginSuggestions.appendChild(div);
+                });
+                purchaseOriginSuggestions.style.display = 'block';
+            });
+    });
+
     // Hide suggestions when clicking outside
     document.addEventListener('click', function(e) {
         if (!suggestionsBox.contains(e.target) && e.target !== locationInput) {
@@ -95,6 +126,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (!unitNumSuggestions.contains(e.target) && e.target !== unitNumInput) {
             unitNumSuggestions.style.display = 'none';
+        }
+        if (!purchaseOriginSuggestions.contains(e.target) && e.target !== purchaseOriginInput) {
+            purchaseOriginSuggestions.style.display = 'none';
         }
     });
 
