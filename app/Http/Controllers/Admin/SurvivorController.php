@@ -31,9 +31,8 @@ class SurvivorController extends Controller
 
     public function viewSurvivor($id)
     {
-        // Reuse the editSurvivor logic, but set $readonly = true
-        $survivor = $id === 'new' ? null : \App\Survivor::find($id);
-        $ttu = null;
+        $survivor = \App\Survivor::findOrFail($id);
+        $ttus = [];
         $hotelName = '';
         $hotelRoom = '';
         $hotelLiDate = '';
@@ -48,9 +47,9 @@ class SurvivorController extends Controller
             $locationType = json_decode($survivor->location_type, true) ?? [];
         }
 
-        // TTU
+        // TTU: get all assigned TTUs
         if ($survivor && in_array('TTU', $locationType)) {
-            $ttu = \App\TTU::where('survivor_id', $survivor->id)->first();
+            $ttus = \App\TTU::where('survivor_id', $survivor->id)->get();
         }
 
         // Hotel
@@ -79,7 +78,7 @@ class SurvivorController extends Controller
 
         $readonly = true;
         return view('admin.survivorsEdit', compact(
-            'survivor', 'ttu',
+            'survivor', 'ttus',
             'hotelName', 'hotelRoom', 'hotelLiDate', 'hotelLoDate',
             'stateparkName', 'unitName', 'stateparkLiDate', 'stateparkLoDate',
             'locationType', 'readonly'
@@ -89,7 +88,7 @@ class SurvivorController extends Controller
     public function editSurvivor($id = null)
     {
         $survivor = $id === 'new' ? null : \App\Survivor::find($id);
-        $ttu = null;
+        $ttus = [];
         $hotelName = '';
         $hotelRoom = '';
         $hotelLiDate = '';
@@ -104,9 +103,9 @@ class SurvivorController extends Controller
             $locationType = json_decode($survivor->location_type, true) ?? [];
         }
 
-        // TTU
+        // TTU: get all assigned TTUs
         if ($survivor && in_array('TTU', $locationType)) {
-            $ttu = \App\TTU::where('survivor_id', $survivor->id)->first();
+            $ttus = \App\TTU::where('survivor_id', $survivor->id)->get();
         }
 
         // Hotel
@@ -134,7 +133,7 @@ class SurvivorController extends Controller
         }
 
         return view('admin.survivorsEdit', compact(
-            'survivor', 'ttu',
+            'survivor', 'ttus',
             'hotelName', 'hotelRoom', 'hotelLiDate', 'hotelLoDate',
             'stateparkName', 'unitName', 'stateparkLiDate', 'stateparkLoDate',
             'locationType'
@@ -174,28 +173,34 @@ class SurvivorController extends Controller
 
         $survivor = Survivor::create($data);
 
-        // TTU
         if (is_array($locationType) && in_array('TTU', $locationType) && $request->vin) {
-            $ttu = \App\TTU::where('vin', $request->vin)->first();
-            if ($ttu) {
-                $ttu->li_date = $request->li_date;
-                $ttu->lo = $request->lo;
-                $ttu->lo_date = $request->lo_date;
-                $ttu->est_lo_date = $request->est_lo_date;
-                $ttu->survivor_id = $survivor->id;
-                $ttu->save();
+            $vins = $request->input('vin', []);
+            $li_dates = $request->input('li_date', []);
+            $los = $request->input('lo', []);
+            $lo_dates = $request->input('lo_date', []);
+            $est_lo_dates = $request->input('est_lo_date', []);
+
+            foreach ($vins as $i => $vin) {
+                if (empty($vin)) continue;
+                $ttu = \App\TTU::where('vin', $vin)->first();
+                if ($ttu) {
+                    $ttu->li_date = !empty($li_dates[$i]) ? $li_dates[$i] : null;
+                    $ttu->lo = $los[$i] ?? 0;
+                    $ttu->lo_date = !empty($lo_dates[$i]) ? $lo_dates[$i] : null;
+                    $ttu->est_lo_date = !empty($est_lo_dates[$i]) ? $est_lo_dates[$i] : null;
+                    $ttu->survivor_id = $survivor->id;
+                    $ttu->save();
+                }
             }
         } else {
-            // If TTU is unchecked, clear TTU fields for this survivor
-            $ttu = \App\TTU::where('survivor_id', $survivor->id)->first();
-            if ($ttu) {
-                $ttu->li_date = null;
-                $ttu->lo = null;
-                $ttu->lo_date = null;
-                $ttu->est_lo_date = null;
-                $ttu->survivor_id = null;
-                $ttu->save();
-            }
+            // Unassign all TTUs from this survivor
+            \App\TTU::where('survivor_id', $survivor->id)->update([
+                'li_date' => null,
+                'lo' => null,
+                'lo_date' => null,
+                'est_lo_date' => null,
+                'survivor_id' => null,
+            ]);
         }
 
         // Hotel
@@ -301,25 +306,42 @@ class SurvivorController extends Controller
 
         // TTU
         if (is_array($locationType) && in_array('TTU', $locationType) && $request->vin) {
-            $ttu = \App\TTU::where('vin', $request->vin)->first();
-            if ($ttu) {
-                $ttu->li_date = $request->li_date;
-                $ttu->lo = $request->lo;
-                $ttu->lo_date = $request->lo_date;
-                $ttu->est_lo_date = $request->est_lo_date;
-                $ttu->survivor_id = $survivor->id;
-                $ttu->save();
+            $vins = $request->input('vin', []);
+            $li_dates = $request->input('li_date', []);
+            $los = $request->input('lo', []);
+            $lo_dates = $request->input('lo_date', []);
+            $est_lo_dates = $request->input('est_lo_date', []);
+
+            // (For updateSurvivor only) Unassign all previous TTUs from this survivor first
+            \App\TTU::where('survivor_id', $survivor->id)->update([
+                'li_date' => null,
+                'lo' => null,
+                'lo_date' => null,
+                'est_lo_date' => null,
+                'survivor_id' => null,
+            ]);
+
+            foreach ($vins as $i => $vin) {
+                if (empty($vin)) continue;
+                $ttu = \App\TTU::where('vin', $vin)->first();
+                if ($ttu) {
+                    $ttu->li_date = !empty($li_dates[$i]) ? $li_dates[$i] : null;
+                    $ttu->lo = $los[$i] ?? 0;
+                    $ttu->lo_date = !empty($lo_dates[$i]) ? $lo_dates[$i] : null;
+                    $ttu->est_lo_date = !empty($est_lo_dates[$i]) ? $est_lo_dates[$i] : null;
+                    $ttu->survivor_id = $survivor->id;
+                    $ttu->save();
+                }
             }
         } else {
-            $ttu = \App\TTU::where('survivor_id', $survivor->id)->first();
-            if ($ttu) {
-                $ttu->li_date = null;
-                $ttu->lo = null;
-                $ttu->lo_date = null;
-                $ttu->est_lo_date = null;
-                $ttu->survivor_id = null;
-                $ttu->save();
-            }
+            // Unassign all TTUs from this survivor
+            \App\TTU::where('survivor_id', $survivor->id)->update([
+                'li_date' => null,
+                'lo' => null,
+                'lo_date' => null,
+                'est_lo_date' => null,
+                'survivor_id' => null,
+            ]);
         }
 
         // Hotel

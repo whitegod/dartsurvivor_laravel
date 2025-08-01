@@ -30,8 +30,6 @@ select {
     background: #f9f9f9;
     font-family: inherit;
     font-weight: 400;
-    box-sizing: border-box;
-    margin-top: 5px;
 }
 textarea {
     width: 100%;
@@ -174,7 +172,7 @@ input:checked + .slider:before {
     text-decoration: underline;
 }
 .btn-save {
-    background-color: #007bff;
+    background-color: #3c8dbc;
     color: white;
 }
 

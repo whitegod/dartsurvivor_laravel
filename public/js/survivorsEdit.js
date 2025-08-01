@@ -1,74 +1,131 @@
-// Simple AJAX autocomplete for VIN field
-document.addEventListener('DOMContentLoaded', function() {
-    const vinInput = document.getElementById('vin-autocomplete');
-    const suggestionsBox = document.getElementById('vin-suggestions');
+// VIN auto-suggestion for multiple VIN fields
 
-    if (vinInput) {
-        vinInput.addEventListener('input', function() {
-            const query = this.value;
-            if (query.length < 1) {
+function setupVinAutocomplete(vinInput) {
+    // Create or find the suggestions box next to this input
+    let suggestionsBox = vinInput.parentNode.parentNode.querySelector('.vin-suggestions');
+    if (!suggestionsBox) {
+        suggestionsBox = document.createElement('div');
+        suggestionsBox.className = 'vin-suggestions';
+        suggestionsBox.style.position = 'relative';
+        suggestionsBox.style.zIndex = 10;
+        vinInput.parentNode.parentNode.appendChild(suggestionsBox);
+    }
+
+    vinInput.addEventListener('input', function() {
+        const query = this.value;
+        if (query.length < 1) {
+            suggestionsBox.innerHTML = '';
+            return;
+        }
+        fetch('/admin/ttus/vin-autocomplete?query=' + encodeURIComponent(query))
+            .then(response => response.json())
+            .then(data => {
                 suggestionsBox.innerHTML = '';
-                return;
-            }
-            fetch('/admin/ttus/vin-autocomplete?query=' + encodeURIComponent(query))
-                .then(response => response.json())
-                .then(data => {
-                    suggestionsBox.innerHTML = '';
-                    if (data.length > 0) {
-                        // Create a styled dropdown (dropbox)
-                        const list = document.createElement('ul');
-                        list.style.position = 'absolute';
-                        list.style.background = '#fff';
-                        list.style.border = '1px solid #ccc';
-                        list.style.borderRadius = '4px';
-                        list.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-                        list.style.margin = '0';
-                        list.style.padding = '0';
-                        list.style.listStyle = 'none'; // Remove disc
-                        list.style.maxHeight = '180px';
-                        list.style.overflowY = 'auto';
-                        list.style.minWidth = vinInput.offsetWidth + 'px';
+                if (data.length > 0) {
+                    const list = document.createElement('ul');
+                    list.style.position = 'absolute';
+                    list.style.background = '#fff';
+                    list.style.border = '1px solid #ccc';
+                    list.style.borderRadius = '4px';
+                    list.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                    list.style.margin = '0';
+                    list.style.padding = '0';
+                    list.style.listStyle = 'none';
+                    list.style.maxHeight = '180px';
+                    list.style.overflowY = 'auto';
+                    list.style.minWidth = vinInput.offsetWidth + 'px';
 
-                        
-                        data.forEach(function(item) {
-                            const li = document.createElement('li');
-                            li.textContent = item.vin;
-                            li.style.padding = '8px 12px';
-                            li.style.cursor = 'pointer';
-                            li.style.transition = 'background 0.2s';
-                            li.addEventListener('mouseover', function() {
-                                li.style.background = '#f0f4ff';
-                            });
-                            li.addEventListener('mouseout', function() {
-                                li.style.background = '';
-                            });
-                            li.addEventListener('mousedown', function() {
-                                vinInput.value = item.vin;
-                                suggestionsBox.innerHTML = '';
-                                // Fetch TTU details for this VIN
-                                fetch('/admin/ttus/vin-details?vin=' + encodeURIComponent(item.vin))
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        if (data) {
-                                            vinInput.value = data.vin || '';
-                                            document.getElementById('lo').value = (data.lo == 0 ? '0' : '1');
-                                            document.getElementById('lo_date').value = data.lo_date || '';
-                                            document.getElementById('est_lo_date').value = data.est_lo_date || '';
-                                        }
-                                    });
-                            });
-                            list.appendChild(li);
+                    data.forEach(function(item) {
+                        const li = document.createElement('li');
+                        li.textContent = item.vin;
+                        li.style.padding = '8px 12px';
+                        li.style.cursor = 'pointer';
+                        li.style.transition = 'background 0.2s';
+                        li.addEventListener('mouseover', function() {
+                            li.style.background = '#f0f4ff';
                         });
-                        suggestionsBox.appendChild(list);
-                    }
-                });
-        });
+                        li.addEventListener('mouseout', function() {
+                            li.style.background = '';
+                        });
+                        li.addEventListener('mousedown', function() {
+                            vinInput.value = item.vin;
+                            suggestionsBox.innerHTML = '';
+                            // Fetch TTU details for this VIN and fill only the fields in the same row
+                            fetch('/admin/ttus/vin-details?vin=' + encodeURIComponent(item.vin))
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data) {
+                                        vinInput.value = data.vin || '';
+                                        // Find the closest .form-row
+                                        const formRow = vinInput.closest('.form-row');
+                                        if (formRow) {
+                                            const loSelect = formRow.querySelector('select[name="lo[]"]');
+                                            const loDateInput = formRow.querySelector('input[name="lo_date[]"]');
+                                            const estLoDateInput = formRow.querySelector('input[name="est_lo_date[]"]');
+                                            if (loSelect) loSelect.value = (data.lo == 0 ? '0' : '1');
+                                            if (loDateInput) loDateInput.value = data.lo_date || '';
+                                            if (estLoDateInput) estLoDateInput.value = data.est_lo_date || '';
+                                        }
+                                    }
+                                });
+                        });
+                        list.appendChild(li);
+                    });
+                    suggestionsBox.appendChild(list);
+                }
+            });
+    });
 
-        // Hide suggestions when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!vinInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
-                suggestionsBox.innerHTML = '';
-            }
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!vinInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+            suggestionsBox.innerHTML = '';
+        }
+    });
+}
+
+function setupAllVinAutocompletes() {
+    document.querySelectorAll('input.vin-autocomplete').forEach(function(input) {
+        // Prevent double-binding
+        if (!input.dataset.autocompleteBound) {
+            setupVinAutocomplete(input);
+            input.dataset.autocompleteBound = "1";
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial setup
+    setupAllVinAutocompletes();
+
+    // Also re-setup after "Add More" is clicked
+    var addTTUBtn = document.getElementById('add-ttu-btn');
+    if (addTTUBtn) {
+        addTTUBtn.addEventListener('click', function () {
+            var rowsContainer = document.getElementById('ttu-form-rows');
+            var formRows = rowsContainer.getElementsByClassName('form-row');
+            if (!formRows.length) return;
+            var lastRow = formRows[formRows.length - 1];
+            var clone = lastRow.cloneNode(true);
+
+            // Clear input/select values in the clone
+            Array.from(clone.querySelectorAll('input, select')).forEach(function (input) {
+                if (input.type === 'text' || input.type === 'date') input.value = '';
+                if (input.tagName === 'SELECT') input.selectedIndex = 0;
+            });
+
+            // Remove any existing suggestion box in the clone
+            var vinSuggestions = clone.querySelector('.vin-suggestions');
+            if (vinSuggestions) vinSuggestions.innerHTML = '';
+
+            // Remove autocompleteBound so it can be re-bound
+            var vinInput = clone.querySelector('input.vin-autocomplete');
+            if (vinInput) delete vinInput.dataset.autocompleteBound;
+
+            rowsContainer.appendChild(clone);
+
+            // Re-bind auto-suggestion for all VIN fields (including the new one)
+            setTimeout(setupAllVinAutocompletes, 0);
         });
     }
 });

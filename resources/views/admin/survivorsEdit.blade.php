@@ -156,45 +156,53 @@
                     </div>
                 </div>
 
-                <div id="ttu-row" class="hidden" style="margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
+                <div id="ttu-row" class="{{ in_array('TTU', $locationType ?? []) ? '' : 'hidden' }}" style="margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
                     <label style="font-weight:bold; font-size:16px; margin-bottom:2px;">Assigned TTU</label>
-                    <div class="form-row">
-                        <div class="form-group" style="flex:4; min-width:220px; margin-right: 100px;">
-                            <label class="info" style="margin-bottom:6px;">VIN</label>
-                            <div style="display:flex; gap:4px;">
-                                <input type="text" name="vin" id="vin-autocomplete" value="{{ old('vin', $ttu->vin ?? '') }}" style="width: 260px;" autocomplete="off">
-                                <button class="btn btn-primary" type="button"
-                                    @if(!empty($ttu))
-                                        onclick="window.location.href='{{ route('admin.ttus.view', $ttu->id) }}'"
-                                    @else
-                                        disabled
-                                    @endif
-                                >
-                                    Go-to Record
-                                </button>
+                    <div id="ttu-form-rows">
+                        @php
+                            $ttus = $ttus ?? [null]; // If empty, show one blank row
+                        @endphp
+                        @foreach($ttus as $ttu)
+                        <div class="form-row">
+                            <div class="form-group" style="flex:4; min-width:220px; margin-right: 100px;">
+                                <label class="info" style="margin-bottom:6px;">VIN</label>
+                                <div style="display:flex; gap:4px;">
+                                    <input type="text" name="vin[]" class="vin-autocomplete" value="{{ old('vin.' . $loop->index, $ttu->vin ?? '') }}" style="width: 260px;" autocomplete="off">
+                                    <button class="btn btn-primary" type="button"
+                                        @if(!empty($ttu))
+                                            onclick="window.location.href='{{ route('admin.ttus.view', $ttu->id) }}'"
+                                        @else
+                                            disabled
+                                        @endif
+                                    >
+                                        Go-to Record
+                                    </button>
+                                </div>
+                                <div class="vin-suggestions" style="position:relative; z-index:10;"></div>
                             </div>
-                            <div id="vin-suggestions" style="position:relative; z-index:10;"></div>
+                            <div class="form-group">
+                                <label>LI Date</label>
+                                <input name="li_date[]" type="date" value="{{ old('li_date.' . $loop->index, $ttu->li_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                            </div>
+                            <div class="form-group" style="flex:0.5; min-width:70px;">
+                                <label>LO</label>
+                                <select name="lo[]" {{ !empty($readonly) ? 'disabled' : '' }}>
+                                    <option value="0" {{ old('lo.' . $loop->index, $ttu->lo ?? '') == '0' ? 'selected' : '' }}>NO</option>
+                                    <option value="1" {{ old('lo.' . $loop->index, $ttu->lo ?? '') == '1' ? 'selected' : '' }}>YES</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>LO Date</label>
+                                <input name="lo_date[]" type="date" value="{{ old('lo_date.' . $loop->index, $ttu->lo_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                            </div>
+                            <div class="form-group">
+                                <label>Est. LO Date</label>
+                                <input name="est_lo_date[]" type="date" value="{{ old('est_lo_date.' . $loop->index, $ttu->est_lo_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="li_date">LI Date</label>
-                            <input id="li_date" name="li_date" type="date" value="{{ old('li_date', $ttu->li_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                        </div>
-                        <div class="form-group" style="flex:0.5; min-width:70px;">
-                            <label for="lo">LO</label>
-                            <select id="lo" name="lo" {{ !empty($readonly) ? 'disabled' : '' }}>
-                                <option value="0" {{ old('lo', isset($ttu) ? $ttu->lo : '') == '0' ? 'selected' : '' }}>NO</option>
-                                <option value="1" {{ old('lo', isset($ttu) ? $ttu->lo : '') == '1' ? 'selected' : '' }}>YES</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="lo_date">LO Date</label>
-                            <input id="lo_date" name="lo_date" type="date" value="{{ old('lo_date', $ttu->lo_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                        </div>
-                        <div class="form-group">
-                            <label for="est_lo_date">Est. LO Date</label>
-                            <input id="est_lo_date" name="est_lo_date" type="date" value="{{ old('est_lo_date', $ttu->est_lo_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                        </div>
+                        @endforeach
                     </div>
+                    <button type="button" class="btn btn-secondary" id="add-ttu-btn" style="margin-top:10px;">Add More</button>
                 </div>
                 <div id="hotel-row" class="{{ (is_array(old('location_type', $locationType ?? [])) && in_array('Hotel', old('location_type', $locationType ?? []))) ? '' : 'hidden' }}" style="margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
                     <label style="font-weight:bold; font-size:16px; margin-bottom:2px;">Assigned Hotel</label>
@@ -345,7 +353,7 @@
     </div>
 </section>
 <script>
-    window.initialSelectedUnit = @json(old('unit_name', $unitName ?? $survivor->unit_name ?? ''));
+    window.initialSelectedUnit = @json(old('unit_name', $survivor->unit_name ?? ''));
     window.initialSelectedRoom = @json(old('hotel_room', $hotelRoom ?? ''));
     window.initialHotelName = @json(old('hotel_name', $hotelName ?? $survivor->hotel_name ?? ''));
     window.initialStateparkName = @json(old('statepark_name', $stateparkName ?? $survivor->statepark_name ?? ''));
