@@ -128,6 +128,24 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(setupAllVinAutocompletes, 0);
         });
     }
+
+    var addHotelBtn = document.getElementById('add-hotel-btn');
+    if (addHotelBtn) {
+        addHotelBtn.addEventListener('click', function () {
+            var rowsContainer = document.getElementById('hotel-form-rows');
+            var hotelRows = rowsContainer.getElementsByClassName('hotel-row');
+            if (!hotelRows.length) return;
+            var lastRow = hotelRows[hotelRows.length - 1];
+            var clone = lastRow.cloneNode(true);
+
+            // Clear input values in the clone
+            Array.from(clone.querySelectorAll('input')).forEach(function (input) {
+                input.value = '';
+            });
+
+            rowsContainer.appendChild(clone);
+        });
+    }
 });
 
 // Hotel name auto-suggestion

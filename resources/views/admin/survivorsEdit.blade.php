@@ -206,35 +206,32 @@
                 </div>
                 <div id="hotel-row" class="{{ (is_array(old('location_type', $locationType ?? [])) && in_array('Hotel', old('location_type', $locationType ?? []))) ? '' : 'hidden' }}" style="margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
                     <label style="font-weight:bold; font-size:16px; margin-bottom:2px;">Assigned Hotel</label>
-                    <div class="form-row">
-                        <div class="form-group" style="flex:4; min-width:220px; margin-right: 100px;">
-                            <label class="info" style="margin-bottom:6px;">Hotel Name</label>
-                            <div style="display:flex; gap:4px;">
-                                <input type="text" name="hotel_name"
-                                    value="{{ old('hotel_name', $hotelName ?? $survivor->hotel_name ?? '') }}"
-                                    style="width: 200px;" {{ !empty($readonly) ? 'readonly' : '' }}>
-
-                                <select name="hotel_room" id="hotel_room_select" style="min-width:160px;" {{ !empty($readonly) ? 'disabled' : '' }}>
-                                    @if(old('hotel_room', $hotelRoom ?? false))
-                                        <option value="{{ old('hotel_room', $hotelRoom ?? '') }}" selected>
-                                            {{ old('hotel_room', $hotelRoom ?? '') }}
-                                        </option>
-                                    @endif
-                                </select>
+                    <div id="hotel-form-rows">
+                        @php
+                            $hotelRooms = $hotelRooms ?? [null]; // $hotelRooms should be an array of Room models or nulls
+                        @endphp
+                        @foreach($hotelRooms as $i => $room)
+                        <div class="form-row hotel-row">
+                            <div class="form-group">
+                                <label>Hotel Name</label>
+                                <input type="text" name="hotel_name[]" value="{{ old('hotel_name.' . $i, $room->hotel->name ?? '') }}">
                             </div>
-                            <div id="hotel-suggestions" style="position:absolute; z-index:1000; background-color: #fff; border:1px solid #ddd;"></div>
+                            <div class="form-group">
+                                <label>Room #</label>
+                                <input type="text" name="hotel_room[]" value="{{ old('hotel_room.' . $i, $room->room_num ?? '') }}">
+                            </div>
+                            <div class="form-group">
+                                <label>LI Date</label>
+                                <input type="date" name="hotel_li_date[]" value="{{ old('hotel_li_date.' . $i, $room->li_date ?? '') }}">
+                            </div>
+                            <div class="form-group">
+                                <label>LO Date</label>
+                                <input type="date" name="hotel_lo_date[]" value="{{ old('hotel_lo_date.' . $i, $room->lo_date ?? '') }}">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="hotel_li_date">LI Date</label>
-                            <input id="hotel_li_date" name="hotel_li_date" type="date"
-                                value="{{ old('hotel_li_date', $hotelLiDate ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                        </div>
-                        <div class="form-group">
-                            <label for="hotel_lo_date">LO Date</label>
-                            <input id="hotel_lo_date" name="hotel_lo_date" type="date"
-                                value="{{ old('hotel_lo_date', $hotelLoDate ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                        </div>
+                        @endforeach
                     </div>
+                    <button type="button" class="btn btn-secondary" id="add-hotel-btn">Add More Hotel</button>
                 </div>
                 <div id="statepark-row" class="{{ (is_array(old('location_type', $locationType ?? [])) && in_array('State Park', old('locationType', $locationType ?? []))) ? '' : 'hidden' }}" style="margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
                     <label style="font-weight:bold; font-size:16px; margin-bottom:2px;">Assigned State Park</label>

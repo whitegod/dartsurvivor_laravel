@@ -77,6 +77,10 @@ class SurvivorController extends Controller
         }
 
         $readonly = true;
+
+        if (empty($ttus) || (is_object($ttus) && $ttus->count() === 0) || (is_array($ttus) && count($ttus) === 0)) {
+            $ttus = [null];
+        }
         return view('admin.survivorsEdit', compact(
             'survivor', 'ttus',
             'hotelName', 'hotelRoom', 'hotelLiDate', 'hotelLoDate',
@@ -132,6 +136,9 @@ class SurvivorController extends Controller
             }
         }
 
+        if (empty($ttus) || (is_object($ttus) && $ttus->count() === 0) || (is_array($ttus) && count($ttus) === 0)) {
+            $ttus = [null];
+        }
         return view('admin.survivorsEdit', compact(
             'survivor', 'ttus',
             'hotelName', 'hotelRoom', 'hotelLiDate', 'hotelLoDate',
@@ -205,24 +212,36 @@ class SurvivorController extends Controller
 
         // Hotel
         if (is_array($locationType) && in_array('Hotel', $locationType)) {
-            $hotel = \App\Hotel::firstOrCreate(
-                ['name' => $request->hotel_name],
-                ['name' => $request->hotel_name]
-            );
+            $hotel_names = $request->input('hotel_name', []);
+            $hotel_rooms = $request->input('hotel_room', []);
+            $hotel_li_dates = $request->input('hotel_li_date', []);
+            $hotel_lo_dates = $request->input('hotel_lo_date', []);
 
-            \App\Room::updateOrCreate(
-                [
-                    'hotel_id' => $hotel->id,
-                    'room_num' => $request->hotel_room,
-                ],
-                [
-                    'hotel_id' => $hotel->id,
-                    'room_num' => $request->hotel_room,
-                    'li_date' => $request->hotel_li_date,
-                    'lo_date' => $request->hotel_lo_date,
-                    'survivor_id' => $survivor->id,
-                ]
-            );
+            // (Optional) Unassign all previous hotel rooms from this survivor first
+            \App\Room::where('survivor_id', $survivor->id)->update([
+                'li_date' => null,
+                'lo_date' => null,
+                'survivor_id' => null,
+            ]);
+
+            foreach ($hotel_names as $i => $hotel_name) {
+                if (empty($hotel_name) || empty($hotel_rooms[$i])) continue;
+
+                $hotel = \App\Hotel::firstOrCreate(['name' => $hotel_name], ['name' => $hotel_name]);
+                \App\Room::updateOrCreate(
+                    [
+                        'hotel_id' => $hotel->id,
+                        'room_num' => $hotel_rooms[$i],
+                    ],
+                    [
+                        'hotel_id' => $hotel->id,
+                        'room_num' => $hotel_rooms[$i],
+                        'li_date' => $hotel_li_dates[$i] ?? null,
+                        'lo_date' => $hotel_lo_dates[$i] ?? null,
+                        'survivor_id' => $survivor->id,
+                    ]
+                );
+            }
         } else {
             // If Hotel is unchecked, clear Room fields for this survivor
             $room = \App\Room::where('survivor_id', $survivor->id)->first();
@@ -346,32 +365,36 @@ class SurvivorController extends Controller
 
         // Hotel
         if (is_array($locationType) && in_array('Hotel', $locationType)) {
-            $hotel = \App\Hotel::firstOrCreate(
-                ['name' => $request->hotel_name],
-                ['name' => $request->hotel_name]
-            );
+            $hotel_names = $request->input('hotel_name', []);
+            $hotel_rooms = $request->input('hotel_room', []);
+            $hotel_li_dates = $request->input('hotel_li_date', []);
+            $hotel_lo_dates = $request->input('hotel_lo_date', []);
 
-            $oldRoom = \App\Room::where('survivor_id', $survivor->id)->first();
-            if ($oldRoom && $oldRoom->room_num !== $request->hotel_room) {
-                $oldRoom->survivor_id = null;
-                $oldRoom->li_date = null;
-                $oldRoom->lo_date = null;
-                $oldRoom->save();
+            // (Optional) Unassign all previous hotel rooms from this survivor first
+            \App\Room::where('survivor_id', $survivor->id)->update([
+                'li_date' => null,
+                'lo_date' => null,
+                'survivor_id' => null,
+            ]);
+
+            foreach ($hotel_names as $i => $hotel_name) {
+                if (empty($hotel_name) || empty($hotel_rooms[$i])) continue;
+
+                $hotel = \App\Hotel::firstOrCreate(['name' => $hotel_name], ['name' => $hotel_name]);
+                \App\Room::updateOrCreate(
+                    [
+                        'hotel_id' => $hotel->id,
+                        'room_num' => $hotel_rooms[$i],
+                    ],
+                    [
+                        'hotel_id' => $hotel->id,
+                        'room_num' => $hotel_rooms[$i],
+                        'li_date' => $hotel_li_dates[$i] ?? null,
+                        'lo_date' => $hotel_lo_dates[$i] ?? null,
+                        'survivor_id' => $survivor->id,
+                    ]
+                );
             }
-
-            \App\Room::updateOrCreate(
-                [
-                    'hotel_id' => $hotel->id,
-                    'room_num' => $request->hotel_room,
-                ],
-                [
-                    'hotel_id' => $hotel->id,
-                    'room_num' => $request->hotel_room,
-                    'li_date' => $request->hotel_li_date,
-                    'lo_date' => $request->hotel_lo_date,
-                    'survivor_id' => $survivor->id,
-                ]
-            );
         } else {
             $room = \App\Room::where('survivor_id', $survivor->id)->first();
             if ($room) {
