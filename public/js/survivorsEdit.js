@@ -141,119 +141,130 @@ document.addEventListener('DOMContentLoaded', function() {
             // Clear input values in the clone
             Array.from(clone.querySelectorAll('input')).forEach(function (input) {
                 input.value = '';
+                if (input.name === "hotel_name[]") {
+                    delete input.dataset.autocompleteBound;
+                }
+                if (input.name === "hotel_room[]") {
+                    delete input.dataset.roomAutocompleteBound;
+                }
             });
 
             rowsContainer.appendChild(clone);
+
+            setTimeout(function() {
+                setupAllHotelAutocompletes();
+                setupAllRoomAutocompletes();
+            }, 0);
         });
     }
 });
 
-// Hotel name auto-suggestion
-document.addEventListener('DOMContentLoaded', function() {
-    const hotelInput = document.querySelector('input[name="hotel_name"]');
-    const suggestionsBox = document.getElementById('hotel-suggestions');
-    if (!hotelInput || !suggestionsBox) return;
+// // Hotel name auto-suggestion
+// document.addEventListener('DOMContentLoaded', function() {
+//     const hotelInput = document.querySelector('input[name="hotel_name"]');
+//     const suggestionsBox = document.getElementById('hotel-suggestions');
+//     if (!hotelInput || !suggestionsBox) return;
 
-    hotelInput.addEventListener('input', function() {
-        let query = this.value;
-        if (query.length < 1) {
-            suggestionsBox.style.display = 'none';
-            suggestionsBox.innerHTML = '';
-            return;
-        }
-        fetch('/admin/hotels/autocomplete?query=' + encodeURIComponent(query))
-            .then(response => response.json())
-            .then(data => {
-                suggestionsBox.innerHTML = '';
-                if (data.length > 0) {
-                    data.forEach(function(item) {
-                        const hotelName = item.name || item.hotel_name;
-                        const div = document.createElement('div');
-                        div.textContent = hotelName;
-                        div.style.padding = '8px 12px';
-                        div.style.cursor = 'pointer';
-                        div.addEventListener('mousedown', function() {
-                            hotelInput.value = hotelName;
-                            suggestionsBox.style.display = 'none';
-                            populateUnits(); // update units when park is chosen
-                        });
-                        suggestionsBox.appendChild(div);
-                    });
-                    suggestionsBox.style.display = 'block';
-                } else {
-                    suggestionsBox.style.display = 'none';
-                }
-            });
-    });
+//     hotelInput.addEventListener('input', function() {
+//         let query = this.value;
+//         if (query.length < 1) {
+//             suggestionsBox.style.display = 'none';
+//             suggestionsBox.innerHTML = '';
+//             return;
+//         }
+//         fetch('/admin/hotels/autocomplete?query=' + encodeURIComponent(query))
+//             .then(response => response.json())
+//             .then(data => {
+//                 suggestionsBox.innerHTML = '';
+//                 if (data.length > 0) {
+//                     data.forEach(function(item) {
+//                         const hotelName = item.name || item.hotel_name;
+//                         const div = document.createElement('div');
+//                         div.textContent = hotelName;
+//                         div.style.padding = '8px 12px';
+//                         div.style.cursor = 'pointer';
+//                         div.addEventListener('mousedown', function() {
+//                             hotelInput.value = hotelName;
+//                             suggestionsBox.style.display = 'none';
+//                             populateUnits(); // update units when park is chosen
+//                         });
+//                         suggestionsBox.appendChild(div);
+//                     });
+//                     suggestionsBox.style.display = 'block';
+//                 } else {
+//                     suggestionsBox.style.display = 'none';
+//                 }
+//             });
+//     });
 
-    // Hide suggestions when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!hotelInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
-            suggestionsBox.style.display = 'none';
-        }
-    });
-});
+//     // Hide suggestions when clicking outside
+//     document.addEventListener('click', function(e) {
+//         if (!hotelInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+//             suggestionsBox.style.display = 'none';
+//         }
+//     });
+// });
 
 // Room number auto-suggestion
-document.addEventListener('DOMContentLoaded', function() {
-    const hotelInput = document.querySelector('input[name="hotel_name"]');
-    const roomSelect = document.getElementById('hotel_room_select');
-    if (!hotelInput || !roomSelect) return;
+// document.addEventListener('DOMContentLoaded', function() {
+//     const hotelInput = document.querySelector('input[name="hotel_name"]');
+//     const roomSelect = document.getElementById('hotel_room_select');
+//     if (!hotelInput || !roomSelect) return;
 
-    const initialSelectedRoom = window.initialSelectedRoom || '';
-    let isFirstLoad = true;
+//     const initialSelectedRoom = window.initialSelectedRoom || '';
+//     let isFirstLoad = true;
 
-    function populateRooms() {
-        const hotelName = hotelInput.value;
-        const selectedRoom = isFirstLoad ? initialSelectedRoom : '';
-        roomSelect.innerHTML = ''; // No placeholder
+//     function populateRooms() {
+//         const hotelName = hotelInput.value;
+//         const selectedRoom = isFirstLoad ? initialSelectedRoom : '';
+//         roomSelect.innerHTML = ''; // No placeholder
 
-        if (!hotelName) return;
+//         if (!hotelName) return;
 
-        fetch('/admin/rooms/autocomplete?hotel=' + encodeURIComponent(hotelName) + '&query=')
-            .then(response => response.json())
-            .then(data => {
-                let hasSelected = false;
-                data.forEach(function(item) {
-                    const roomNum = item.room_num || item.room_number;
-                    const option = document.createElement('option');
-                    option.value = roomNum;
-                    option.textContent = roomNum;
-                    if (selectedRoom && roomNum == selectedRoom) {
-                        option.selected = true;
-                        hasSelected = true;
-                    }
-                    roomSelect.appendChild(option);
-                });
-                // If assigned room is not in the list and it's the first load, add it as selected
-                if (isFirstLoad && selectedRoom && !hasSelected) {
-                    const option = document.createElement('option');
-                    option.value = selectedRoom;
-                    option.textContent = selectedRoom + ' (assigned)';
-                    option.selected = true;
-                    option.style.backgroundColor = '#007bff';
-                    option.style.color = '#fff';
-                    roomSelect.insertBefore(option, roomSelect.firstChild);
-                }
-                // If no room is selected after hotel change, select the first available room
-                if (!hasSelected && roomSelect.options.length > 0 && !isFirstLoad) {
-                    roomSelect.options[0].selected = true;
-                }
-                isFirstLoad = false;
-            });
-    }
+//         fetch('/admin/rooms/autocomplete?hotel=' + encodeURIComponent(hotelName) + '&query=')
+//             .then(response => response.json())
+//             .then(data => {
+//                 let hasSelected = false;
+//                 data.forEach(function(item) {
+//                     const roomNum = item.room_num || item.room_number;
+//                     const option = document.createElement('option');
+//                     option.value = roomNum;
+//                     option.textContent = roomNum;
+//                     if (selectedRoom && roomNum == selectedRoom) {
+//                         option.selected = true;
+//                         hasSelected = true;
+//                     }
+//                     roomSelect.appendChild(option);
+//                 });
+//                 // If assigned room is not in the list and it's the first load, add it as selected
+//                 if (isFirstLoad && selectedRoom && !hasSelected) {
+//                     const option = document.createElement('option');
+//                     option.value = selectedRoom;
+//                     option.textContent = selectedRoom + ' (assigned)';
+//                     option.selected = true;
+//                     option.style.backgroundColor = '#007bff';
+//                     option.style.color = '#fff';
+//                     roomSelect.insertBefore(option, roomSelect.firstChild);
+//                 }
+//                 // If no room is selected after hotel change, select the first available room
+//                 if (!hasSelected && roomSelect.options.length > 0 && !isFirstLoad) {
+//                     roomSelect.options[0].selected = true;
+//                 }
+//                 isFirstLoad = false;
+//             });
+//     }
 
-    hotelInput.addEventListener('change', function() {
-        populateRooms();
-    });
-    hotelInput.addEventListener('blur', function() {
-        setTimeout(populateRooms, 200);
-    });
+//     hotelInput.addEventListener('change', function() {
+//         populateRooms();
+//     });
+//     hotelInput.addEventListener('blur', function() {
+//         setTimeout(populateRooms, 200);
+//     });
 
-    if (hotelInput.value) {
-        populateRooms();
-    }
-});
+//     if (hotelInput.value) {
+//         populateRooms();
+//     }
+// });
 
 // State Park name auto-suggestion and unit_name population
 document.addEventListener('DOMContentLoaded', function() {
@@ -425,4 +436,171 @@ document.addEventListener('DOMContentLoaded', function() {
         cb.addEventListener('change', toggleRows);
     });
     toggleRows(); // Initial state
+});
+
+function setupHotelAutocomplete(input) {
+    let suggestionsBox = input.parentNode.querySelector('.hotel-suggestions');
+    if (!suggestionsBox) {
+        suggestionsBox = document.createElement('div');
+        suggestionsBox.className = 'hotel-suggestions';
+        suggestionsBox.style.position = 'relative';
+        suggestionsBox.style.zIndex = 10;
+        input.parentNode.appendChild(suggestionsBox);
+    }
+
+    input.addEventListener('input', function() {
+        let query = this.value;
+        if (query.length < 1) {
+            suggestionsBox.innerHTML = '';
+            return;
+        }
+        fetch('/admin/hotels/autocomplete?query=' + encodeURIComponent(query))
+            .then(response => response.json())
+            .then(data => {
+                suggestionsBox.innerHTML = '';
+                if (data.length > 0) {
+                    const list = document.createElement('ul');
+                    list.style.position = 'absolute';
+                    list.style.background = '#fff';
+                    list.style.border = '1px solid #ccc';
+                    list.style.borderRadius = '4px';
+                    list.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                    list.style.margin = '0';
+                    list.style.padding = '0';
+                    list.style.listStyle = 'none';
+                    list.style.maxHeight = '180px';
+                    list.style.overflowY = 'auto';
+                    list.style.minWidth = input.offsetWidth + 'px';
+
+                    data.forEach(function(item) {
+                        const li = document.createElement('li');
+                        const hotelName = item.name || item.hotel_name;
+                        li.textContent = hotelName;
+                        li.style.padding = '8px 12px';
+                        li.style.cursor = 'pointer';
+                        li.style.transition = 'background 0.2s';
+                        li.addEventListener('mouseover', function() {
+                            li.style.background = '#f0f4ff';
+                        });
+                        li.addEventListener('mouseout', function() {
+                            li.style.background = '';
+                        });
+                        li.addEventListener('mousedown', function() {
+                            input.value = hotelName;
+                            suggestionsBox.innerHTML = '';
+                        });
+                        list.appendChild(li);
+                    });
+                    suggestionsBox.appendChild(list);
+                }
+            });
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !suggestionsBox.contains(e.target)) {
+            suggestionsBox.innerHTML = '';
+        }
+    });
+}
+
+function setupAllHotelAutocompletes() {
+    document.querySelectorAll('input[name="hotel_name[]"]').forEach(function(input) {
+        if (!input.dataset.autocompleteBound) {
+            setupHotelAutocomplete(input);
+            input.dataset.autocompleteBound = "1";
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupAllHotelAutocompletes();
+
+    var addHotelBtn = document.getElementById('add-hotel-btn');
+    if (addHotelBtn) {
+        addHotelBtn.addEventListener('click', function () {
+            setTimeout(setupAllHotelAutocompletes, 0);
+        });
+    }
+});
+
+function setupRoomAutocomplete(roomInput) {
+    // Find the corresponding hotel name input in the same row
+    const formRow = roomInput.closest('.form-row');
+    const hotelInput = formRow ? formRow.querySelector('input[name="hotel_name[]"]') : null;
+    let suggestionsBox = formRow ? formRow.querySelector('.room-suggestions') : null;
+
+    if (!hotelInput || !suggestionsBox) return;
+
+    roomInput.addEventListener('input', function() {
+        const hotelName = hotelInput.value;
+        const query = roomInput.value;
+        suggestionsBox.innerHTML = '';
+
+        if (!hotelName || !query) return;
+
+        fetch('/admin/rooms/autocomplete?hotel=' + encodeURIComponent(hotelName) + '&query=' + encodeURIComponent(query))
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    const list = document.createElement('ul');
+                    list.style.position = 'absolute';
+                    list.style.background = '#fff';
+                    list.style.border = '1px solid #ccc';
+                    list.style.borderRadius = '4px';
+                    list.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                    list.style.margin = '0';
+                    list.style.padding = '0';
+                    list.style.listStyle = 'none';
+                    list.style.maxHeight = '180px';
+                    list.style.overflowY = 'auto';
+                    list.style.minWidth = roomInput.offsetWidth + 'px';
+
+                    data.forEach(function(item) {
+                        const li = document.createElement('li');
+                        li.textContent = item.room_num;
+                        li.style.padding = '8px 12px';
+                        li.style.cursor = 'pointer';
+                        li.style.transition = 'background 0.2s';
+                        li.addEventListener('mouseover', function() {
+                            li.style.background = '#f0f4ff';
+                        });
+                        li.addEventListener('mouseout', function() {
+                            li.style.background = '';
+                        });
+                        li.addEventListener('mousedown', function() {
+                            roomInput.value = item.room_num;
+                            suggestionsBox.innerHTML = '';
+                        });
+                        list.appendChild(li);
+                    });
+                    suggestionsBox.appendChild(list);
+                }
+            });
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!roomInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+            suggestionsBox.innerHTML = '';
+        }
+    });
+}
+
+function setupAllRoomAutocompletes() {
+    document.querySelectorAll('input[name="hotel_room[]"]').forEach(function(input) {
+        if (!input.dataset.roomAutocompleteBound) {
+            setupRoomAutocomplete(input);
+            input.dataset.roomAutocompleteBound = "1";
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupAllRoomAutocompletes();
+
+    var addHotelBtn = document.getElementById('add-hotel-btn');
+    if (addHotelBtn) {
+        addHotelBtn.addEventListener('click', function () {
+            setTimeout(setupAllRoomAutocompletes, 0);
+        });
+    }
 });

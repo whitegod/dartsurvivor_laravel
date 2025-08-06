@@ -16,4 +16,9 @@ class Room extends Model
         'survivor_id',
         // add other columns if needed
     ];
+
+    public function hotel()
+    {
+        return $this->belongsTo(\App\Hotel::class, 'hotel_id');
+    }
 }

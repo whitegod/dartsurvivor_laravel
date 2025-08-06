@@ -53,15 +53,12 @@ class SurvivorController extends Controller
         }
 
         // Hotel
+        $hotelRooms = [];
         if ($survivor && in_array('Hotel', $locationType)) {
-            $room = \App\Room::where('survivor_id', $survivor->id)->first();
-            if ($room) {
-                $hotel = \App\Hotel::find($room->hotel_id);
-                $hotelName = $hotel ? $hotel->name : '';
-                $hotelRoom = $room->room_num;
-                $hotelLiDate = $room->li_date;
-                $hotelLoDate = $room->lo_date;
-            }
+            $hotelRooms = \App\Room::where('survivor_id', $survivor->id)->with('hotel')->get();
+        }
+        if (empty($hotelRooms) || (is_object($hotelRooms) && $hotelRooms->count() === 0) || (is_array($hotelRooms) && count($hotelRooms) === 0)) {
+            $hotelRooms = [null];
         }
 
         // State Park
@@ -82,7 +79,7 @@ class SurvivorController extends Controller
             $ttus = [null];
         }
         return view('admin.survivorsEdit', compact(
-            'survivor', 'ttus',
+            'survivor', 'ttus', 'hotelRooms',
             'hotelName', 'hotelRoom', 'hotelLiDate', 'hotelLoDate',
             'stateparkName', 'unitName', 'stateparkLiDate', 'stateparkLoDate',
             'locationType', 'readonly'
@@ -113,15 +110,12 @@ class SurvivorController extends Controller
         }
 
         // Hotel
+        $hotelRooms = [];
         if ($survivor && in_array('Hotel', $locationType)) {
-            $room = \App\Room::where('survivor_id', $survivor->id)->first();
-            if ($room) {
-                $hotel = \App\Hotel::find($room->hotel_id);
-                $hotelName = $hotel ? $hotel->name : '';
-                $hotelRoom = $room->room_num;
-                $hotelLiDate = $room->li_date;
-                $hotelLoDate = $room->lo_date;
-            }
+            $hotelRooms = \App\Room::where('survivor_id', $survivor->id)->with('hotel')->get();
+        }
+        if (empty($hotelRooms) || (is_object($hotelRooms) && $hotelRooms->count() === 0) || (is_array($hotelRooms) && count($hotelRooms) === 0)) {
+            $hotelRooms = [null];
         }
 
         // State Park
@@ -140,7 +134,7 @@ class SurvivorController extends Controller
             $ttus = [null];
         }
         return view('admin.survivorsEdit', compact(
-            'survivor', 'ttus',
+            'survivor', 'ttus', 'hotelRooms',
             'hotelName', 'hotelRoom', 'hotelLiDate', 'hotelLoDate',
             'stateparkName', 'unitName', 'stateparkLiDate', 'stateparkLoDate',
             'locationType'

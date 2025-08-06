@@ -215,10 +215,12 @@
                             <div class="form-group">
                                 <label>Hotel Name</label>
                                 <input type="text" name="hotel_name[]" value="{{ old('hotel_name.' . $i, $room->hotel->name ?? '') }}">
+                                <div class="hotel-suggestions" style="position:relative; z-index:10;"></div>
                             </div>
                             <div class="form-group">
                                 <label>Room #</label>
                                 <input type="text" name="hotel_room[]" value="{{ old('hotel_room.' . $i, $room->room_num ?? '') }}">
+                                <div class="room-suggestions" style="position:relative; z-index:10;"></div>
                             </div>
                             <div class="form-group">
                                 <label>LI Date</label>
