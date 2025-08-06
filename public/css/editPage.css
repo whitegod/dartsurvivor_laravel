@@ -225,6 +225,34 @@ input:checked + .slider:before {
     cursor: pointer;
 }
 
+/* --- Suggestion Dropdown --- */
+.suggestion-dropdown {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: 100%;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.suggestion-dropdown li {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.suggestion-dropdown li:hover {
+    background: #f0f4ff;
+}
+
 /* --- Responsive --- */
 @media (max-width: 900px) {
     .form-row {

@@ -83,7 +83,7 @@
                     </div>
                 </div>
 
-                <label style="font-weight:bold; font-size:16px; margin-bottom:2px;">Family Information</label>
+                <label style="font-size:16px; margin-bottom:2px;">Family Information</label>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="group0_2">0-2 years old</label>
@@ -246,7 +246,7 @@
                     @endphp
                     @foreach($stateparkUnits as $i => $unit)
                     <div class="form-row statepark-row">
-                        <div class="form-group" style="flex:4; min-width:220px; margin-right: 100px;">
+                        <div class="form-group" style="flex:4;">
                             <label style="margin-bottom:6px;">State Park Name</label>
                             <div style="display:flex; gap:4px;">
                                 <div style="position:relative;">
