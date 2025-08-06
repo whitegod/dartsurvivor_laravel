@@ -62,15 +62,16 @@ class SurvivorController extends Controller
         }
 
         // State Park
+        $stateparkUnits = [];
         if ($survivor && in_array('State Park', $locationType)) {
-            $unit = \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->first();
-            if ($unit) {
-                $park = \DB::table('statepark')->where('id', $unit->statepark_id)->first();
-                $stateparkName = $park ? $park->name : '';
-                $unitName = $unit->unit_name;
-                $stateparkLiDate = $unit->li_date ? date('Y-m-d', strtotime($unit->li_date)) : '';
-                $stateparkLoDate = $unit->lo_date ? date('Y-m-d', strtotime($unit->lo_date)) : '';
-            }
+            $stateparkUnits = \DB::table('lodge_unit')
+                ->join('statepark', 'lodge_unit.statepark_id', '=', 'statepark.id')
+                ->where('lodge_unit.survivor_id', $survivor->id)
+                ->select('lodge_unit.*', 'statepark.name as statepark_name')
+                ->get();
+        }
+        if (empty($stateparkUnits) || (is_object($stateparkUnits) && $stateparkUnits->count() === 0) || (is_array($stateparkUnits) && count($stateparkUnits) === 0)) {
+            $stateparkUnits = [null];
         }
 
         $readonly = true;
@@ -79,7 +80,7 @@ class SurvivorController extends Controller
             $ttus = [null];
         }
         return view('admin.survivorsEdit', compact(
-            'survivor', 'ttus', 'hotelRooms',
+            'survivor', 'ttus', 'hotelRooms', 'stateparkUnits',
             'hotelName', 'hotelRoom', 'hotelLiDate', 'hotelLoDate',
             'stateparkName', 'unitName', 'stateparkLiDate', 'stateparkLoDate',
             'locationType', 'readonly'
@@ -119,22 +120,23 @@ class SurvivorController extends Controller
         }
 
         // State Park
+        $stateparkUnits = [];
         if ($survivor && in_array('State Park', $locationType)) {
-            $unit = \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->first();
-            if ($unit) {
-                $park = \DB::table('statepark')->where('id', $unit->statepark_id)->first();
-                $stateparkName = $park ? $park->name : '';
-                $unitName = $unit->unit_name;
-                $stateparkLiDate = $unit->li_date ? date('Y-m-d', strtotime($unit->li_date)) : '';
-                $stateparkLoDate = $unit->lo_date ? date('Y-m-d', strtotime($unit->lo_date)) : '';
-            }
+            $stateparkUnits = \DB::table('lodge_unit')
+                ->join('statepark', 'lodge_unit.statepark_id', '=', 'statepark.id')
+                ->where('lodge_unit.survivor_id', $survivor->id)
+                ->select('lodge_unit.*', 'statepark.name as statepark_name')
+                ->get();
+        }
+        if (empty($stateparkUnits) || (is_object($stateparkUnits) && $stateparkUnits->count() === 0) || (is_array($stateparkUnits) && count($stateparkUnits) === 0)) {
+            $stateparkUnits = [null];
         }
 
         if (empty($ttus) || (is_object($ttus) && $ttus->count() === 0) || (is_array($ttus) && count($ttus) === 0)) {
             $ttus = [null];
         }
         return view('admin.survivorsEdit', compact(
-            'survivor', 'ttus', 'hotelRooms',
+            'survivor', 'ttus', 'hotelRooms', 'stateparkUnits',
             'hotelName', 'hotelRoom', 'hotelLiDate', 'hotelLoDate',
             'stateparkName', 'unitName', 'stateparkLiDate', 'stateparkLoDate',
             'locationType'
@@ -249,35 +251,44 @@ class SurvivorController extends Controller
 
         // State Park
         if (is_array($locationType) && in_array('State Park', $locationType)) {
-            $parkRow = \DB::table('statepark')->where('name', $request->statepark_name)->first();
-            if ($parkRow) {
-                $unit = \DB::table('lodge_unit')
-                    ->where('statepark_id', $parkRow->id)
-                    ->where('unit_name', $request->unit_name)
-                    ->first();
+            $statepark_names = $request->input('statepark_name', []);
+            $unit_names = $request->input('unit_name', []);
+            $li_dates = $request->input('statepark_li_date', []);
+            $lo_dates = $request->input('statepark_lo_date', []);
 
-                if ($unit) {
-                    \DB::table('lodge_unit')
-                        ->where('id', $unit->id)
-                        ->update([
-                            'survivor_id' => $survivor->id,
-                            'li_date' => $request->statepark_li_date,
-                            'lo_date' => $request->statepark_lo_date,
-                        ]);
+            // Unassign all previous units from this survivor first
+            \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->update([
+                'survivor_id' => null,
+                'li_date' => null,
+                'lo_date' => null,
+            ]);
+
+            foreach ($statepark_names as $i => $statepark_name) {
+                if (empty($statepark_name) || empty($unit_names[$i])) continue;
+                $parkRow = \DB::table('statepark')->where('name', $statepark_name)->first();
+                if ($parkRow) {
+                    $unit = \DB::table('lodge_unit')
+                        ->where('statepark_id', $parkRow->id)
+                        ->where('unit_name', $unit_names[$i])
+                        ->first();
+                    if ($unit) {
+                        \DB::table('lodge_unit')
+                            ->where('id', $unit->id)
+                            ->update([
+                                'survivor_id' => $survivor->id,
+                                'li_date' => $li_dates[$i] ?? null,
+                                'lo_date' => $lo_dates[$i] ?? null,
+                            ]);
+                    }
                 }
             }
         } else {
-            // If State Park is unchecked, clear lodge_unit fields for this survivor
-            $unit = \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->first();
-            if ($unit) {
-                \DB::table('lodge_unit')
-                    ->where('id', $unit->id)
-                    ->update([
-                        'survivor_id' => null,
-                        'li_date' => null,
-                        'lo_date' => null,
-                    ]);
-            }
+            // Unassign all units if State Park is unchecked
+            \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->update([
+                'survivor_id' => null,
+                'li_date' => null,
+                'lo_date' => null,
+            ]);
         }
 
         return redirect()->route('admin.survivors')->with('success', 'Survivor added successfully!');
@@ -401,34 +412,44 @@ class SurvivorController extends Controller
 
         // State Park
         if (is_array($locationType) && in_array('State Park', $locationType)) {
-            $parkRow = \DB::table('statepark')->where('name', $request->statepark_name)->first();
-            if ($parkRow) {
-                $unit = \DB::table('lodge_unit')
-                    ->where('statepark_id', $parkRow->id)
-                    ->where('unit_name', $request->unit_name)
-                    ->first();
+            $statepark_names = $request->input('statepark_name', []);
+            $unit_names = $request->input('unit_name', []);
+            $li_dates = $request->input('statepark_li_date', []);
+            $lo_dates = $request->input('statepark_lo_date', []);
 
-                if ($unit) {
-                    \DB::table('lodge_unit')
-                        ->where('id', $unit->id)
-                        ->update([
-                            'survivor_id' => $survivor->id,
-                            'li_date' => $request->statepark_li_date,
-                            'lo_date' => $request->statepark_lo_date,
-                        ]);
+            // Unassign all previous units from this survivor first
+            \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->update([
+                'survivor_id' => null,
+                'li_date' => null,
+                'lo_date' => null,
+            ]);
+
+            foreach ($statepark_names as $i => $statepark_name) {
+                if (empty($statepark_name) || empty($unit_names[$i])) continue;
+                $parkRow = \DB::table('statepark')->where('name', $statepark_name)->first();
+                if ($parkRow) {
+                    $unit = \DB::table('lodge_unit')
+                        ->where('statepark_id', $parkRow->id)
+                        ->where('unit_name', $unit_names[$i])
+                        ->first();
+                    if ($unit) {
+                        \DB::table('lodge_unit')
+                            ->where('id', $unit->id)
+                            ->update([
+                                'survivor_id' => $survivor->id,
+                                'li_date' => $li_dates[$i] ?? null,
+                                'lo_date' => $lo_dates[$i] ?? null,
+                            ]);
+                    }
                 }
             }
         } else {
-            $unit = \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->first();
-            if ($unit) {
-                \DB::table('lodge_unit')
-                    ->where('id', $unit->id)
-                    ->update([
-                        'survivor_id' => null,
-                        'li_date' => null,
-                        'lo_date' => null,
-                    ]);
-            }
+            // Unassign all units if State Park is unchecked
+            \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->update([
+                'survivor_id' => null,
+                'li_date' => null,
+                'lo_date' => null,
+            ]);
         }
 
         return redirect()->route('admin.survivors')->with('success', 'Survivor updated successfully.');

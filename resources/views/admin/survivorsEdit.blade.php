@@ -165,9 +165,9 @@
                         @foreach($ttus as $ttu)
                         <div class="form-row">
                             <div class="form-group" style="flex:4; min-width:220px; margin-right: 100px;">
-                                <label class="info" style="margin-bottom:6px;">VIN</label>
+                                <label style="margin-bottom:6px;">VIN</label>
                                 <div style="display:flex; gap:4px;">
-                                    <input type="text" name="vin[]" class="vin-autocomplete" value="{{ old('vin.' . $loop->index, $ttu->vin ?? '') }}" style="width: 260px;" autocomplete="off">
+                                    <input type="text" name="vin[]" class="vin-autocomplete" value="{{ old('vin.' . $loop->index, $ttu->vin ?? '') }}" style="width: 260px;" autocomplete="off" {{ !empty($readonly) ? 'readonly' : '' }}>
                                     <button class="btn btn-primary" type="button"
                                         @if(!empty($ttu))
                                             onclick="window.location.href='{{ route('admin.ttus.view', $ttu->id) }}'"
@@ -202,7 +202,9 @@
                         </div>
                         @endforeach
                     </div>
-                    <button type="button" class="btn btn-secondary" id="add-ttu-btn" style="margin-top:10px;">Add More</button>
+                    @if(empty($readonly))
+                        <button type="button" class="btn btn-secondary" id="add-ttu-btn" style="margin-top:10px;">Add More</button>
+                    @endif
                 </div>
                 <div id="hotel-row" class="{{ (is_array(old('location_type', $locationType ?? [])) && in_array('Hotel', old('location_type', $locationType ?? []))) ? '' : 'hidden' }}" style="margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
                     <label style="font-weight:bold; font-size:16px; margin-bottom:2px;">Assigned Hotel</label>
@@ -214,49 +216,69 @@
                         <div class="form-row hotel-row">
                             <div class="form-group">
                                 <label>Hotel Name</label>
-                                <input type="text" name="hotel_name[]" value="{{ old('hotel_name.' . $i, $room->hotel->name ?? '') }}">
+                                <input type="text" name="hotel_name[]" value="{{ old('hotel_name.' . $i, $room->hotel->name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                                 <div class="hotel-suggestions" style="position:relative; z-index:10;"></div>
                             </div>
                             <div class="form-group">
                                 <label>Room #</label>
-                                <input type="text" name="hotel_room[]" value="{{ old('hotel_room.' . $i, $room->room_num ?? '') }}">
+                                <input type="text" name="hotel_room[]" value="{{ old('hotel_room.' . $i, $room->room_num ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                                 <div class="room-suggestions" style="position:relative; z-index:10;"></div>
                             </div>
                             <div class="form-group">
                                 <label>LI Date</label>
-                                <input type="date" name="hotel_li_date[]" value="{{ old('hotel_li_date.' . $i, $room->li_date ?? '') }}">
+                                <input type="date" name="hotel_li_date[]" value="{{ old('hotel_li_date.' . $i, $room->li_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                             </div>
                             <div class="form-group">
                                 <label>LO Date</label>
-                                <input type="date" name="hotel_lo_date[]" value="{{ old('hotel_lo_date.' . $i, $room->lo_date ?? '') }}">
+                                <input type="date" name="hotel_lo_date[]" value="{{ old('hotel_lo_date.' . $i, $room->lo_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                             </div>
                         </div>
                         @endforeach
                     </div>
-                    <button type="button" class="btn btn-secondary" id="add-hotel-btn">Add More Hotel</button>
+                    @if(empty($readonly))
+                        <button type="button" class="btn btn-secondary" id="add-hotel-btn">Add More</button>
+                    @endif
                 </div>
                 <div id="statepark-row" class="{{ (is_array(old('location_type', $locationType ?? [])) && in_array('State Park', old('locationType', $locationType ?? []))) ? '' : 'hidden' }}" style="margin-bottom: 24px; border:1px solid #ddd; border-radius:8px; padding:18px 18px 10px 18px;">
                     <label style="font-weight:bold; font-size:16px; margin-bottom:2px;">Assigned State Park</label>
-                    <div class="form-row">
+                    @php
+                    $stateparkUnits = $stateparkUnits ?? [null]; // Ensure at least one row
+                    @endphp
+                    @foreach($stateparkUnits as $i => $unit)
+                    <div class="form-row statepark-row">
                         <div class="form-group" style="flex:4; min-width:220px; margin-right: 100px;">
-                            <label class="info" style="margin-bottom:6px;">State Park Name</label>
-                            <div style="position:relative; display:flex; gap:4px;">
-                                <input type="text" name="statepark_name" value="{{ old('statepark_name', $stateparkName ?? $survivor->statepark_name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                                <div id="statepark-suggestions" style="position:absolute; top:100%; left:0; z-index:1000; background-color: #fff; border:1px solid #ddd;"></div>
-                                <select name="unit_name" id="unit_name_select" {{ !empty($readonly) ? 'disabled' : '' }}>
-                                    <!-- JS will populate -->
-                                </select>
+                            <label style="margin-bottom:6px;">State Park Name</label>
+                            <div style="display:flex; gap:4px;">
+                                <div style="position:relative;">
+                                    <input type="text" name="statepark_name[]" style="position:relative;"
+                                        value="{{ old('statepark_name.' . $i, $unit->statepark_name ?? '') }}" 
+                                        {{ !empty($readonly) ? 'readonly' : '' }}>
+                                    <div class="statepark-suggestions" style="position:absolute; left:0; top:100%; width:100%; z-index:1000;"></div>
+                                </div>    
+                                <div style="position:relative;">
+                                    <input type="text" name="unit_name[]" style="position:relative;" class="unit-name-autocomplete"
+                                        value="{{ old('unit_name.' . $i, $unit->unit_name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                                    <div class="unit-suggestions" style="position:absolute; left:0; top:100%; width:100%; z-index:1000;"></div>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="statepark_li_date">LI Date</label>
-                            <input id="statepark_li_date" name="statepark_li_date" type="date" value="{{ old('statepark_li_date', $stateparkLiDate ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                            <label>LI Date</label>
+                            <input name="statepark_li_date[]" type="date" 
+                                value="{{ old('statepark_li_date.' . $i, $unit->li_date ?? '') }}" 
+                                {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
                         <div class="form-group">
-                            <label for="statepark_lo_date">LO Date</label>
-                            <input id="statepark_lo_date" name="statepark_lo_date" type="date" value="{{ old('statepark_lo_date', $stateparkLoDate ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                            <label>LO Date</label>
+                            <input name="statepark_lo_date[]" type="date" 
+                                value="{{ old('statepark_lo_date.' . $i, $unit->lo_date ?? '') }}" 
+                                {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
                     </div>
+                    @endforeach
+                    @if(empty($readonly))
+                        <button type="button" class="btn btn-secondary" id="add-statepark-btn" style="margin-top:10px;">Add More</button>
+                    @endif
                 </div>
 
                 <div class="form-row" style="display: flex; align-items: start; gap: 32px;">
