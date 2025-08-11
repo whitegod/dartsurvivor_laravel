@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const locationInput = document.getElementById('location');
     const locationType = document.getElementById('location_type');
-    const suggestionsBox = document.getElementById('location-suggestions');
+    const locationSuggestionsBox = document.getElementById('location-suggestions');
     const privatesiteSection = document.getElementById('privatesite-section');
     const unitNumGroup = document.getElementById('unit_num-group');
 
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     locationType.addEventListener('change', function() {
         currentType = this.value;
         locationInput.value = '';
-        suggestionsBox.style.display = 'none';
+        locationSuggestionsBox.style.display = 'none';
 
         // Show privatesite section if "Private Site" is selected
         if (this.value === 'Private Site' || this.selectedIndex === 3) {
@@ -32,15 +32,15 @@ document.addEventListener('DOMContentLoaded', function() {
     locationInput.addEventListener('input', function() {
         const query = this.value;
         if (!currentType || !query) {
-            suggestionsBox.style.display = 'none';
+            locationSuggestionsBox.style.display = 'none';
             return;
         }
         fetch(`/admin/location-suggestions?type=${encodeURIComponent(currentType)}&query=${encodeURIComponent(query)}`)
             .then(response => response.json())
             .then(data => {
-                suggestionsBox.innerHTML = '';
+                locationSuggestionsBox.innerHTML = '';
                 if (data.length === 0) {
-                    suggestionsBox.style.display = 'none';
+                    locationSuggestionsBox.style.display = 'none';
                     return;
                 }
                 data.forEach(name => {
@@ -49,11 +49,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     div.className = 'autocomplete-suggestion';
                     div.onclick = function() {
                         locationInput.value = name;
-                        suggestionsBox.style.display = 'none';
+                        locationSuggestionsBox.style.display = 'none';
                     };
-                    suggestionsBox.appendChild(div);
+                    locationSuggestionsBox.appendChild(div);
                 });
-                suggestionsBox.style.display = 'block';
+                locationSuggestionsBox.style.display = 'block';
             });
     });
 
@@ -121,8 +121,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Hide suggestions when clicking outside
     document.addEventListener('click', function(e) {
-        if (!suggestionsBox.contains(e.target) && e.target !== locationInput) {
-            suggestionsBox.style.display = 'none';
+        if (!locationSuggestionsBox.contains(e.target) && e.target !== locationInput) {
+            locationSuggestionsBox.style.display = 'none';
         }
         if (!unitNumSuggestions.contains(e.target) && e.target !== unitNumInput) {
             unitNumSuggestions.style.display = 'none';
@@ -158,12 +158,94 @@ document.addEventListener('DOMContentLoaded', function() {
         lo.addEventListener('change', toggleLODate);
         toggleLODate();
     }
-});
 
-function updateStatusWithColor() {
-    var select = document.getElementById('status');
-    var color = select.options[select.selectedIndex].getAttribute('data-color');
-    var text = select.options[select.selectedIndex].textContent.replace(/^.\s*/, ''); // Remove emoji
-    select.value = text + ' (' + color + ')';
-}
+    const nameInput = document.getElementById('survivor_name');
+    const nameSuggestionsBox = document.getElementById('survivor-name-suggestions');
+    const femaInput = document.getElementById('fema_id');
+    const survivorIdInput = document.getElementById('survivor_id');
+
+    if (nameInput && nameSuggestionsBox) {
+        nameInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            nameSuggestionsBox.innerHTML = '';
+            if (!query) {
+                nameSuggestionsBox.style.display = 'none';
+                return;
+            }
+            fetch('/admin/survivors/fema-suggestions?query=' + encodeURIComponent(query))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        nameSuggestionsBox.innerHTML = '';
+                        data.forEach(function(item) {
+                            const div = document.createElement('div');
+                            div.className = 'autocomplete-suggestion';
+                            div.textContent = (item.name ? item.name : '');
+                            div.addEventListener('mousedown', function() {
+                                nameInput.value = item.name;
+                                if (femaInput && item.fema_id) femaInput.value = item.fema_id;
+                                if (survivorIdInput && item.id) survivorIdInput.value = item.id;
+                                nameSuggestionsBox.style.display = 'none';
+                            });
+                            nameSuggestionsBox.appendChild(div);
+                        });
+                        nameSuggestionsBox.style.display = 'block';
+                    } else {
+                        nameSuggestionsBox.style.display = 'none';
+                    }
+                });
+        });
+        document.addEventListener('click', function(e) {
+            if (!nameInput.contains(e.target) && !nameSuggestionsBox.contains(e.target)) {
+                nameSuggestionsBox.style.display = 'none';
+            }
+        });
+    }
+
+    if (femaInput && document.getElementById('fema-id-suggestions')) {
+        const femaSuggestionsBox = document.getElementById('fema-id-suggestions');
+        femaInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            femaSuggestionsBox.innerHTML = '';
+            if (!query) {
+                femaSuggestionsBox.style.display = 'none';
+                return;
+            }
+            fetch('/admin/survivors/fema-suggestions?query=' + encodeURIComponent(query))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        femaSuggestionsBox.innerHTML = '';
+                        data.forEach(function(item) {
+                            const div = document.createElement('div');
+                            div.className = 'autocomplete-suggestion';
+                            div.textContent = item.fema_id;
+                            div.addEventListener('mousedown', function() {
+                                femaInput.value = item.fema_id;
+                                if (nameInput && item.name) nameInput.value = item.name;
+                                if (survivorIdInput && item.id) survivorIdInput.value = item.id;
+                                femaSuggestionsBox.style.display = 'none';
+                            });
+                            femaSuggestionsBox.appendChild(div);
+                        });
+                        femaSuggestionsBox.style.display = 'block';
+                    } else {
+                        femaSuggestionsBox.style.display = 'none';
+                    }
+                });
+        });
+        document.addEventListener('click', function(e) {
+            if (!femaInput.contains(e.target) && !femaSuggestionsBox.contains(e.target)) {
+                femaSuggestionsBox.style.display = 'none';
+            }
+        });
+    }
+
+    function updateStatusWithColor() {
+        var select = document.getElementById('status');
+        var color = select.options[select.selectedIndex].getAttribute('data-color');
+        var text = select.options[select.selectedIndex].textContent.replace(/^.\s*/, ''); // Remove emoji
+        select.value = text + ' (' + color + ')';
+    }
+});
 

@@ -355,10 +355,13 @@
                         <div class="form-section" style="margin-top: 20px;">
                             <h4>Assigned Survivor</h4>
                             <div class="form-row">
-                                <div class="form-group">
+                                <div class="form-group"">
                                     <label for="fema_id">FEMA-ID</label>
                                     <div style="display:flex; gap:4px;">
-                                        <input type="text" id="fema_id" name="fema_id" value="{{ old('fema_id', $selectedFemaId ?? '') }}" readonly>
+                                        <div style="position:relative;">
+                                            <input type="text" id="fema_id" name="fema_id" autocomplete="off" value="{{ old('fema_id', $selectedFemaId ?? '') }}">
+                                            <div id="fema-id-suggestions" class="autocomplete-suggestions"></div>
+                                        </div>
                                         <button class="btn btn-primary" type="button"
                                             @if(!empty($ttu) && !empty($ttu->survivor_id))
                                                 onclick="window.location.href='{{ route('admin.survivors.view', $ttu->survivor_id) }}'"
@@ -372,7 +375,10 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="survivor_name">Name</label>
-                                    <input type="text" id="survivor_name" name="survivor_name" value="{{ $survivor_name }}" readonly>
+                                    <div style="position:relative;">
+                                        <input type="text" id="survivor_name" name="survivor_name" value="{{ $survivor_name }}" autocomplete="off">
+                                        <div id="survivor-name-suggestions" class="autocomplete-suggestions"></div>
+                                    </div>
                                 </div>
                                 <input type="hidden" id="survivor_id" name="survivor_id" value="{{ old('survivor_id', $ttu->survivor_id ?? '') }}">
                             </div>

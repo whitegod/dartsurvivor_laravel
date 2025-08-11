@@ -178,13 +178,13 @@ input:checked + .slider:before {
 
 /* --- Autocomplete --- */
 .autocomplete-suggestions {
-    border: 1px solid #ccc;
     background: #fff;
     position: absolute;
     z-index: 1000;
     max-height: 200px;
     overflow-y: auto;
     width: 100%;
+    top: 100%;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 .autocomplete-suggestion {

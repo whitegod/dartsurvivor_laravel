@@ -42,7 +42,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/admin/survivors/store', 'SurvivorController@storeSurvivor')->name('admin.survivors.store');
         Route::put('/admin/survivors/update/{id}', 'SurvivorController@updateSurvivor')->name('admin.survivors.update');
         Route::delete('/admin/survivors/{id}', 'SurvivorController@deleteSurvivor')->name('admin.survivors.delete');
-        
+
         Route::get('/admin/ttus', 'TTUController@ttus')->name('admin.ttus');
         Route::get('/admin/ttus/view/{id?}', 'TTUController@ttusView')->name('admin.ttus.view');
         Route::get('/admin/ttus/edit/{id?}', 'TTUController@ttusEdit')->name('admin.ttus.edit');
@@ -53,6 +53,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/admin/unit-suggestions', 'TTUController@unitSuggestions')->name('admin.ttus.unit_suggestions');
         Route::get('/admin/vendor-suggestions', 'TTUController@vendorSuggestions')->name('admin.ttus.vendor_suggestions');
         Route::get('/admin/privatesite-by-ttu/{ttu_id}', 'TTUController@getPrivatesiteByTTU');
+        Route::get('/admin/survivors/fema-suggestions', 'TTUController@femaSuggestions')->name('admin.survivors.fema_suggestions');
 
         Route::get('/admin/locations', 'LocationController@locations')->name('admin.locations');
         Route::get('/admin/locations/view/{id?}', 'LocationController@locationView')->name('admin.locations.view');

@@ -157,6 +157,8 @@ class TTUController extends Controller
             'damage_assessment', 'ehp', 'ehp_notes', 'dow_long', 'dow_lat', 'zon', 'dow_response', 'privatesite'
         ]);
 
+        $data['survivor_id'] = $request->input('survivor_id');
+
         // Set checkboxes to 0 if not checked
         $featureFields = [
             'has_200sqft', 'has_propanefire', 'has_tv', 'has_hydraul',
@@ -229,6 +231,24 @@ class TTUController extends Controller
             $ttu->purchase_origin = null;
         }
 
+        // After saving $ttu, update survivor location_type if survivor_id is filled
+        if ($request->filled('survivor_id')) {
+            $survivor = \DB::table('survivor')->where('id', $request->input('survivor_id'))->first();
+            if ($survivor) {
+                // Decode location_type as array, or start new array
+                $types = [];
+                if (!empty($survivor->location_type)) {
+                    $types = @json_decode($survivor->location_type, true);
+                    if (!is_array($types)) $types = [];
+                }
+                if (!in_array('TTU', $types)) {
+                    $types[] = 'TTU';
+                    \DB::table('survivor')->where('id', $survivor->id)
+                        ->update(['location_type' => json_encode($types)]);
+                }
+            }
+        }
+
         return redirect()->route('admin.ttus')->with('success', 'TTU created!');
     }
 
@@ -242,6 +262,8 @@ class TTUController extends Controller
             'name', 'address', 'phone', 'pow', 'h2o', 'sew', 'own', 'res',
             'damage_assessment', 'ehp', 'ehp_notes', 'dow_long', 'dow_lat', 'zon', 'dow_response', 'privatesite'
         ]);
+
+        $data['survivor_id'] = $request->input('survivor_id');
 
         if ($request->location_type === 'privatesite') {
             $data['location'] = $request->input('name'); // Set location to privatesite name
@@ -292,6 +314,24 @@ class TTUController extends Controller
             $privatesite->res = $request->has('res');
             $privatesite->save();
 
+        }
+
+        // After updating $ttu, update survivor location_type if survivor_id is filled
+        if ($request->filled('survivor_id')) {
+            $survivor = \DB::table('survivor')->where('id', $request->input('survivor_id'))->first();
+            if ($survivor) {
+                // Decode location_type as array, or start new array
+                $types = [];
+                if (!empty($survivor->location_type)) {
+                    $types = @json_decode($survivor->location_type, true);
+                    if (!is_array($types)) $types = [];
+                }
+                if (!in_array('TTU', $types)) {
+                    $types[] = 'TTU';
+                    \DB::table('survivor')->where('id', $survivor->id)
+                        ->update(['location_type' => json_encode($types)]);
+                }
+            }
         }
 
         return redirect()->route('admin.ttus')->with('success', 'TTU updated!');
@@ -362,5 +402,15 @@ class TTUController extends Controller
             ->unique()
             ->values();
         return response()->json($vendors);
+    }
+
+    public function femaSuggestions(Request $request) {
+        $query = $request->input('query');
+        $results = \DB::table('survivor')
+            ->where('fema_id', 'like', "%$query%")
+            ->orWhere(\DB::raw("CONCAT(fname, ' ', lname)"), 'like', "%$query%")
+            ->select('id', 'fema_id', \DB::raw("CONCAT(fname, ' ', lname) as name"))
+            ->get();
+        return response()->json($results);
     }
 }
