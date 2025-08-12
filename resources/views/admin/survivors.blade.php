@@ -29,46 +29,31 @@
                 </table>
                 <div id="filter-dropdown" class="dropdown-menu"
                     style="top: 40px; right: 0; left: auto; min-width: 160px; max-height: 300px; overflow-y: auto; position: absolute; z-index: 102;">
+                    @php
+                        $defaultChecked = ['name', 'fema_id', 'phone', 'hh_size', 'own_rent'];
+                        $shownLabels = [];
+                    @endphp
                     @foreach($fields as $field)
                         @php
-                            // Merge fname and lname as a single "name" checkbox
-                            if ($field === 'fname') {
-                                $defaultChecked = true;
+                            $label = match($field) {
+                                'fname', 'lname', 'name' => 'Name',
+                                'primary_phone', 'secondary_phone', 'phone' => 'Phone',
+                                'fema_id' => 'FEMA-ID',
+                                'hh_size' => 'HH Size',
+                                'own_rent' => 'Own/Rent',
+                                default => ucfirst(str_replace('_', ' ', $field)),
+                            };
+                            if(in_array($label, $shownLabels)) continue;
+                            $shownLabels[] = $label;
                         @endphp
                         <label style="display: flex; align-items: center; padding: 8px 15px; cursor: pointer;">
-                            <input type="checkbox" class="filter-field-checkbox" data-field="name" style="margin-right: 8px;" checked>
-                            Name
-                        </label>
-                        @php
-                                continue;
-                            }
-                            // Merge primary_phone and secondary_phone as a single "phone" checkbox
-                            if ($field === 'primary_phone') {
-                                $defaultChecked = true;
-                        @endphp
-                        <label style="display: flex; align-items: center; padding: 8px 15px; cursor: pointer;">
-                            <input type="checkbox" class="filter-field-checkbox" data-field="phone" style="margin-right: 8px;" checked>
-                            Phone
-                        </label>
-                        @php
-                                continue;
-                            }
-                            if ($field === 'secondary_phone' || $field === 'lname') continue;
-                            $defaultChecked = in_array($field, ['fema_id', 'address', 'hh_size', 'li_date']);
-                        @endphp
-                        <label style="display: flex; align-items: center; padding: 8px 15px; cursor: pointer;">
-                            <input type="checkbox" class="filter-field-checkbox" data-field="{{ $field }}" style="margin-right: 8px;" {{ $defaultChecked ? 'checked' : '' }}>
-                            @if($field === 'fema_id')
-                                FEMA-ID
-                            @elseif($field === 'hh_size')
-                                HH Size
-                            @elseif($field === 'own_rent')
-                                Own/Rent
-                            @else
-                                {{ ucfirst(str_replace('_', ' ', $field)) }}
-                            @endif
+                            <input type="checkbox" class="filter-field-checkbox" data-field="{{ $field }}" style="margin-right: 8px;" {{ in_array($field, $defaultChecked) ? 'checked' : '' }}>
+                            {{ $label }}
                         </label>
                     @endforeach
+                    <div class="filter-save-sticky">
+                        <button id="save-filter-fields" class="add-new-button" style="width: 100%;">Save</button>
+                    </div>
                 </div>
                 <!-- Hidden JSON data for survivors and fields -->
                 <script type="application/json" id="survivors-data">

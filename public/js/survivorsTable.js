@@ -1,3 +1,13 @@
+document.addEventListener('DOMContentLoaded', function() {
+    const savedFields = JSON.parse(localStorage.getItem('survivorsFilterFields') || '[]');
+    if (savedFields.length) {
+        document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
+            cb.checked = savedFields.includes(cb.getAttribute('data-field'));
+        });
+    }
+    renderTable();
+});
+
 document.querySelectorAll('.options-icon').forEach(icon => {
     icon.addEventListener('click', function () {
         const dropdown = this.querySelector('.dropdown-menu');
@@ -32,33 +42,35 @@ document.getElementById('search-input').addEventListener('keydown', function (ev
 });
 
 // --- Dynamic Table Rendering ---
-function renderTable() {
+function renderTable(useCheckboxes = false) {
     const survivors = JSON.parse(document.getElementById('survivors-data').textContent);
     const fields = JSON.parse(document.getElementById('fields-data').textContent);
-    const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox:checked')).map(cb => cb.dataset.field);
 
-    // Render header
+    let checkedFields;
+    const savedFields = JSON.parse(localStorage.getItem('survivorsFilterFields') || '[]');
+    if (!useCheckboxes && savedFields.length) {
+        checkedFields = savedFields;
+        document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
+            cb.checked = savedFields.includes(cb.getAttribute('data-field'));
+        });
+    } else {
+        checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox:checked')).map(cb => cb.dataset.field);
+    }
+
+    // --- Render header ---
     const headerRow = document.getElementById('dynamic-table-header');
     headerRow.innerHTML = '';
+    let renderedName = false, renderedPhone = false;
     checkedFields.forEach(field => {
         const th = document.createElement('th');
-        // Merge fname and lname into "Name" column
-        if (field === 'fname' || field === 'lname') {
-            if (!checkedFields.includes('name')) {
-                th.textContent = 'Name';
-                headerRow.appendChild(th);
-            }
-        } else if (field === 'name') {
+        if ((field === 'fname' || field === 'lname' || field === 'name') && !renderedName) {
             th.textContent = 'Name';
             headerRow.appendChild(th);
-        } else if (field === 'primary_phone' || field === 'secondary_phone') {
-            if (!checkedFields.includes('phone')) {
-                th.textContent = 'Phone';
-                headerRow.appendChild(th);
-            }
-        } else if (field === 'phone') {
+            renderedName = true;
+        } else if ((field === 'primary_phone' || field === 'secondary_phone' || field === 'phone') && !renderedPhone) {
             th.textContent = 'Phone';
             headerRow.appendChild(th);
+            renderedPhone = true;
         } else if (field === 'fema_id') {
             th.textContent = 'FEMA-ID';
             headerRow.appendChild(th);
@@ -68,7 +80,7 @@ function renderTable() {
         } else if (field === 'own_rent') {
             th.textContent = 'Own/Rent';
             headerRow.appendChild(th);
-        } else {
+        } else if (!['fname', 'lname', 'primary_phone', 'secondary_phone', 'name', 'phone'].includes(field)) {
             th.textContent = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             headerRow.appendChild(th);
         }
@@ -81,48 +93,38 @@ function renderTable() {
     </button>`;
     headerRow.appendChild(thOptions);
 
-    // Render body
+    // --- Render body ---
     const body = document.getElementById('dynamic-table-body');
     body.innerHTML = '';
     survivors.forEach(survivor => {
         const tr = document.createElement('tr');
-        let skipName = false;
-        let skipPhone = false;
+        let renderedNameCell = false, renderedPhoneCell = false;
         checkedFields.forEach(field => {
-            // Merge fname and lname into "Name" column
-            if ((field === 'fname' || field === 'lname') && !skipName) {
+            if ((field === 'fname' || field === 'lname' || field === 'name') && !renderedNameCell) {
                 const td = document.createElement('td');
                 td.textContent = (survivor.fname || '') + ' ' + (survivor.lname || '');
                 tr.appendChild(td);
-                skipName = true;
-            } else if (field === 'name') {
-                const td = document.createElement('td');
-                td.textContent = (survivor.fname || '') + ' ' + (survivor.lname || '');
-                tr.appendChild(td);
-            } else if ((field === 'primary_phone' || field === 'secondary_phone') && !skipPhone) {
+                renderedNameCell = true;
+            } else if ((field === 'primary_phone' || field === 'secondary_phone' || field === 'phone') && !renderedPhoneCell) {
                 const td = document.createElement('td');
                 td.innerHTML = (survivor.primary_phone || '') +
                     (survivor.secondary_phone ? '<br>' + survivor.secondary_phone : '');
                 tr.appendChild(td);
-                skipPhone = true;
-            } else if (field === 'phone') {
+                renderedPhoneCell = true;
+            } else if (field === 'fema_id') {
                 const td = document.createElement('td');
-                td.innerHTML = (survivor.primary_phone || '') +
-                    (survivor.secondary_phone ? '<br>' + survivor.secondary_phone : '');
+                td.textContent = survivor.fema_id || '';
                 tr.appendChild(td);
             } else if (field === 'hh_size') {
                 const td = document.createElement('td');
-                if (survivor['hh_size'] === null || survivor['hh_size'] === undefined) {
-                    td.innerHTML = '';
-                } else {
-                    td.innerHTML = `<span class="hh-size">${survivor['hh_size']}</span>`;
-                }
+                td.innerHTML = survivor.hh_size !== null && survivor.hh_size !== undefined
+                    ? `<span class="hh-size">${survivor.hh_size}</span>` : '';
                 tr.appendChild(td);
             } else if (field === 'own_rent') {
                 const td = document.createElement('td');
-                td.textContent = survivor['own_rent'] == 0 ? 'Own' : 'Rent';
+                td.textContent = survivor.own_rent == 0 ? 'Own' : 'Rent';
                 tr.appendChild(td);
-            } else if (field !== 'fname' && field !== 'lname' && field !== 'primary_phone' && field !== 'secondary_phone') {
+            } else if (!['fname', 'lname', 'primary_phone', 'secondary_phone', 'name', 'phone'].includes(field)) {
                 const td = document.createElement('td');
                 td.textContent = survivor[field] !== undefined ? survivor[field] : '';
                 tr.appendChild(td);
@@ -146,7 +148,7 @@ function renderTable() {
         body.appendChild(tr);
     });
 
-    // Re-bind filter button event after header re-render
+    // --- Re-bind filter and options events after header/body re-render ---
     setTimeout(() => {
         const filterBtn = document.getElementById('filter-button');
         if (filterBtn && !filterBtn._bound) {
@@ -160,8 +162,6 @@ function renderTable() {
             });
             filterBtn._bound = true;
         }
-
-        // Re-bind 3-dots options-icon click events after table re-render
         document.querySelectorAll('.options-icon').forEach(icon => {
             if (!icon._bound) {
                 icon.addEventListener('click', function (event) {
@@ -169,9 +169,7 @@ function renderTable() {
                     const dropdown = this.querySelector('.dropdown-menu');
                     const isActive = dropdown.classList.contains('active');
                     document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
-                    if (!isActive) {
-                        dropdown.classList.add('active');
-                    }
+                    if (!isActive) dropdown.classList.add('active');
                 });
                 icon._bound = true;
             }
@@ -179,20 +177,31 @@ function renderTable() {
     }, 0);
 }
 
-// Initial render
-renderTable();
-
-// Update table on checkbox change
+// --- Checkbox and Save Button Logic ---
 document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
-    cb.addEventListener('change', renderTable);
+    cb.addEventListener('change', function() {
+        renderTable(true); // Use current checkbox states, not localStorage
+    });
+});
+document.getElementById('save-filter-fields').addEventListener('click', function() {
+    const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox'))
+        .filter(cb => cb.checked)
+        .map(cb => cb.getAttribute('data-field'));
+    localStorage.setItem('survivorsFilterFields', JSON.stringify(checkedFields));
+    this.textContent = 'Saved!';
+    setTimeout(() => { this.textContent = 'Save'; }, 1000);
+    document.getElementById('filter-dropdown').classList.remove('active');
+    renderTable(); // Re-render table with saved fields
 });
 
-// Hide all dropdown menus when clicking outside
+// --- Dropdown Handling ---
+document.getElementById('filter-dropdown').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
 document.addEventListener('click', function (event) {
     if (!event.target.closest('#filter-button')) {
         document.getElementById('filter-dropdown').classList.remove('active');
     }
-    // Hide all row options dropdowns if clicking outside .options-icon
     if (!event.target.closest('.options-icon')) {
         document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
     }
