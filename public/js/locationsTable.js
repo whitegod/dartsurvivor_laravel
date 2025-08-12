@@ -1,48 +1,18 @@
 document.addEventListener('DOMContentLoaded', function () {
     const locations = JSON.parse(document.getElementById('locations-data').textContent);
     const fields = JSON.parse(document.getElementById('fields-data').textContent);
+
     const filterDropdown = document.getElementById('filter-dropdown');
     const headerRow = document.getElementById('dynamic-table-header');
     const body = document.getElementById('dynamic-table-body');
-    const searchInput = document.getElementById('search-input');
-    const searchBtn = document.getElementById('search-btn');
-    const addNewBtn = document.querySelector('.add-new-button');
 
-    // --- Render filter checkboxes dynamically ---
-    filterDropdown.innerHTML = '';
-    fields.forEach(field => {
-        const label = document.createElement('label');
-        label.style.display = 'flex';
-        label.style.alignItems = 'center';
-        label.style.padding = '8px 15px';
-        label.style.cursor = 'pointer';
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'filter-field-checkbox';
-        checkbox.dataset.field = field;
-        checkbox.checked = true;
-        checkbox.style.marginRight = '8px';
-
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(
-            field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-        ));
-        filterDropdown.appendChild(label);
-    });
-
-    // --- Filter dropdown toggle ---
-    document.addEventListener('click', function (event) {
-        const filterBtn = document.getElementById('filter-button');
-        if (filterBtn && filterBtn.contains(event.target)) {
-            filterDropdown.classList.toggle('active');
-            const rect = filterBtn.getBoundingClientRect();
-            filterDropdown.style.top = (rect.bottom + window.scrollY) + 'px';
-            filterDropdown.style.right = (window.innerWidth - rect.right) + 'px';
-        } else if (!event.target.closest('#filter-dropdown')) {
-            filterDropdown.classList.remove('active');
-        }
-    });
+    // --- Restore checkbox state from localStorage ---
+    const savedFields = JSON.parse(localStorage.getItem('locationsFilterFields') || '[]');
+    if (savedFields.length) {
+        document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
+            cb.checked = savedFields.includes(cb.getAttribute('data-field'));
+        });
+    }
 
     // --- Get checked fields ---
     function getCheckedFields() {
@@ -50,128 +20,117 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // --- Render table (header + body) ---
-    function renderTable(data) {
-        const checkedFields = getCheckedFields();
+    function renderTable(useCheckboxes = false) {
+        let checkedFields;
+        const savedFields = JSON.parse(localStorage.getItem('locationsFilterFields') || '[]');
+        if (!useCheckboxes && savedFields.length) {
+            checkedFields = savedFields;
+            document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
+                cb.checked = savedFields.includes(cb.getAttribute('data-field'));
+            });
+        } else {
+            checkedFields = getCheckedFields();
+        }
 
-        // Render header
+        // Header
         headerRow.innerHTML = '';
         checkedFields.forEach(field => {
             const th = document.createElement('th');
             th.textContent = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             headerRow.appendChild(th);
         });
-        // Add filter icon column
+        // Filter button
         const thOptions = document.createElement('th');
         thOptions.style.position = 'relative';
-        thOptions.innerHTML = `<button id="filter-button" type="button" style="background: none; border: none; cursor: pointer; padding: 0; margin: 0;">
-            <i class="fa fa-filter"></i>
+        thOptions.innerHTML = `<button id="filter-button" style="background: none; border: none; cursor: pointer; padding: 0; vertical-align: middle;">
+            <i class='fa fa-filter'></i>
         </button>`;
         headerRow.appendChild(thOptions);
 
-        // Attach dropdown toggle event after rendering header
-        const filterBtn = document.getElementById('filter-button');
-        if (filterBtn) {
-            filterBtn.addEventListener('click', function (event) {
-                event.stopPropagation();
-                filterDropdown.classList.toggle('active');
-                const rect = filterBtn.getBoundingClientRect();
-            });
-        }
-
-        // Render body
+        // Body
         body.innerHTML = '';
-        data.forEach(location => {
+        locations.forEach(location => {
             const tr = document.createElement('tr');
             checkedFields.forEach(field => {
-                const td = document.createElement('td');                
-                td.textContent = location[field] ?? '';
+                const td = document.createElement('td');
+                td.textContent = location[field] !== undefined ? location[field] : '';
                 tr.appendChild(td);
             });
-            // Options column with dropdown
+            // Options column
             const tdOptions = document.createElement('td');
             tdOptions.className = 'options-icon';
             tdOptions.style.position = 'relative';
-            tdOptions.innerHTML = `
-                <span style="cursor:pointer;font-size:22px;color:#888;">&#8942;</span>
+            tdOptions.innerHTML = `⋮
                 <div class="dropdown-menu" style="right:0; left:auto; min-width:120px; position:absolute;">
-                    <a href="/admin/locations/view?type=${encodeURIComponent(location.type)}&id=${location.id}">View</a>
-                    <a href="/admin/locations/edit?type=${encodeURIComponent(location.type)}&id=${location.id}">Edit</a>
-                    <form action="/admin/locations/delete/${location.id}?type=${encodeURIComponent(location.type)}" method="POST" style="margin: 0;">
+                    <a href="/admin/locations/view/${location.id}">View</a>
+                    <a href="/admin/locations/edit/${location.id}">Edit</a>
+                    <form action="/admin/locations/delete/${location.id}" method="POST" style="margin: 0;">
                         <input type="hidden" name="_token" value="${window.csrfToken}">
                         <input type="hidden" name="_method" value="DELETE">
-                        <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this record and all related rooms/units?');">Delete</button>
+                        <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
                     </form>
-                </div>
-            `;
+                </div>`;
             tr.appendChild(tdOptions);
             body.appendChild(tr);
         });
 
-        // Dropdown logic for options
-        document.querySelectorAll('.options-icon').forEach(icon => {
-            icon.addEventListener('click', function (e) {
-                e.stopPropagation();
-                const dropdown = this.querySelector('.dropdown-menu');
-                const isActive = dropdown.classList.contains('active');
-                document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
-                if (!isActive) {
-                    dropdown.classList.add('active');
+        // Re-bind filter button and options events
+        setTimeout(() => {
+            const filterBtn = document.getElementById('filter-button');
+            if (filterBtn && !filterBtn._bound) {
+                filterBtn.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    filterDropdown.classList.toggle('active');
+                });
+                filterBtn._bound = true;
+            }
+            document.querySelectorAll('.options-icon').forEach(icon => {
+                if (!icon._bound) {
+                    icon.addEventListener('click', function (event) {
+                        event.stopPropagation();
+                        const dropdown = this.querySelector('.dropdown-menu');
+                        const isActive = dropdown.classList.contains('active');
+                        document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
+                        if (!isActive) dropdown.classList.add('active');
+                    });
+                    icon._bound = true;
                 }
             });
+        }, 0);
+    }
+
+    // --- Checkbox and Save Button Logic ---
+    document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
+        cb.addEventListener('change', function() {
+            renderTable(true); // Use current checkbox states, not localStorage
+        });
+    });
+    const saveBtn = document.getElementById('save-filter-fields');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox'))
+                .filter(cb => cb.checked)
+                .map(cb => cb.getAttribute('data-field'));
+            localStorage.setItem('locationsFilterFields', JSON.stringify(checkedFields));
+            this.textContent = 'Saved!';
+            setTimeout(() => { this.textContent = 'Save'; }, 1000);
+            filterDropdown.classList.remove('active');
+            renderTable(); // Re-render table with saved fields
         });
     }
 
-    // Hide dropdown when clicking outside
+    // --- Dropdown Handling ---
+    filterDropdown.addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
     document.addEventListener('click', function (event) {
+        if (!event.target.closest('#filter-button')) {
+            filterDropdown.classList.remove('active');
+        }
         if (!event.target.closest('.options-icon')) {
             document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
         }
     });
-
-    // --- Filtering logic for search ---
-    function getFilteredLocations() {
-        const query = (searchInput.value || '').trim().toLowerCase();
-        const checkedFields = getCheckedFields();
-        if (!query) return locations;
-        return locations.filter(location =>
-            checkedFields.some(field =>
-                (location[field] + '').toLowerCase().includes(query)
-            )
-        );
-    }
-
-    // --- Event: filter checkboxes ---
-    filterDropdown.querySelectorAll('.filter-field-checkbox').forEach(cb => {
-        cb.addEventListener('change', function () {
-            renderTable(getFilteredLocations());
-        });
-    });
-
-    // --- Event: search button click ---
-    if (searchBtn) {
-        searchBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            renderTable(getFilteredLocations());
-        });
-    }
-
-    // --- Event: Enter key in search input ---
-    if (searchInput) {
-        searchInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                renderTable(getFilteredLocations());
-            }
-        });
-    }
-
-    // --- "Add New" button ---
-    if (addNewBtn) {
-        addNewBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            window.location.href = '/admin/locations/edit';
-        });
-    }
 
     // --- Initial render ---
     renderTable(locations);

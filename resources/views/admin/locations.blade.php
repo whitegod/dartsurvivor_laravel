@@ -11,7 +11,7 @@
             <div class="header">
                 <div class="search-container">
                     <input type="text" id="search-input" placeholder="Search">
-                    <button id="search-btn" class="filter-icon">
+                    <button id="search-button" class="filter-icon">
                         <i class="fa fa-filter"></i>
                     </button>
                 </div>
@@ -30,15 +30,20 @@
                     </tbody>
                 </table>
                 <!-- Filter Dropdown -->
+                @php
+                    $defaultChecked = $fields;
+                @endphp
                 <div id="filter-dropdown" class="dropdown-menu"
                     style="top: 40px; right: 0; left: auto; min-width: 160px; max-height: 300px; overflow-y: auto; position: absolute; z-index: 102;">
-                    <!-- Filter checkboxes go here -->
                     @foreach($fields as $field)
                     <label style="display: flex; align-items: center; padding: 8px 15px; cursor: pointer;">
-                        <input type="checkbox" class="filter-field-checkbox" data-field="{{ $field }}" style="margin-right: 8px;" checked>
+                        <input type="checkbox" class="filter-field-checkbox" data-field="{{ $field }}" style="margin-right: 8px;" {{ in_array($field, $defaultChecked) ? 'checked' : '' }}>
                         {{ ucfirst(str_replace('_', ' ', $field)) }}
                     </label>
                     @endforeach
+                    <div class="filter-save-sticky">
+                        <button id="save-filter-fields" class="add-new-button" style="width: 100%;">Save</button>
+                    </div>
                 </div>
                 <!-- Hidden JSON data for table and fields -->
                 <script type="application/json" id="locations-data">
