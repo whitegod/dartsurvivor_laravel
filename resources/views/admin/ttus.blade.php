@@ -26,12 +26,10 @@
                     @endphp
                     @foreach($fields as $field)
                         @php
-                            // Map DB field names to display names for the filter
                             $label = match($field) {
                                 'vin' => 'VIN - Last 7',
                                 'location' => 'Location',
                                 'address' => 'Address',
-                                // Map 'unit' to 'Unit' if present, else fallback to 'loc_id'
                                 'unit', 'loc_id' => 'Unit',
                                 'status' => 'Status (Color Code)',
                                 'total_beds' => 'Total Beds',
@@ -39,10 +37,14 @@
                             };
                         @endphp
                         <label style="display: flex; align-items: center; padding: 8px 15px; cursor: pointer;">
-                            <input type="checkbox" class="filter-field-checkbox" data-field="{{ $field }}" style="margin-right: 8px;" {{ in_array($field, $defaultChecked) ? 'checked' : '' }}>
+                            <input type="checkbox" class="filter-field-checkbox" data-field="{{ $field }}" style="margin-right: 8px;"
+                                {{ in_array($field, $defaultChecked) ? 'checked' : '' }}>
                             {{ $label }}
                         </label>
                     @endforeach
+                    <div class="filter-save-sticky">
+                        <button id="save-filter-fields" class="add-new-button" style="width: 100%;">Save</button>
+                    </div>
                 </div>
                 <table style="width:100%; margin-top: 0;">
                     <thead>

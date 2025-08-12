@@ -89,7 +89,7 @@ th {
 }
 
 .dropdown-menu a,
-.dropdown-menu button {
+.dropdown-menu button[type="submit"] {
     text-decoration: none;
     color: black;
     display: block;
@@ -102,7 +102,7 @@ th {
 }
 
 .dropdown-menu a:hover,
-.dropdown-menu button:hover {
+.dropdown-menu button[type="submit"]:hover {
     background-color: #f0f0f0;
     color: black;
 }
@@ -121,6 +121,29 @@ th {
 
 .btn-delete {
     color: red !important;
+}
+
+/* Sticky Filter Save */
+.filter-save-sticky {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    padding: 10px 10px 6px 10px;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+    z-index: 2;
+}
+
+/* --- Status Memo Tooltip --- */
+#status-memo-alert {
+    position: fixed;
+    background: #333;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    z-index: 9999;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 /* Responsive */

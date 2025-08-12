@@ -1,23 +1,54 @@
-document.querySelectorAll('.options-icon').forEach(icon => {
-    icon.addEventListener('click', function () {
-        const dropdown = this.querySelector('.dropdown-menu');
-        const isActive = dropdown.classList.contains('active');
-        document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
-        if (!isActive) {
-            dropdown.classList.add('active');
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    const savedFields = JSON.parse(localStorage.getItem('ttusFilterFields') || '[]');
+    if (savedFields.length) {
+        document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
+            cb.checked = savedFields.includes(cb.getAttribute('data-field'));
+        });
+    }
+
+    // Save button handler
+    document.getElementById('save-filter-fields').addEventListener('click', function() {
+        const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox'))
+            .filter(cb => cb.checked)
+            .map(cb => cb.getAttribute('data-field'));
+        localStorage.setItem('ttusFilterFields', JSON.stringify(checkedFields));
+        this.textContent = 'Saved!';
+        setTimeout(() => { this.textContent = 'Save'; }, 1000);
+
+        // Close the dropdown
+        document.getElementById('filter-dropdown').classList.remove('active');
     });
 });
 
+// --- Dropdown and Modal Handling ---
+function closeAllDropdowns() {
+    document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
+}
+document.querySelectorAll('.options-icon').forEach(icon => {
+    icon.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const dropdown = this.querySelector('.dropdown-menu');
+        const isActive = dropdown.classList.contains('active');
+        closeAllDropdowns();
+        if (!isActive) dropdown.classList.add('active');
+    });
+});
 document.addEventListener('click', function (event) {
-    if (!event.target.closest('.options-icon')) {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
-    }
+    if (!event.target.closest('.options-icon')) closeAllDropdowns();
+    if (!event.target.closest('#filter-button')) document.getElementById('filter-dropdown').classList.remove('active');
+});
+document.getElementById('filter-dropdown').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+function openModal() { document.getElementById('addNewModal').style.display = 'flex'; }
+function closeModal() { document.getElementById('addNewModal').style.display = 'none'; }
+window.addEventListener('click', function (event) {
+    const modal = document.getElementById('addNewModal');
+    if (event.target === modal) closeModal();
 });
 
+// --- Search Handling ---
 let globalSearchTerm = '';
-
-// Only search when button is clicked or Enter is pressed
 document.getElementById('search-button').addEventListener('click', function (event) {
     event.preventDefault();
     globalSearchTerm = document.getElementById('search-input').value.trim().toLowerCase();
@@ -31,47 +62,36 @@ document.getElementById('search-input').addEventListener('keydown', function (ev
     }
 });
 
-function openModal() {
-    document.getElementById('addNewModal').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('addNewModal').style.display = 'none';
-}
-
-// Close modal when clicking outside of it
-window.addEventListener('click', function (event) {
-    const modal = document.getElementById('addNewModal');
-    if (event.target === modal) {
-        closeModal();
-    }
-});
-
-function renderTable() {
+// --- Table Rendering ---
+function renderTable(useCheckboxes = false) {
     const ttus = JSON.parse(document.getElementById('ttus-data').textContent);
     const fields = JSON.parse(document.getElementById('fields-data').textContent);
-    const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox:checked')).map(cb => cb.dataset.field);
 
-    // Render header
+    let checkedFields;
+    const savedFields = JSON.parse(localStorage.getItem('ttusFilterFields') || '[]');
+    if (!useCheckboxes && savedFields.length) {
+        checkedFields = savedFields;
+        document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
+            cb.checked = savedFields.includes(cb.getAttribute('data-field'));
+        });
+    } else {
+        checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox:checked')).map(cb => cb.dataset.field);
+    }
+
+    // Header
     const headerRow = document.getElementById('dynamic-table-header');
     headerRow.innerHTML = '';
     checkedFields.forEach(field => {
         const th = document.createElement('th');
-        // Map DB field names to display names for the table header
-        if (field === 'vin') {
-            th.textContent = 'VIN - Last 7';
-        } else if (field === 'unit' || field === 'loc_id') {
-            th.textContent = 'Unit';
-        } else if (field === 'status') {
-            th.textContent = 'Status (Color Code)';
-        } else if (field === 'total_beds') {
-            th.textContent = 'Total Beds';
-        } else {
-            th.textContent = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        }
+        th.textContent = ({
+            vin: 'VIN - Last 7',
+            unit: 'Unit',
+            loc_id: 'Unit',
+            status: 'Status (Color Code)',
+            total_beds: 'Total Beds'
+        })[field] || field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         headerRow.appendChild(th);
     });
-    // Add options/filter column
     const thOptions = document.createElement('th');
     thOptions.style.position = 'relative';
     thOptions.innerHTML = `<button id="filter-button" style="background: none; border: none; cursor: pointer; padding: 0; vertical-align: middle;">
@@ -79,7 +99,7 @@ function renderTable() {
         </button>`;
     headerRow.appendChild(thOptions);
 
-    // Render body
+    // Body
     const body = document.getElementById('dynamic-table-body');
     body.innerHTML = '';
     ttus.filter(ttu => {
@@ -94,12 +114,10 @@ function renderTable() {
             if (field === 'vin') {
                 td.textContent = ttu.vin ? ttu.vin.slice(-7) : '';
             } else if (field === 'unit' || field === 'loc_id') {
-                // Show "Lot {unit/loc_id}" if present
                 td.textContent = ttu.unit !== undefined && ttu.unit !== null
                     ? 'Lot ' + ttu.unit
                     : (ttu.loc_id !== undefined && ttu.loc_id !== null ? 'Lot ' + ttu.loc_id : '');
             } else if (field === 'status') {
-                // Extract color code and status text from status string, e.g. "Demobilized (#ffd700)"
                 let colorMatch = ttu.status && ttu.status.match(/\(#([0-9a-fA-F]{6})\)/);
                 let color = colorMatch ? `#${colorMatch[1]}` : '#ccc';
                 let statusText = ttu.status ? ttu.status.replace(/\s*\(#([0-9a-fA-F]{6})\)\s*$/, '') : '';
@@ -133,7 +151,7 @@ function renderTable() {
         body.appendChild(tr);
     });
 
-    // Re-bind filter button event after header re-render
+    // Re-bind filter and options events after header/body re-render
     setTimeout(() => {
         const filterBtn = document.getElementById('filter-button');
         if (filterBtn && !filterBtn._bound) {
@@ -147,18 +165,14 @@ function renderTable() {
             });
             filterBtn._bound = true;
         }
-
-        // Re-bind 3-dots options-icon click events after table re-render
         document.querySelectorAll('.options-icon').forEach(icon => {
             if (!icon._bound) {
                 icon.addEventListener('click', function (event) {
                     event.stopPropagation();
                     const dropdown = this.querySelector('.dropdown-menu');
                     const isActive = dropdown.classList.contains('active');
-                    document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
-                    if (!isActive) {
-                        dropdown.classList.add('active');
-                    }
+                    closeAllDropdowns();
+                    if (!isActive) dropdown.classList.add('active');
                 });
                 icon._bound = true;
             }
@@ -166,40 +180,19 @@ function renderTable() {
     }, 0);
 }
 
-// Initial render
-renderTable();
-
-// Update table on checkbox change
+// --- Checkbox and Save Button Logic ---
 document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
-    cb.addEventListener('change', renderTable);
+    cb.addEventListener('change', function() {
+        renderTable(true);
+    });
 });
 
-// Hide all dropdown menus when clicking outside
-document.addEventListener('click', function (event) {
-    if (!event.target.closest('#filter-button')) {
-        document.getElementById('filter-dropdown').classList.remove('active');
-    }
-    // Hide all row options dropdowns if clicking outside .options-icon
-    if (!event.target.closest('.options-icon')) {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
-    }
-});
-
+// --- Status Memo Tooltip ---
 function showStatusMemo(el, text) {
     let memo = document.createElement('div');
     memo.id = 'status-memo-alert';
     memo.textContent = text;
-    memo.style.position = 'fixed';
-    memo.style.background = '#333';
-    memo.style.color = '#fff';
-    memo.style.padding = '6px 14px';
-    memo.style.borderRadius = '6px';
-    memo.style.fontSize = '14px';
-    memo.style.zIndex = 9999;
-    memo.style.pointerEvents = 'none';
-    memo.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
     document.body.appendChild(memo);
-
     function move(e) {
         memo.style.left = (e.clientX + 12) + 'px';
         memo.style.top = (e.clientY + 12) + 'px';
@@ -207,10 +200,11 @@ function showStatusMemo(el, text) {
     el._moveMemo = move;
     document.addEventListener('mousemove', move);
 }
-
 function hideStatusMemo() {
     let memo = document.getElementById('status-memo-alert');
     if (memo) memo.remove();
-    // Remove mousemove listener from all color blocks
     document.removeEventListener('mousemove', window._moveMemo);
 }
+
+// --- Initial Table Render ---
+renderTable();
