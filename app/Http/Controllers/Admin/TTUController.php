@@ -142,7 +142,8 @@ class TTUController extends Controller
 
     public function deleteTTU($id)
     {
-        $ttu = \App\TTU::findOrFail($id); // Find the record or throw a 404 error
+        $ttu = TTU::find($id);   
+        dd($ttu);
         $ttu->delete(); // Delete the record
 
         return redirect()->route('admin.ttus')->with('success', 'TTU record deleted successfully!');

@@ -143,7 +143,7 @@ function renderTable(useCheckboxes = false) {
                     <a href="/admin/ttus/edit/${ttu.id}">Edit</a>
                     <form action="/admin/ttus/delete/${ttu.id}" method="POST" style="margin: 0;">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                        <input type="hidden" name="_method" value="DELETE">
+                        
                         <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
                     </form>
                 </div>`;

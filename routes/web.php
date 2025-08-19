@@ -48,7 +48,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/admin/ttus/edit/{id?}', 'TTUController@ttusEdit')->name('admin.ttus.edit');
         Route::post('/admin/ttus/store', 'TTUController@storeTTU')->name('admin.ttus.store');
         Route::put('/admin/ttus/update/{id}', 'TTUController@updateTTU')->name('admin.ttus.update');
-        Route::delete('/admin/ttus/{id}', 'TTUController@deleteTTU')->name('admin.ttus.delete');
+        Route::post('/admin/ttus/delete/{id}', 'TTUController@deleteTTU')->name('admin.ttus.delete');
         Route::get('/admin/location-suggestions', 'TTUController@locationSuggestions')->name('admin.ttus.suggestions');
         Route::get('/admin/unit-suggestions', 'TTUController@unitSuggestions')->name('admin.ttus.unit_suggestions');
         Route::get('/admin/vendor-suggestions', 'TTUController@vendorSuggestions')->name('admin.ttus.vendor_suggestions');
