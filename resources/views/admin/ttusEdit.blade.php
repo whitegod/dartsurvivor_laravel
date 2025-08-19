@@ -233,6 +233,7 @@
                                 <td>{{ $label }}</td>
                                 <td>
                                     <label class="switch">
+                                        <input type="hidden" name="{{ $field }}" value="0">
                                         <input type="checkbox" name="{{ $field }}" value="1"
                                             {{ old($field, $ttu->$field ?? false) ? 'checked' : '' }}
                                             {{ !empty($readonly) ? 'disabled' : '' }}>
@@ -263,6 +264,7 @@
                                 <td>{{ $label }}</td>
                                 <td>
                                     <label class="switch">
+                                        <input type="hidden" name="{{ $field }}" value="0">
                                         <input type="checkbox" name="{{ $field }}" value="1"
                                             {{ old($field, $ttu->$field ?? false) ? 'checked' : '' }}
                                             {{ !empty($readonly) ? 'disabled' : '' }}>
