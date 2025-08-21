@@ -60,9 +60,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/admin/locations/edit/{id?}', 'LocationController@locationEdit')->name('admin.locations.edit');
         Route::put('/admin/locations/update/{id}', 'LocationController@locationUpdate')->name('admin.locations.update');
         Route::post('/admin/locations/store', 'LocationController@locationStore')->name('admin.locations.store');
-        Route::delete('/admin/locations/delete/{id}', 'LocationController@deleteLocation')->name('admin.locations.delete');
+        Route::post('/admin/locations/delete/{id}', 'LocationController@deleteLocation')->name('admin.locations.delete');
         Route::post('/admin/rooms/update/{id}', 'LocationController@roomUpdate')->name('admin.rooms.update');
+        Route::post('/admin/rooms/delete/{id}', 'LocationController@roomDelete')->name('admin.rooms.delete');
         Route::post('/admin/lodge_units/update/{id}', 'LocationController@lodgeUnitUpdate')->name('admin.lodge_units.update');
+        Route::post('/admin/lodge_units/delete/{id}', 'LocationController@lodgeUnitDelete')->name('admin.lodge_units.delete');
 
         Route::get('/admin/user_permissions', 'UserController@userPermissions')->name('admin.user_permissions');
         Route::post('/admin/user_permissions/add', 'UserController@addUser')->name('admin.user_permissions.add');

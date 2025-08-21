@@ -285,6 +285,16 @@ class LocationController extends Controller
         return redirect()->back()->with('success', 'Room updated!');
     }
 
+    public function roomDelete($id)
+    {
+        \Log::info("Trying to delete room: $id");
+        $room = \App\Room::find($id);
+        if ($room) {
+            $room->delete();
+        }
+        return redirect()->back()->with('success', 'Room deleted successfully!');
+    }
+
     public function lodgeUnitUpdate(Request $request, $id) {
         $request->validate([
             'number' => 'required|string|max:255',
@@ -295,5 +305,14 @@ class LocationController extends Controller
             'unit_type' => $request->unit_type,
         ]);
         return redirect()->back()->with('success', 'Lodge unit updated!');
+    }
+
+    public function lodgeUnitDelete($id)
+    {
+        $unit = \App\LodgeUnit::find($id);
+        if ($unit) {
+            $unit->delete();
+        }
+        return redirect()->back()->with('success', 'Lodge unit deleted successfully!');
     }
 }

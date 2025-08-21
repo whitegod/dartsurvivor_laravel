@@ -70,3 +70,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    var typeSelect = document.getElementById('type');
+    var privatesiteSection = document.getElementById('privatesite-section');
+
+    function togglePrivatesiteSection() {
+        if (typeSelect && privatesiteSection) {
+            if (typeSelect.value === 'privatesite') {
+                privatesiteSection.style.display = '';
+            } else {
+                privatesiteSection.style.display = 'none';
+            }
+        }
+    }
+
+    if (typeSelect) {
+        typeSelect.addEventListener('change', togglePrivatesiteSection);
+        // Initial check on page load
+        togglePrivatesiteSection();
+    }
+});

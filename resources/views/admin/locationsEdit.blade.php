@@ -44,217 +44,123 @@
                         </div>
                         <div class="form-group" style="flex: 1;">
                             <label for="phone">Phone #</label>
-                            <input type="text" name="phone" id="phone" value="{{ old('phone', $location->phone ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                            <input type="text" name="phone" id="phone" required value="{{ old('phone', $location->phone ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
                         <div class="form-group" style="flex: 1;">
                             <label for="contact_name">Contact Name</label>
-                            <input type="text" name="contact_name" id="contact_name" value="{{ old('contact_name', $location->contact_name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                            <input type="text" name="contact_name" id="contact_name" required value="{{ old('contact_name', $location->contact_name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                         </div>
                     </div>
                 @elseif(($type ?? '') === 'privatesite')
                     <input type="hidden" name="type" value="privatesite">
                 @endif
 
-                {{-- Show rooms or lodge_units --}}
-                @if(isset($location) && (($type === 'hotel' && isset($rooms)) || ($type === 'statepark' && isset($lodge_units))))
-                    @php
-                        $ishotel = $type === 'hotel';
-                        $items = $ishotel ? $rooms : $lodge_units;
-                        $numberLabel = $ishotel ? 'Room #' : 'Unit #';
-                        $addBtnId = $ishotel ? 'addRoomButton' : 'addUnitButton';
-                        $title = $ishotel ? 'Rooms' : 'Lodge Units';
-                    @endphp
-                    <div class="form-section" style="margin-bottom: 24px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <h4>{{ $title }}</h4>
-                            @if(empty($readonly))
-                                <a class="add-new-button" id="{{ $addBtnId }}">Add New</a>
-                            @endif
-                        </div>
+                <div id="privatesite-section" class="form-row" style="align-items: unset">
+                    <div class="column">
                         <table>
-                            <thead>
-                                <tr>
-                                    @if(!$ishotel)
-                                        <th>Unit Type</th>
-                                    @endif
-                                    <th>{{ $numberLabel }}</th>
-                                    <th>Survivor</th>
-                                    <th>HH Size</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($items as $item)
-                                    <tr>
-                                        @if(!$ishotel)
-                                            <td>{{ $item->unit_type ?? '-' }}</td>
-                                        @endif
-                                        <td>{{ $ishotel ? $item->room_num : $item->unit_name }}</td>
-                                        <td>
-                                            @if(!empty($item->fname) && !empty($item->lname) && isset($item->id))
-                                                <a href="{{ route('admin.survivors.view', $item->id) }}">
-                                                    {{ $item->survivor_name }}
-                                                </a>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>{{ $item->hh_size ?? '-' }}</td>
-                                        <td>
-                                            <button type="button"
-                                                class="btn btn-sm btn-primary edit-unit-btn"
-                                                data-id="{{ $item->room_id ?? $item->lodge_unit_id ?? '' }}"
-                                                data-type="{{ $ishotel ? 'hotel' : 'statepark' }}"
-                                                data-unit="{{ $ishotel ? $item->room_num : $item->unit_name }}"
-                                                @if(!$ishotel)
-                                                    data-unit-type="{{ $item->unit_type ?? '' }}"
-                                                @endif
-                                            >
-                                                Edit
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
+                            @php
+                                $siteFeatureMap = [
+                                    'Power' => 'pow',
+                                    'Water' => 'h2o',
+                                    'Sewage' => 'sew',
+                                    'Own Property' => 'own',
+                                    'Residential' => 'res',
+                                ];
+                            @endphp
+                            @foreach($siteFeatureMap as $label => $field)
+                            <tr>
+                                <td>{{ $label }}</td>
+                                <td>
+                                    <label class="switch">
+                                        <input type="checkbox" name="{{ $field }}" value="1"
+                                            {{ old($field, $privatesite->$field ?? false) ? 'checked' : '' }}
+                                            {{ !empty($readonly) ? 'disabled' : '' }}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            @endforeach
                         </table>
                     </div>
-                @endif
-
-                {{-- Only show privatesite-section if type is privatesite --}}
-                @if(($type ?? '') === 'privatesite')
-                    <input type="hidden" name="type" value="privatesite">
-                    <div id="privatesite-section" class="form-row" style="align-items: unset">
-                        <div class="column">
-                            <div>
-                                <div class="form-group">
-                                    <label for="name">Name:</label>
-                                    <input type="text" id="name" name="name" value="{{ old('name', $privatesite->name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                                </div>
-                                <div class="form-group">
-                                    <label for="address">Address:</label>
-                                    <input type="text" id="address" name="address" value="{{ old('address', $privatesite->address ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                                </div>
-                                <div class="form-group">
-                                    <label for="phone">Phone:</label>
-                                    <input type="text" id="phone" name="phone" value="{{ old('phone', $privatesite->phone ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                                </div>
+                    <div class="form-column">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="damage_assessment">Damage Assessment:</label>
+                                <textarea id="damage_assessment" name="damage_assessment" {{ !empty($readonly) ? 'readonly' : '' }}>{{ old('damage_assessment', $privatesite->damage_assessment ?? '') }}</textarea>
                             </div>
-                            <table>
-                                @php
-                                    $siteFeatureMap = [
-                                        'Power' => 'pow',
-                                        'Water' => 'h2o',
-                                        'Sewage' => 'sew',
-                                        'Own Property' => 'own',
-                                        'Residential' => 'res',
-                                    ];
-                                @endphp
-                                @foreach($siteFeatureMap as $label => $field)
-                                <tr>
-                                    <td>{{ $label }}</td>
-                                    <td>
-                                        <label class="switch">
-                                            <input type="checkbox" name="{{ $field }}" value="1"
-                                                {{ old($field, $privatesite->$field ?? false) ? 'checked' : '' }}
-                                                {{ !empty($readonly) ? 'disabled' : '' }}>
-                                            <span class="slider"></span>
-                                        </label>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </table>
                         </div>
-                        <div class="form-column">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="damage_assessment">Damage Assessment:</label>
-                                    <textarea id="damage_assessment" name="damage_assessment" {{ !empty($readonly) ? 'readonly' : '' }}>{{ old('damage_assessment', $privatesite->damage_assessment ?? '') }}</textarea>
-                                </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ehp">EHP:</label>
+                                <input type="text" id="ehp" name="ehp" value="{{ old('ehp', $privatesite->ehp ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="ehp">EHP:</label>
-                                    <input type="text" id="ehp" name="ehp" value="{{ old('ehp', $privatesite->ehp ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                                </div>
-                                <div class="form-group">
-                                    <label for="ehp_notes">EHP Notes:</label>
-                                    <textarea id="ehp_notes" name="ehp_notes" {{ !empty($readonly) ? 'readonly' : '' }}>{{ old('ehp_notes', $privatesite->ehp_notes ?? '') }}</textarea>
-                                </div>
+                            <div class="form-group">
+                                <label for="ehp_notes">EHP Notes:</label>
+                                <textarea id="ehp_notes" name="ehp_notes" {{ !empty($readonly) ? 'readonly' : '' }}>{{ old('ehp_notes', $privatesite->ehp_notes ?? '') }}</textarea>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="dow_long">DOW Longitude:</label>
-                                    <input type="text" id="dow_long" name="dow_long" value="{{ old('dow_long', $privatesite->dow_long ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                                </div>
-                                <div class="form-group">
-                                    <label for="dow_lat">DOW Latitude:</label>
-                                    <input type="text" id="dow_lat" name="dow_lat" value="{{ old('dow_lat', $privatesite->dow_lat ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                                </div>
-                                <div class="form-group">
-                                    <label for="zon">Zoning:</label>
-                                    <input type="text" id="zon" name="zon" value="{{ old('zon', $privatesite->zon ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                                </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dow_long">DOW Longitude:</label>
+                                <input type="text" id="dow_long" name="dow_long" value="{{ old('dow_long', $privatesite->dow_long ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="dow_response">DOW Response:</label>
-                                    <textarea id="dow_response" name="dow_response" {{ !empty($readonly) ? 'readonly' : '' }}>{{ old('dow_response', $privatesite->dow_response ?? '') }}</textarea>
-                                </div>
+                            <div class="form-group">
+                                <label for="dow_lat">DOW Latitude:</label>
+                                <input type="text" id="dow_lat" name="dow_lat" value="{{ old('dow_lat', $privatesite->dow_lat ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                             </div>
-                            @if($type === 'privatesite' && isset($privatesite))
-                                <div class="form-section" style="margin-bottom: 24px;">
-                                    <h4>Assigned TTU</h4>
-                                    @if(isset($ttu))
-                                        <div class="form-row" style="align-items: flex-end">
-                                            <div class="form-group">
-                                                <label for="vin">VIN:</label>
-                                                <input type="text" id="vin" name="vin" value="{{ $ttu->vin ?? '-' }}" readonly>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="status">Status:</label>
-                                                @php
-                                                    // Example: $status = "Occupied (#ffc107)"
-                                                    $statusRaw = $ttu->status ?? '-';
-                                                    $status = $statusRaw;
-                                                    $color = '#888';
-
-                                                    // Extract color code from status string if present in parentheses
-                                                    if (preg_match('/\((#[0-9a-fA-F]{6})\)/', $statusRaw, $matches)) {
-                                                        $color = $matches[1];
-                                                        // Remove the color code from the status string for display
-                                                        $status = trim(str_replace($matches[0], '', $statusRaw));
-                                                    }
-                                                @endphp
-                                                <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:{{ $color }}; margin-right:8px; vertical-align:middle;"></span>
-                                                <input type="text" id="status" name="status" value="{{ $status }}" readonly style="width:auto; display:inline-block;">
-                                            </div>                                           
-                                            <button class="btn btn-primary" type="button" style="margin-bottom: 10px"
-                                                onclick="window.location.href='{{ route('admin.ttus.view', $ttu->id) }}'">
-                                                Go-to Record
-                                            </button>
+                            <div class="form-group">
+                                <label for="zon">Zoning:</label>
+                                <input type="text" id="zon" name="zon" value="{{ old('zon', $privatesite->zon ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dow_response">DOW Response:</label>
+                                <textarea id="dow_response" name="dow_response" {{ !empty($readonly) ? 'readonly' : '' }}>{{ old('dow_response', $privatesite->dow_response ?? '') }}</textarea>
+                            </div>
+                        </div>
+                        @if($type === 'privatesite' && isset($privatesite))
+                            <div class="form-section" style="margin-bottom: 24px;">
+                                <h4>Assigned TTU</h4>
+                                @if(isset($ttu))
+                                    <div class="form-row" style="align-items: flex-end">
+                                        <div class="form-group">
+                                            <label for="vin">VIN:</label>
+                                            <input type="text" id="vin" name="vin" value="{{ $ttu->vin ?? '-' }}" readonly>
                                         </div>
-                                    @else
-                                        <div>No TTU assigned to this Private Site.</div>
-                                    @endif
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                @endif
+                                        <div class="form-group">
+                                            <label for="status">Status:</label>
+                                            @php
+                                                // Example: $status = "Occupied (#ffc107)"
+                                                $statusRaw = $ttu->status ?? '-';
+                                                $status = $statusRaw;
+                                                $color = '#888';
 
-                <div class="form-footer">
-                    <div class="info">
-                        <div>
-                            <span>Authored by:</span>
-                            <span>{{ $location->author ?? '' }}</span>
-                        </div>
-                        @if(isset($location))
-                            <div style="display: flex; gap: 40px;">
-                                <span>Created: {{ $location->created_at }}</span>
-                                <span>Last Edited: {{ $location->updated_at }}</span>
+                                                // Extract color code from status string if present in parentheses
+                                                if (preg_match('/\((#[0-9a-fA-F]{6})\)/', $statusRaw, $matches)) {
+                                                    $color = $matches[1];
+                                                    // Remove the color code from the status string for display
+                                                    $status = trim(str_replace($matches[0], '', $statusRaw));
+                                                }
+                                            @endphp
+                                            <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:{{ $color }}; margin-right:8px; vertical-align:middle;"></span>
+                                            <input type="text" id="status" name="status" value="{{ $status }}" readonly style="width:auto; display:inline-block;">
+                                        </div>                                           
+                                        <button class="btn btn-primary" type="button" style="margin-bottom: 10px"
+                                            onclick="window.location.href='{{ route('admin.ttus.view', $ttu->id) }}'">
+                                            Go-to Record
+                                        </button>
+                                    </div>
+                                @else
+                                    <div>No TTU assigned to this Private Site.</div>
+                                @endif
                             </div>
                         @endif
                     </div>
+                </div>
+
+                <div class="form-footer">
+                    <div></div>
                     <div class="buttons">
                         @if(!empty($readonly))
                             <button type="button" class="btn btn-cancel" onclick="window.history.back();" style="margin-right: 16px;">Back</button>
@@ -266,6 +172,101 @@
                     </div>
                 </div>
             </form>
+
+            {{-- Show rooms or lodge_units --}}
+            @if(isset($location) && (($type === 'hotel' && isset($rooms)) || ($type === 'statepark' && isset($lodge_units))))
+                @php
+                    $ishotel = $type === 'hotel';
+                    $items = $ishotel ? $rooms : $lodge_units;
+                    $numberLabel = $ishotel ? 'Room #' : 'Unit #';
+                    $addBtnId = $ishotel ? 'addRoomButton' : 'addUnitButton';
+                    $title = $ishotel ? 'Rooms' : 'Lodge Units';
+                @endphp
+                <div class="form-section" style="margin: 24px 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4>{{ $title }}</h4>
+                        @if(empty($readonly))
+                            <a class="add-new-button" id="{{ $addBtnId }}">Add New</a>
+                        @endif
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                @if(!$ishotel)
+                                    <th>Unit Type</th>
+                                @endif
+                                <th>{{ $numberLabel }}</th>
+                                <th>Survivor</th>
+                                <th>HH Size</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($items as $item)
+                                <tr>
+                                    @if(!$ishotel)
+                                        <td>{{ $item->unit_type ?? '-' }}</td>
+                                    @endif
+                                    <td>{{ $ishotel ? $item->room_num : $item->unit_name }}</td>
+                                    <td>
+                                        @if(!empty($item->fname) && !empty($item->lname) && isset($item->id))
+                                            <a href="{{ route('admin.survivors.view', $item->id) }}">
+                                                {{ $item->survivor_name }}
+                                            </a>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td>{{ $item->hh_size ?? '-' }}</td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                            class="btn btn-sm btn-primary edit-unit-btn"
+                                            data-id="{{ $item->room_id ?? $item->lodge_unit_id ?? '' }}"
+                                            data-type="{{ $ishotel ? 'hotel' : 'statepark' }}"
+                                            data-unit="{{ $ishotel ? $item->room_num : $item->unit_name }}"
+                                            @if(!$ishotel)
+                                                data-unit-type="{{ $item->unit_type ?? '' }}"
+                                            @endif
+                                        >
+                                            Edit
+                                        </button>
+                                        <form method="POST"
+                                            action="{{ $ishotel
+                                                ? route('admin.rooms.delete', $item->room_id)
+                                                : route('admin.lodge_units.delete', $item->lodge_unit_id) }}"
+                                            style="display:inline;">
+                                            @csrf
+                                            <button type="submit"
+                                                class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Are you sure you want to remove this {{ $ishotel ? 'room' : 'unit' }}?');">
+                                                Remove
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif            
+
+
+            <div>
+                <div class="info">
+                    <div>
+                        <span>Authored by:</span>
+                        <span>{{ $location->author ?? '' }}</span>
+                    </div>
+                    @if(isset($location))
+                        <div style="display: flex; gap: 40px;">
+                            <span>Created: {{ $location->created_at }}</span>
+                            <span>Last Edited: {{ $location->updated_at }}</span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+
             {{-- Room/Unit Modal OUTSIDE the main form --}}
             @if(isset($location))
             <div id="roomUnitModal" class="modal">
@@ -309,6 +310,7 @@
 
 <script>
     window.locationType = @json($type ?? '');
+    window.csrfToken = "{{ csrf_token() }}";
 </script>
 <script src="{{ asset('js/locationsEdit.js') }}"></script>
 @endsection
