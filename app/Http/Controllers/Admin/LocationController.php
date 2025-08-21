@@ -78,9 +78,8 @@ class LocationController extends Controller
         return view('admin.locations', compact('locations', 'fields'));
     }
 
-    public function locationEdit(Request $request)
+    public function locationEdit(Request $request, $id)
     {
-        $id = $request->query('id');
         $type = $request->query('type');
         $location = null;
         $rooms = null;
@@ -228,9 +227,8 @@ class LocationController extends Controller
         return redirect()->back()->with('success', 'Lodge Unit added successfully!');
     }
 
-    public function locationView(Request $request)
+    public function locationView(Request $request, $id)
     {
-        $id = $request->query('id');
         $type = $request->query('type');
         $location = null;
         $rooms = null;

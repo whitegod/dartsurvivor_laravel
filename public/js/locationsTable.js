@@ -62,8 +62,8 @@ document.addEventListener('DOMContentLoaded', function () {
             tdOptions.style.position = 'relative';
             tdOptions.innerHTML = `⋮
                 <div class="dropdown-menu" style="right:0; left:auto; min-width:120px; position:absolute;">
-                    <a href="/admin/locations/view/${location.id}">View</a>
-                    <a href="/admin/locations/edit/${location.id}">Edit</a>
+                    <a href="/admin/locations/view/${location.id}?type=${location.type}">View</a>
+                    <a href="/admin/locations/edit/${location.id}?type=${location.type}">Edit</a>
                     <form action="/admin/locations/delete/${location.id}" method="POST" style="margin: 0;">
                         <input type="hidden" name="_token" value="${window.csrfToken}">
                         <input type="hidden" name="_method" value="DELETE">

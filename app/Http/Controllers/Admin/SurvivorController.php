@@ -457,7 +457,21 @@ class SurvivorController extends Controller
 
     public function deleteSurvivor($id)
     {
-        \DB::table('survivor')->where('id', $id)->delete(); // changed from 'survivors'
+        $survivor = \App\Survivor::find($id);
+
+        if ($survivor) {
+            // Remove survivor_id from TTU table
+            \App\TTU::where('survivor_id', $survivor->id)->update(['survivor_id' => null]);
+
+            // Remove survivor_id from Room table
+            \App\Room::where('survivor_id', $survivor->id)->update(['survivor_id' => null]);
+
+            // Remove survivor_id from lodge_unit table
+            \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->update(['survivor_id' => null]);
+
+            // Delete the survivor record
+            $survivor->delete();
+        }
 
         return redirect()->route('admin.survivors')->with('success', 'Survivor deleted successfully!');
     }

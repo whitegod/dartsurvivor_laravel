@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use DB;
 use App\Privatesite; 
+use App\TTU;
 
 class TTUController extends Controller
 {
@@ -142,9 +143,17 @@ class TTUController extends Controller
 
     public function deleteTTU($id)
     {
-        $ttu = TTU::find($id);   
-        dd($ttu);
-        $ttu->delete(); // Delete the record
+        $ttu = TTU::find($id); 
+        if ($ttu) {
+            // Remove TTU reference from privatesite table
+            \DB::table('privatesite')->where('ttu_id', $ttu->id)->update(['ttu_id' => null]);
+
+            // Remove TTU reference from transfer table
+            \DB::table('transfer')->where('ttu_id', $ttu->id)->update(['ttu_id' => null]);
+
+            // Delete the TTU record
+            $ttu->delete();
+        }
 
         return redirect()->route('admin.ttus')->with('success', 'TTU record deleted successfully!');
     }

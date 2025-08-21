@@ -139,8 +139,7 @@ function renderTable(useCheckboxes = false) {
                 <a href="/admin/survivors/view/${survivor.id}">View</a>
                 <a href="/admin/survivors/edit/${survivor.id}">Edit</a>
                 <form action="/admin/survivors/delete/${survivor.id}" method="POST" style="margin: 0;">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="_method" value="DELETE">
+                    <input type="hidden" name="_token" value="${window.csrfToken}">
                     <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
                 </form>
             </div>`;
