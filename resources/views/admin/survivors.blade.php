@@ -17,7 +17,7 @@
             </div>
 
             <div style="position: relative;">
-                <table style="width:100%; margin-top: 0; min-width: 900px;">
+                <table style="width:100%; margin-bottom: 50px; min-width: 900px;">
                     <thead>
                         <tr id="dynamic-table-header">
                             <!-- Dynamic header will be rendered here -->

@@ -46,7 +46,7 @@
                         <button id="save-filter-fields" class="add-new-button" style="width: 100%;">Save</button>
                     </div>
                 </div>
-                <table style="width:100%; margin-top: 0;">
+                <table style="width:100%; margin-bottom: 50px;">
                     <thead>
                         <tr id="dynamic-table-header">
                             <!-- Dynamic header will be rendered here -->

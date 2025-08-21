@@ -13,49 +13,37 @@
             ? route('admin.locations.update', $privatesite->id) 
             : (isset($location) ? route('admin.locations.update', $location->id) : route('admin.locations.store')) }}">
                 @csrf
-                @if(($type ?? '') === 'privatesite' && isset($privatesite))
-                    @method('PUT')
-                @elseif(isset($location))
+                @if(isset($location) || isset($privatesite))
                     @method('PUT')
                 @endif
-                {{-- Only show the top row for hotel or statepark --}}
-                @if(($type ?? '') !== 'privatesite')
-                    <div class="form-row" style="display: flex; gap: 24px; margin-bottom: 24px;">
-                        @if(isset($location))
-                            <input type="hidden" name="type" value="{{ $type }}">
-                        @else
-                            <div class="form-group" style="flex: 1;">
-                                <label for="type">Location Type</label>
-                                <select name="type" id="type" required {{ !empty($readonly) ? 'disabled' : '' }}>
-                                    <option value="">Select Type</option>
-                                    <option value="hotel" {{ (old('type', $type ?? '') == 'hotel') ? 'selected' : '' }}>hotel</option>
-                                    <option value="statepark" {{ (old('type', $type ?? '') == 'statepark') ? 'selected' : '' }}>statepark</option>
-                                    <option value="privatesite" {{ (old('type', $type ?? '') == 'privatesite') ? 'selected' : '' }}>privatesite</option>
-                                </select>
-                            </div>
-                        @endif
-                        <div class="form-group" style="flex: 1;">
-                            <label for="name">Location Name</label>
-                            <input type="text" name="name" id="name" required value="{{ old('name', $location->name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                        </div>
-                        <div class="form-group" style="flex: 1;">
-                            <label for="address">Address</label>
-                            <input type="text" name="address" id="address" required value="{{ old('address', $location->address ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                        </div>
-                        <div class="form-group" style="flex: 1;">
-                            <label for="phone">Phone #</label>
-                            <input type="text" name="phone" id="phone" required value="{{ old('phone', $location->phone ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                        </div>
-                        <div class="form-group" style="flex: 1;">
-                            <label for="contact_name">Contact Name</label>
-                            <input type="text" name="contact_name" id="contact_name" required value="{{ old('contact_name', $location->contact_name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
-                        </div>
+                <div class="form-row" style="display: flex; gap: 24px; margin-bottom: 24px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="type">Location Type</label>
+                        <select name="type" id="type" required {{ (isset($location) || isset($privatesite)) ? 'disabled' : '' }}>
+                            <option value="">Select Type</option>
+                            <option value="hotel" {{ (old('type', $type ?? '') == 'hotel') ? 'selected' : '' }}>hotel</option>
+                            <option value="statepark" {{ (old('type', $type ?? '') == 'statepark') ? 'selected' : '' }}>statepark</option>
+                            <option value="privatesite" {{ (old('type', $type ?? '') == 'privatesite') ? 'selected' : '' }}>privatesite</option>
+                        </select>
                     </div>
-                @elseif(($type ?? '') === 'privatesite')
-                    <input type="hidden" name="type" value="privatesite">
-                @endif
-
-                <div id="privatesite-section" class="form-row" style="align-items: unset">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="name">Location Name</label>
+                        <input type="text" name="name" id="name" required value="{{ old('name', $location->name ?? $privatesite->name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="address">Address</label>
+                        <input type="text" name="address" id="address" required value="{{ old('address', $location->address ?? $privatesite->address ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="phone">Phone #</label>
+                        <input type="text" name="phone" id="phone" required value="{{ old('phone', $location->phone ?? $privatesite->phone ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="contact_name">Contact Name</label>
+                        <input type="text" name="contact_name" id="contact_name" required value="{{ old('contact_name', $location->contact_name ?? $privatesite->contact_name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+                </div>
+                <div id="privatesite-section" class="form-row"  style="align-items: unset">
                     <div class="column">
                         <table>
                             @php
@@ -158,7 +146,6 @@
                         @endif
                     </div>
                 </div>
-
                 <div class="form-footer">
                     <div></div>
                     <div class="buttons">

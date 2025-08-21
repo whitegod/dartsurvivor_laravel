@@ -174,6 +174,25 @@ class LocationController extends Controller
             \DB::table('hotel')->insert($data);
         } elseif ($type === 'statepark') {
             \DB::table('statepark')->insert($data);
+        } elseif ($type === 'privatesite') {
+            $privatesiteData = [
+                'name' => $request->input('name'),
+                'address' => $request->input('address'),
+                'phone' => $request->input('phone'),
+                'pow' => $request->has('pow') ? 1 : 0,
+                'h2o' => $request->has('h2o') ? 1 : 0,
+                'sew' => $request->has('sew') ? 1 : 0,
+                'own' => $request->has('own') ? 1 : 0,
+                'res' => $request->has('res') ? 1 : 0,
+                'damage_assessment' => $request->input('damage_assessment'),
+                'ehp' => $request->input('ehp'),
+                'ehp_notes' => $request->input('ehp_notes'),
+                'dow_long' => $request->input('dow_long'),
+                'dow_lat' => $request->input('dow_lat'),
+                'zon' => $request->input('zon'),
+                'dow_response' => $request->input('dow_response'),
+            ];
+            \DB::table('privatesite')->insert($privatesiteData);
         }
         return redirect()->route('admin.locations')->with('success', 'Location added!');
     }
@@ -181,7 +200,6 @@ class LocationController extends Controller
     public function deleteLocation($id, Request $request)
     {
         $type = $request->query('type');
-        \Log::info("DeleteLocation called for id=$id, type=$type");
 
         if ($type === 'hotel') {
             \DB::table('room')->where('hotel_id', $id)->delete();
@@ -189,6 +207,8 @@ class LocationController extends Controller
         } elseif ($type === 'statepark') {
             \DB::table('lodge_unit')->where('statepark_id', $id)->delete();
             \DB::table('statepark')->where('id', $id)->delete();
+        } elseif ($type === 'privatesite') {
+            \DB::table('privatesite')->where('id', $id)->delete();
         }
         return redirect()->route('admin.locations')->with('success', 'Location and related units deleted!');
     }
