@@ -339,11 +339,11 @@
                             <div class="remarks">
                                 <div>
                                     <label for="remarks">Remarks:</label>
-                                    <textarea id="remarks" name="remarks" {{ !empty($readonly) ? 'readonly disabled' : '' }}></textarea>
+                                    <textarea id="remarks" name="remarks" {{ !empty($readonly) ? 'readonly disabled' : '' }}>{{ old('remarks', $ttu->remarks ?? '') }}</textarea>
                                 </div>
                                 <div>
                                     <label for="comments">Comments/Notes:</label>
-                                    <textarea id="comments" name="comments" {{ !empty($readonly) ? 'readonly disabled' : '' }}></textarea>
+                                    <textarea id="comments" name="comments" {{ !empty($readonly) ? 'readonly disabled' : '' }}>{{ old('comments', $ttu->comments ?? '') }}</textarea>
                                 </div>
                             </div>
                         </div>
