@@ -185,7 +185,9 @@
                                 <th>{{ $numberLabel }}</th>
                                 <th>Survivor</th>
                                 <th>HH Size</th>
-                                <th></th>
+                                @if(empty($readonly))
+                                    <th></th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -205,31 +207,33 @@
                                         @endif
                                     </td>
                                     <td>{{ $item->hh_size ?? '-' }}</td>
-                                    <td class="text-right">
-                                        <button type="button"
-                                            class="btn btn-sm btn-primary edit-unit-btn"
-                                            data-id="{{ $item->room_id ?? $item->lodge_unit_id ?? '' }}"
-                                            data-type="{{ $ishotel ? 'hotel' : 'statepark' }}"
-                                            data-unit="{{ $ishotel ? $item->room_num : $item->unit_name }}"
-                                            @if(!$ishotel)
-                                                data-unit-type="{{ $item->unit_type ?? '' }}"
-                                            @endif
-                                        >
-                                            Edit
-                                        </button>
-                                        <form method="POST"
-                                            action="{{ $ishotel
-                                                ? route('admin.rooms.delete', $item->room_id)
-                                                : route('admin.lodge_units.delete', $item->lodge_unit_id) }}"
-                                            style="display:inline;">
-                                            @csrf
-                                            <button type="submit"
-                                                class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Are you sure you want to remove this {{ $ishotel ? 'room' : 'unit' }}?');">
-                                                Remove
+                                    @if(empty($readonly))
+                                        <td class="text-right">                                        
+                                            <button type="button"
+                                                class="btn btn-sm btn-primary edit-unit-btn"
+                                                data-id="{{ $item->room_id ?? $item->lodge_unit_id ?? '' }}"
+                                                data-type="{{ $ishotel ? 'hotel' : 'statepark' }}"
+                                                data-unit="{{ $ishotel ? $item->room_num : $item->unit_name }}"
+                                                @if(!$ishotel)
+                                                    data-unit-type="{{ $item->unit_type ?? '' }}"
+                                                @endif
+                                            >
+                                                Edit
                                             </button>
-                                        </form>
-                                    </td>
+                                            <form method="POST"
+                                                action="{{ $ishotel
+                                                    ? route('admin.rooms.delete', $item->room_id)
+                                                    : route('admin.lodge_units.delete', $item->lodge_unit_id) }}"
+                                                style="display:inline;">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Are you sure you want to remove this {{ $ishotel ? 'room' : 'unit' }}?');">
+                                                    Remove
+                                                </button>
+                                            </form>
+                                        </td>
+                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>
