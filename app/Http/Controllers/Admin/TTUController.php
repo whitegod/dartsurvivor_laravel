@@ -24,6 +24,13 @@ class TTUController extends Controller
         }
 
         $ttus = $query->get();
+
+        foreach ($ttus as $ttu) {
+            $ttu->author = $ttu->author
+                ? (\DB::table('users')->where('id', $ttu->author)->value('name') ?? $ttu->author)
+                : '';
+        }
+
         $fields = \Schema::getColumnListing('ttu');
         return view('admin.ttus', compact('ttus', 'fields'));
     }
@@ -279,6 +286,8 @@ class TTUController extends Controller
             $data['location'] = $request->input('name'); // Set location to privatesite name
         }
 
+        $data['author'] = auth()->id();
+
         $purchaseOrigin = $request->input('purchase_origin');
         if ($purchaseOrigin) {
             // Try to find vendor by name
@@ -297,6 +306,7 @@ class TTUController extends Controller
 
         $ttu->fill($data);
         $ttu->unit_num = $request->input('unit_num');
+        
         $ttu->save();
 
         // If location_type is privatesite, update privatesite
