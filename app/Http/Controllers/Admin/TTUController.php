@@ -31,6 +31,13 @@ class TTUController extends Controller
                 : '';
         }
 
+        foreach ($ttus as $ttu) {
+        if (!empty($ttu->purchase_origin)) {
+            $vendor = \DB::table('vendor')->where('id', $ttu->purchase_origin)->first();
+            $ttu->purchase_origin = $vendor ? $vendor->name : $ttu->purchase_origin;
+        }
+}
+
         $fields = \Schema::getColumnListing('ttu');
         return view('admin.ttus', compact('ttus', 'fields'));
     }
