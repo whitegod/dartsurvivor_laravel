@@ -247,5 +247,32 @@ document.addEventListener('DOMContentLoaded', function() {
         var text = select.options[select.selectedIndex].textContent.replace(/^.\s*/, ''); // Remove emoji
         select.value = text + ' (' + color + ')';
     }
+
+    var soldSwitch = document.querySelector('input[type="checkbox"][name="is_sold_at_auction"]');
+    var auctionSection = document.getElementById('sold-at-auction-section');
+    var donatedSwitch = document.querySelector('input[type="checkbox"][name="is_being_donated"]');
+    var donatedSection = document.getElementById('donation-section');
+
+    function toggleAuctionSection() {
+        if (soldSwitch && auctionSection) {
+            auctionSection.style.display = soldSwitch.checked ? '' : 'none';
+        }
+    }
+
+    function toggleDonatedSection() {
+        if (donatedSwitch && donatedSection) {
+            donatedSection.style.display = donatedSwitch.checked ? '' : 'none';
+        }
+    }
+
+    if (soldSwitch && auctionSection) {
+        soldSwitch.addEventListener('change', toggleAuctionSection);
+        toggleAuctionSection();
+    }
+
+    if (donatedSwitch && donatedSection) {
+        donatedSwitch.addEventListener('change', toggleDonatedSection);
+        toggleDonatedSection();
+    }
 });
 

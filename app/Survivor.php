@@ -20,6 +20,7 @@ class Survivor extends Model
         'own_rent',
         'hh_size',      // HH Size (Household Size)
         'pets',
+        'li_date',
         'email',
         'location_type',
         'statepark_name',

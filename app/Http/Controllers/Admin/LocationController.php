@@ -208,6 +208,14 @@ class LocationController extends Controller
             \DB::table('lodge_unit')->where('statepark_id', $id)->delete();
             \DB::table('statepark')->where('id', $id)->delete();
         } elseif ($type === 'privatesite') {
+            $privatesite = \DB::table('privatesite')->where('id', $id)->first();
+            if ($privatesite && $privatesite->ttu_id) {
+                // Remove privatesite reference from TTU
+                \DB::table('ttu')->where('id', $privatesite->ttu_id)->update([
+                    'location_type' => null,
+                    'location' => null,
+                ]);
+            }
             \DB::table('privatesite')->where('id', $id)->delete();
         }
         return redirect()->route('admin.locations')->with('success', 'Location and related units deleted!');

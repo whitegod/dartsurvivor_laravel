@@ -174,6 +174,13 @@ class SurvivorController extends Controller
         $locationType = $request->input('location_type', []);
         $data['location_type'] = json_encode($locationType);
 
+        if (!empty($data['li_date'])) {
+            $timestamp = strtotime($data['li_date']);
+            $data['li_date'] = $timestamp ? date('Y-m-d', $timestamp) : null;
+        } else {
+            $data['li_date'] = null;
+        }
+
         $survivor = Survivor::create($data);
 
         if (is_array($locationType) && in_array('TTU', $locationType) && $request->vin) {
@@ -304,7 +311,7 @@ class SurvivorController extends Controller
         ]);
 
         $data = $request->except([
-            'vin', 'lo', 'lo_date', 'est_lo_date',
+            'vin', 'ttu_li_date', 'lo', 'lo_date', 'est_lo_date',
             'hotel_name', 'hotel_room', 'hotel_li_date', 'hotel_lo_date',
             'statepark_name', 'unit_name', 'statepark_li_date', 'statepark_lo_date'
         ]);
@@ -326,12 +333,20 @@ class SurvivorController extends Controller
         $data['location_type'] = json_encode($locationType);
 
         $survivor = Survivor::findOrFail($id);
+
+        if (!empty($data['li_date'])) {
+        $timestamp = strtotime($data['li_date']);
+            $data['li_date'] = $timestamp ? date('Y-m-d', $timestamp) : null;
+        } else {
+            $data['li_date'] = null;
+        }
+
         $survivor->update($data);
 
         // TTU
         if (is_array($locationType) && in_array('TTU', $locationType) && $request->vin) {
             $vins = $request->input('vin', []);
-            $li_dates = $request->input('li_date', []);
+            $li_dates = $request->input('ttu_li_date', []);
             $los = $request->input('lo', []);
             $lo_dates = $request->input('lo_date', []);
             $est_lo_dates = $request->input('est_lo_date', []);
@@ -360,7 +375,7 @@ class SurvivorController extends Controller
         } else {
             // Unassign all TTUs from this survivor
             \App\TTU::where('survivor_id', $survivor->id)->update([
-                'li_date' => null,
+                'ttu_li_date' => null,
                 'lo' => null,
                 'lo_date' => null,
                 'est_lo_date' => null,

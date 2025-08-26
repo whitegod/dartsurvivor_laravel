@@ -124,7 +124,11 @@
                 </div>
 
                 <div class="form-row" style="align-items: end">
-                    <div class="form-group" style="min-width:140px; max-width:260px; flex:1;">
+                    <div class="form-group" style="flex:1;">
+                        <label for="li_date">LI Date</label>
+                        <input type="date" id="li_date" name="li_date" value="{{ $survivor->li_date ?? '' }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+                    <div class="form-group" style="flex:1;">
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" value="{{ $survivor->email ?? '' }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
@@ -182,7 +186,7 @@
                             </div>
                             <div class="form-group">
                                 <label>LI Date</label>
-                                <input name="li_date[]" type="date" value="{{ old('li_date.' . $loop->index, $ttu->li_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                                <input name="ttu_li_date[]" type="date" value="{{ old('ttu_li_date.' . $loop->index, $ttu->li_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                             </div>
                             <div class="form-group" style="flex:0.5; min-width:70px;">
                                 <label>LO</label>
