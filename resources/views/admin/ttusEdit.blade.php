@@ -361,7 +361,7 @@
                                     <label for="fema_id">FEMA-ID</label>
                                     <div style="display:flex; gap:4px;">
                                         <div style="position:relative;">
-                                            <input type="text" id="fema_id" name="fema_id" autocomplete="off" value="{{ old('fema_id', $selectedFemaId ?? '') }}">
+                                            <input type="text" id="fema_id" name="fema_id" autocomplete="off" value="{{ old('fema_id', $selectedFemaId ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                                             <div id="fema-id-suggestions" class="autocomplete-suggestions"></div>
                                         </div>
                                         <button class="btn btn-primary" type="button"
@@ -378,7 +378,7 @@
                                 <div class="form-group">
                                     <label for="survivor_name">Name</label>
                                     <div style="position:relative;">
-                                        <input type="text" id="survivor_name" name="survivor_name" value="{{ $survivor_name }}" autocomplete="off">
+                                        <input type="text" id="survivor_name" name="survivor_name" value="{{ $survivor_name }}" autocomplete="off" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                                         <div id="survivor-name-suggestions" class="autocomplete-suggestions"></div>
                                     </div>
                                 </div>
