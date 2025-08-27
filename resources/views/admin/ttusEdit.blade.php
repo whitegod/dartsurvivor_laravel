@@ -414,10 +414,10 @@
                             </div>
                             <div class="buttons">
                                 @if(!empty($readonly))
-                                    <button type="button" class="btn btn-cancel" onclick="window.history.back();" style="margin-right: 16px;">Back</button>
+                                    <button type="button" class="btn btn-cancel" onclick="window.location.href='{{ route('admin.ttus') }}';" style="margin-right: 16px;">Back</button>
                                     <a href="" class="btn btn-save">Show History</a>
                                 @else
-                                    <button type="button" class="btn btn-cancel" onclick="window.history.back();" style="margin-right: 16px;">Cancel</button>
+                                    <button type="button" class="btn btn-cancel" onclick="window.location.href='{{ route('admin.ttus') }}';" style="margin-right: 16px;">Cancel</button>
                                     <button type="submit" class="btn btn-save">{{ isset($ttu) ? 'Update' : 'Save' }}</button>
                                 @endif
                             </div>
