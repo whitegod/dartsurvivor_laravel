@@ -46,6 +46,20 @@ function renderTable(useCheckboxes = false) {
     const survivors = JSON.parse(document.getElementById('survivors-data').textContent);
     const fields = JSON.parse(document.getElementById('fields-data').textContent);
 
+    // Add a mapping for field labels
+    const fieldLabels = {
+        fname: 'Name',
+        lname: 'Name',
+        name: 'Name',
+        primary_phone: 'Phone',
+        secondary_phone: 'Phone',
+        phone: 'Phone',
+        fema_id: 'FEMA-ID',
+        hh_size: 'HH Size',
+        own_rent: 'Own/Rent',
+        caseworker_id: 'Caseworker'
+    };
+
     let checkedFields;
     const savedFields = JSON.parse(localStorage.getItem('survivorsFilterFields') || '[]');
     if (!useCheckboxes && savedFields.length) {
@@ -71,16 +85,13 @@ function renderTable(useCheckboxes = false) {
             th.textContent = 'Phone';
             headerRow.appendChild(th);
             renderedPhone = true;
-        } else if (field === 'fema_id') {
-            th.textContent = 'FEMA-ID';
+        } else if (field === 'caseworker_id') {
+            th.textContent = 'Caseworker';
             headerRow.appendChild(th);
-        } else if (field === 'hh_size') {
-            th.textContent = 'HH Size';
+        } else if (fieldLabels[field]) {
+            th.textContent = fieldLabels[field];
             headerRow.appendChild(th);
-        } else if (field === 'own_rent') {
-            th.textContent = 'Own/Rent';
-            headerRow.appendChild(th);
-        } else if (!['fname', 'lname', 'primary_phone', 'secondary_phone', 'name', 'phone'].includes(field)) {
+        } else {
             th.textContent = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             headerRow.appendChild(th);
         }
@@ -111,6 +122,10 @@ function renderTable(useCheckboxes = false) {
                     (survivor.secondary_phone ? '<br>' + survivor.secondary_phone : '');
                 tr.appendChild(td);
                 renderedPhoneCell = true;
+            } else if (field === 'caseworker_id') {
+                const td = document.createElement('td');
+                td.textContent = survivor.caseworker_id || '';
+                tr.appendChild(td);
             } else if (field === 'fema_id') {
                 const td = document.createElement('td');
                 td.textContent = survivor.fema_id || '';

@@ -41,6 +41,7 @@
                                 'fema_id' => 'FEMA-ID',
                                 'hh_size' => 'HH Size',
                                 'own_rent' => 'Own/Rent',
+                                'caseworker_id' => 'Caseworker',
                                 default => ucfirst(str_replace('_', ' ', $field)),
                             };
                             if(in_array($label, $shownLabels)) continue;

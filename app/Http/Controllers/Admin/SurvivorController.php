@@ -25,6 +25,16 @@ class SurvivorController extends Controller
         }
 
         $survivors = $query->get();
+
+        foreach ($survivors as $survivor) {
+            if (!empty($survivor->caseworker_id)) {
+                $caseworker = \DB::table('caseworker')->where('id', $survivor->caseworker_id)->first();
+                $survivor->caseworker_id = $caseworker
+                    ? trim(($caseworker->fname ?? '') . ' ' . ($caseworker->lname ?? ''))
+                    : $survivor->caseworker_id;
+            }
+        }
+        
         $fields = \Schema::getColumnListing('survivor'); // changed from 'survivors'
         return view('admin.survivors', compact('survivors', 'fields'));
     }
