@@ -138,26 +138,6 @@ document.addEventListener('DOMContentLoaded', function() {
         locationInput.disabled = true;
     }
 
-    // Disable LO Date if LO is NO (for TTU edit page)
-    function toggleLODate() {
-        var lo = document.getElementById('lo');
-        var loDate = document.getElementById('lo_date');
-        if (lo && loDate) {
-            // Accept both string and numeric values for compatibility
-            if (lo.value === 'NO' || lo.value === '0') {
-                loDate.disabled = true;
-                loDate.value = '';
-            } else {
-                loDate.disabled = false;
-            }
-        }
-    }
-
-    var lo = document.getElementById('lo');
-    if (lo) {
-        lo.addEventListener('change', toggleLODate);
-        toggleLODate();
-    }
 
     const nameInput = document.getElementById('survivor_name');
     const nameSuggestionsBox = document.getElementById('survivor-name-suggestions');
@@ -239,13 +219,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 femaSuggestionsBox.style.display = 'none';
             }
         });
-    }
-
-    function updateStatusWithColor() {
-        var select = document.getElementById('status');
-        var color = select.options[select.selectedIndex].getAttribute('data-color');
-        var text = select.options[select.selectedIndex].textContent.replace(/^.\s*/, ''); // Remove emoji
-        select.value = text + ' (' + color + ')';
     }
 
     var soldSwitch = document.querySelector('input[type="checkbox"][name="is_sold_at_auction"]');

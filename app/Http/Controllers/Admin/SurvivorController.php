@@ -34,7 +34,7 @@ class SurvivorController extends Controller
                     : $survivor->caseworker_id;
             }
         }
-        
+
         $fields = \Schema::getColumnListing('survivor'); // changed from 'survivors'
         return view('admin.survivors', compact('survivors', 'fields'));
     }
@@ -163,7 +163,7 @@ class SurvivorController extends Controller
         ]);
 
         $data = $request->except([
-            'vin', 'lo', 'lo_date', 'est_lo_date',
+            'vin', 'lo_date', 'est_lo_date',
             'hotel_name', 'hotel_room', 'hotel_li_date', 'hotel_lo_date',
             'statepark_name', 'unit_name', 'statepark_li_date', 'statepark_lo_date'
         ]);
@@ -196,7 +196,6 @@ class SurvivorController extends Controller
         if (is_array($locationType) && in_array('TTU', $locationType) && $request->vin) {
             $vins = $request->input('vin', []);
             $li_dates = $request->input('li_date', []);
-            $los = $request->input('lo', []);
             $lo_dates = $request->input('lo_date', []);
             $est_lo_dates = $request->input('est_lo_date', []);
 
@@ -205,7 +204,6 @@ class SurvivorController extends Controller
                 $ttu = \App\TTU::where('vin', $vin)->first();
                 if ($ttu) {
                     $ttu->li_date = !empty($li_dates[$i]) ? $li_dates[$i] : null;
-                    $ttu->lo = $los[$i] ?? 0;
                     $ttu->lo_date = !empty($lo_dates[$i]) ? $lo_dates[$i] : null;
                     $ttu->est_lo_date = !empty($est_lo_dates[$i]) ? $est_lo_dates[$i] : null;
                     $ttu->survivor_id = $survivor->id;
@@ -216,7 +214,6 @@ class SurvivorController extends Controller
             // Unassign all TTUs from this survivor
             \App\TTU::where('survivor_id', $survivor->id)->update([
                 'li_date' => null,
-                'lo' => null,
                 'lo_date' => null,
                 'est_lo_date' => null,
                 'survivor_id' => null,
@@ -321,7 +318,7 @@ class SurvivorController extends Controller
         ]);
 
         $data = $request->except([
-            'vin', 'ttu_li_date', 'lo', 'lo_date', 'est_lo_date',
+            'vin', 'ttu_li_date', 'lo_date', 'est_lo_date',
             'hotel_name', 'hotel_room', 'hotel_li_date', 'hotel_lo_date',
             'statepark_name', 'unit_name', 'statepark_li_date', 'statepark_lo_date'
         ]);
@@ -357,14 +354,12 @@ class SurvivorController extends Controller
         if (is_array($locationType) && in_array('TTU', $locationType) && $request->vin) {
             $vins = $request->input('vin', []);
             $li_dates = $request->input('ttu_li_date', []);
-            $los = $request->input('lo', []);
             $lo_dates = $request->input('lo_date', []);
             $est_lo_dates = $request->input('est_lo_date', []);
 
             // (For updateSurvivor only) Unassign all previous TTUs from this survivor first
             \App\TTU::where('survivor_id', $survivor->id)->update([
                 'li_date' => null,
-                'lo' => null,
                 'lo_date' => null,
                 'est_lo_date' => null,
                 'survivor_id' => null,
@@ -375,7 +370,6 @@ class SurvivorController extends Controller
                 $ttu = \App\TTU::where('vin', $vin)->first();
                 if ($ttu) {
                     $ttu->li_date = !empty($li_dates[$i]) ? $li_dates[$i] : null;
-                    $ttu->lo = $los[$i] ?? 0;
                     $ttu->lo_date = !empty($lo_dates[$i]) ? $lo_dates[$i] : null;
                     $ttu->est_lo_date = !empty($est_lo_dates[$i]) ? $est_lo_dates[$i] : null;
                     $ttu->survivor_id = $survivor->id;
@@ -386,7 +380,6 @@ class SurvivorController extends Controller
             // Unassign all TTUs from this survivor
             \App\TTU::where('survivor_id', $survivor->id)->update([
                 'ttu_li_date' => null,
-                'lo' => null,
                 'lo_date' => null,
                 'est_lo_date' => null,
                 'survivor_id' => null,

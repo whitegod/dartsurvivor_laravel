@@ -188,13 +188,6 @@
                                 <label>LI Date</label>
                                 <input name="ttu_li_date[]" type="date" value="{{ old('ttu_li_date.' . $loop->index, $ttu->li_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                             </div>
-                            <div class="form-group" style="flex:0.5; min-width:70px;">
-                                <label>LO</label>
-                                <select name="lo[]" {{ !empty($readonly) ? 'disabled' : '' }}>
-                                    <option value="0" {{ old('lo.' . $loop->index, $ttu->lo ?? '') == '0' ? 'selected' : '' }}>NO</option>
-                                    <option value="1" {{ old('lo.' . $loop->index, $ttu->lo ?? '') == '1' ? 'selected' : '' }}>YES</option>
-                                </select>
-                            </div>
                             <div class="form-group">
                                 <label>LO Date</label>
                                 <input name="lo_date[]" type="date" value="{{ old('lo_date.' . $loop->index, $ttu->lo_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>

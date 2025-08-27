@@ -357,7 +357,7 @@
                         <div class="form-section" style="margin-top: 20px;">
                             <h4>Assigned Survivor</h4>
                             <div class="form-row">
-                                <div class="form-group"">
+                                <div class="form-group">
                                     <label for="fema_id">FEMA-ID</label>
                                     <div style="display:flex; gap:4px;">
                                         <div style="position:relative;">
@@ -383,26 +383,18 @@
                                     </div>
                                 </div>
                                 <input type="hidden" id="survivor_id" name="survivor_id" value="{{ old('survivor_id', $ttu->survivor_id ?? '') }}">
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="lo">LO</label>
-                                    <select id="lo" name="lo" {{ !empty($readonly) ? 'disabled' : '' }}>
-                                        <option {{ old('lo', $ttu->lo ?? '') == 'NO' ? 'selected' : '' }}>NO</option>
-                                        <option {{ old('lo', $ttu->lo ?? '') == 'YES' ? 'selected' : '' }}>YES</option>
-                                    </select>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="li_date">LI Date</label>
+                                    <input type="date" id="li_date" name="li_date" value="{{ old('li_date', $ttu->li_date) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" style="flex:1;">
                                     <label for="lo-date">LO Date</label>
-                                    @php
-                                        $loDate = (isset($ttu->lo_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ttu->lo_date) && $ttu->lo_date !== '0000-00-00') ? $ttu->lo_date : '';
-                                        $estLoDate = (isset($ttu->est_lo_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ttu->est_lo_date) && $ttu->est_lo_date !== '0000-00-00') ? $ttu->est_lo_date : '';
-                                    @endphp
-                                    <input type="date" id="lo_date" name="lo_date" value="{{ old('lo_date', $loDate) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                                    
+                                    <input type="date" id="lo_date" name="lo_date" value="{{ old('lo_date', $ttu->lo_date) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" style="flex:1;">
                                     <label for="est_lo_date">Est. LO Date</label>
-                                    <input type="date" id="est_lo_date" name="est_lo_date" value="{{ old('est_lo_date', $estLoDate) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                                    <input type="date" id="est_lo_date" name="est_lo_date" value="{{ old('est_lo_date', $ttu->est_lo_date) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                                 </div>
                             </div>
                         </div>

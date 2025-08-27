@@ -14,7 +14,7 @@ class TTU extends Model
         'loc_id', 'county', 'imei', 'li_date', 'purchase_price', 'beds', 'queens', 'bunks',
         'transfer_num', 'author',
         'transpo_agency', 'remarks', 'comments', 'fdec', 'survivor_name',
-        'lo', 'lo_date', 'est_lo_date', 'created_at',
+        'li_date', 'lo_date', 'est_lo_date', 'created_at',
         'has_200sqft', 'has_propanefire', 'has_tv', 'has_hydraul',
         'has_steps', 'has_teardrop', 'has_foldwalls', 'has_extkitchen',
         'is_onsite', 'is_occupied', 'is_winterized', 'is_deblocked',
