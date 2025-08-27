@@ -29,14 +29,19 @@ class TTUController extends Controller
             $ttu->author = $ttu->author
                 ? (\DB::table('users')->where('id', $ttu->author)->value('name') ?? $ttu->author)
                 : '';
-        }
 
-        foreach ($ttus as $ttu) {
-        if (!empty($ttu->purchase_origin)) {
-            $vendor = \DB::table('vendor')->where('id', $ttu->purchase_origin)->first();
-            $ttu->purchase_origin = $vendor ? $vendor->name : $ttu->purchase_origin;
+            if (!empty($ttu->purchase_origin)) {
+                $vendor = \DB::table('vendor')->where('id', $ttu->purchase_origin)->first();
+                $ttu->purchase_origin = $vendor ? $vendor->name : $ttu->purchase_origin;
+            }
+
+            if (!empty($ttu->survivor_id)) {
+                $survivor = \DB::table('survivor')->where('id', $ttu->survivor_id)->first();
+                $ttu->survivor_id = $survivor
+                    ? trim(($survivor->fname ?? '') . ' ' . ($survivor->lname ?? ''))
+                    : $ttu->survivor_id;
+            }
         }
-}
 
         $fields = \Schema::getColumnListing('ttu');
         return view('admin.ttus', compact('ttus', 'fields'));

@@ -28,6 +28,7 @@
                         @php
                             $label = match($field) {
                                 'vin' => 'VIN - Last 7',
+                                'survivor_id' => 'Survivor',
                                 'location' => 'Location',
                                 'address' => 'Address',
                                 'unit', 'loc_id' => 'Unit',

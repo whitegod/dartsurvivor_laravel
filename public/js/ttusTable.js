@@ -67,6 +67,16 @@ function renderTable(useCheckboxes = false) {
     const ttus = JSON.parse(document.getElementById('ttus-data').textContent);
     const fields = JSON.parse(document.getElementById('fields-data').textContent);
 
+    // Add a mapping for field labels
+    const fieldLabels = {
+        vin: 'VIN - Last 7',
+        survivor_id: 'Survivor',
+        unit: 'Unit',
+        loc_id: 'Unit',
+        status: 'Status (Color Code)',
+        total_beds: 'Total Beds'
+    };
+
     let checkedFields;
     const savedFields = JSON.parse(localStorage.getItem('ttusFilterFields') || '[]');
     if (!useCheckboxes && savedFields.length) {
@@ -83,13 +93,7 @@ function renderTable(useCheckboxes = false) {
     headerRow.innerHTML = '';
     checkedFields.forEach(field => {
         const th = document.createElement('th');
-        th.textContent = ({
-            vin: 'VIN - Last 7',
-            unit: 'Unit',
-            loc_id: 'Unit',
-            status: 'Status (Color Code)',
-            total_beds: 'Total Beds'
-        })[field] || field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        th.textContent = fieldLabels[field] || field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         headerRow.appendChild(th);
     });
     const thOptions = document.createElement('th');
