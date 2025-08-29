@@ -278,7 +278,7 @@
                     <div class="form-column">
                         <div class="form-row">
                             <div class="form-group" style="flex:1;">
-                                <label for="disposition">Disposition:</label>
+                                <label for="disposition">Disposition</label>
                                 <select id="disposition" name="disposition" {{ !empty($readonly) ? 'disabled' : '' }}>
                                     <option value="Available" {{ old('disposition', $ttu->disposition ?? '') == 'Available' ? 'selected' : '' }}>Available</option>
                                     <option value="Awaiting Field team inspection" {{ old('disposition', $ttu->disposition ?? '') == 'Awaiting Field team inspection' ? 'selected' : '' }}>Awaiting Field team inspection</option>
@@ -301,7 +301,7 @@
                                 </select>
                             </div>
                             <div class="form-group" style="flex:1; margin-right: 0;">
-                                <label for="transpo_agency">Transport Agency:</label>
+                                <label for="transpo_agency">Transport Agency</label>
                                 <input type="text" id="transpo_agency" name="transpo_agency" value="{{ old('transpo_agency', $ttu->transpo_agency ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                         </div>
@@ -319,7 +319,7 @@
                                 <input type="text" id="donation_agency" name="donation_agency" value="{{ old('donation_agency', $transfer->donation_agency ?? '') }}" style="max-width: 300px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                             <div class="left-label-field">
-                                <label for="donation_category" style="white-space:nowrap;">Donation Category:</label>
+                                <label for="donation_category" style="white-space:nowrap;">Donation Category</label>
                                 <input type="text" id="donation_category" name="donation_category" value="{{ old('donation_category', $transfer->donation_category ?? '') }}" style="max-width: 300px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
                         </div>
@@ -338,11 +338,11 @@
                         <div class="form-section">    
                             <div class="remarks">
                                 <div>
-                                    <label for="remarks">Remarks:</label>
+                                    <label for="remarks">Remarks</label>
                                     <textarea id="remarks" name="remarks" {{ !empty($readonly) ? 'readonly disabled' : '' }}>{{ old('remarks', $ttu->remarks ?? '') }}</textarea>
                                 </div>
                                 <div>
-                                    <label for="comments">Comments/Notes:</label>
+                                    <label for="comments">Comments/Notes</label>
                                     <textarea id="comments" name="comments" {{ !empty($readonly) ? 'readonly disabled' : '' }}>{{ old('comments', $ttu->comments ?? '') }}</textarea>
                                 </div>
                             </div>
