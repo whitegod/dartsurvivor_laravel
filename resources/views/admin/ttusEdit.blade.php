@@ -235,7 +235,7 @@
                                     <label class="switch">
                                         <input type="hidden" name="{{ $field }}" value="0">
                                         <input type="checkbox" name="{{ $field }}" value="1"
-                                            {{ old($field, $ttu->$field ?? false) ? 'checked' : '' }}
+                                            {{ old($field, $ttu->$field ?? 0) == 1 ? 'checked' : '' }}
                                             {{ !empty($readonly) ? 'disabled' : '' }}>
                                         <span class="slider"></span>
                                     </label>
@@ -265,9 +265,19 @@
                                 <td>
                                     <label class="switch">
                                         <input type="hidden" name="{{ $field }}" value="0">
-                                        <input type="checkbox" name="{{ $field }}" value="1"
-                                            {{ old($field, $ttu->$field ?? false) ? 'checked' : '' }}
-                                            {{ !empty($readonly) ? 'disabled' : '' }}>
+                                        @if($field === 'is_being_donated')
+                                            <input type="checkbox" name="{{ $field }}" value="1"
+                                                {{ old($field, $is_being_donated ?? 0) == 1 ? 'checked' : '' }}
+                                                {{ !empty($readonly) ? 'disabled' : '' }}>
+                                        @elseif($field === 'is_sold_at_auction')
+                                            <input type="checkbox" name="{{ $field }}" value="1"
+                                                {{ old($field, $is_sold_at_auction ?? 0) == 1 ? 'checked' : '' }}
+                                                {{ !empty($readonly) ? 'disabled' : '' }}>
+                                        @else
+                                            <input type="checkbox" name="{{ $field }}" value="1"
+                                                {{ old($field, $ttu->$field ?? 0) == 1 ? 'checked' : '' }}
+                                                {{ !empty($readonly) ? 'disabled' : '' }}>
+                                        @endif
                                         <span class="slider"></span>
                                     </label>
                                 </td>
@@ -385,16 +395,16 @@
                                 <input type="hidden" id="survivor_id" name="survivor_id" value="{{ old('survivor_id', $ttu->survivor_id ?? '') }}">
                                 <div class="form-group" style="flex:1;">
                                     <label for="li_date">LI Date</label>
-                                    <input type="date" id="li_date" name="li_date" value="{{ old('li_date', $ttu->li_date) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                                    <input type="date" id="li_date" name="li_date" value="{{ old('li_date', $ttu->li_date ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                                 </div>
                                 <div class="form-group" style="flex:1;">
                                     <label for="lo-date">LO Date</label>
-                                    
-                                    <input type="date" id="lo_date" name="lo_date" value="{{ old('lo_date', $ttu->lo_date) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+
+                                    <input type="date" id="lo_date" name="lo_date" value="{{ old('lo_date', $ttu->lo_date ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                                 </div>
                                 <div class="form-group" style="flex:1;">
                                     <label for="est_lo_date">Est. LO Date</label>
-                                    <input type="date" id="est_lo_date" name="est_lo_date" value="{{ old('est_lo_date', $ttu->est_lo_date) }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                                    <input type="date" id="est_lo_date" name="est_lo_date" value="{{ old('est_lo_date', $ttu->est_lo_date ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                                 </div>
                             </div>
                         </div>

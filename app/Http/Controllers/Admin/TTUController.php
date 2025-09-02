@@ -82,8 +82,12 @@ class TTUController extends Controller
 
         // Fetch transfer data if exists
         $transfer = null;
+        $is_being_donated = 0;
+        $is_sold_at_auction = 0;
         if ($ttu) {
             $transfer = \DB::table('transfer')->where('ttu_id', $ttu->id)->first();
+            $is_being_donated = $transfer ? ($transfer->donated ?? 0) : ($ttu->is_being_donated ?? 0);
+            $is_sold_at_auction = $transfer ? ($transfer->auction ?? 0) : ($ttu->is_sold_at_auction ?? 0);
         }
 
         // Optionally, fetch all survivors for a dropdown
@@ -99,7 +103,8 @@ class TTUController extends Controller
         }
 
         return view('admin.ttusEdit', compact(
-            'ttu', 'privatesite', 'locations', 'survivor_name', 'survivors', 'selectedFemaId', 'authorName', 'transfer'
+            'ttu', 'privatesite', 'locations', 'survivor_name', 'survivors', 'selectedFemaId', 'authorName', 'transfer',
+            'is_being_donated', 'is_sold_at_auction'
         ));
     }
 
@@ -138,8 +143,12 @@ class TTUController extends Controller
 
         // Fetch transfer data if exists
         $transfer = null;
+        $is_being_donated = 0;
+        $is_sold_at_auction = 0;
         if ($ttu) {
             $transfer = \DB::table('transfer')->where('ttu_id', $ttu->id)->first();
+            $is_being_donated = $transfer ? ($transfer->donated ?? 0) : ($ttu->is_being_donated ?? 0);
+            $is_sold_at_auction = $transfer ? ($transfer->auction ?? 0) : ($ttu->is_sold_at_auction ?? 0);
         }
 
         // Optionally, fetch all survivors for a dropdown
@@ -156,7 +165,8 @@ class TTUController extends Controller
 
         $readonly = true;
         return view('admin.ttusEdit', compact(
-            'ttu', 'privatesite', 'locations', 'survivor_name', 'survivors', 'selectedFemaId', 'authorName', 'transfer', 'readonly'
+            'ttu', 'privatesite', 'locations', 'survivor_name', 'survivors', 'selectedFemaId', 'authorName', 'transfer',
+            'is_being_donated', 'is_sold_at_auction', 'readonly'
         ));
     }
 
@@ -167,8 +177,8 @@ class TTUController extends Controller
             // Remove TTU reference from privatesite table
             \DB::table('privatesite')->where('ttu_id', $ttu->id)->update(['ttu_id' => null]);
 
-            // Remove TTU reference from transfer table
-            \DB::table('transfer')->where('ttu_id', $ttu->id)->update(['ttu_id' => null]);
+            // Delete related record from transfer table
+            \DB::table('transfer')->where('ttu_id', $ttu->id)->delete();
 
             // Delete the TTU record
             $ttu->delete();
@@ -183,7 +193,9 @@ class TTUController extends Controller
             '_token', '_method', 'fema_id', 'survivor_name',
             // privatesite fields (do not store in TTU)
             'name', 'address', 'phone', 'pow', 'h2o', 'sew', 'own', 'res',
-            'damage_assessment', 'ehp', 'ehp_notes', 'dow_long', 'dow_lat', 'zon', 'dow_response', 'privatesite'
+            'damage_assessment', 'ehp', 'ehp_notes', 'dow_long', 'dow_lat', 'zon', 'dow_response', 'privatesite',
+            // transfer fields
+            'recipient_type', 'donation_agency', 'donation_category', 'sold_at_auction_price', 'recipient'
         ]);
 
         $data['survivor_id'] = $request->input('survivor_id');
@@ -198,11 +210,11 @@ class TTUController extends Controller
             'is_cleaned', 'is_gps_removed', 'is_being_donated', 'is_sold_at_auction'
         ];
         foreach (array_merge($featureFields, $statusFields) as $field) {
-            $data[$field] = $request->has($field) ? 1 : 0;
+            $data[$field] = $request->input($field, 0);
         }
 
         $data['author'] = auth()->id();
-        $ttu = \App\TTU::create($data); // <-- use $data, not $request->except([...])
+        $ttu = \App\TTU::create($data);
 
         // Save privatesite if privatesite switch is checked
         if ($request->has('privatesite')) {
@@ -223,22 +235,25 @@ class TTUController extends Controller
                 'dow_lat' => $request->input('dow_lat'),
                 'zon' => $request->input('zon'),
                 'dow_response' => $request->input('dow_response'),
-                'created_at' => now(), // <-- add created_at for insert
+                'created_at' => now(),
             ];
             \DB::table('privatesite')->insert($privatesiteData);
         }
 
-        // Save to transfer table if needed (keep original logic)
-        if ($request->is_being_donated || $request->is_sold_at_auction) {
+        // Save to transfer table if needed
+        $is_being_donated = $request->input('is_being_donated', 0);
+        $is_sold_at_auction = $request->input('is_sold_at_auction', 0);
+
+        if ($is_being_donated || $is_sold_at_auction) {
             $transferData = [
                 'ttu_id' => $ttu->id,
-                'recipient_type' => $request->recipient_type,
-                'donation_agency' => $request->donation_agency,
-                'donation_category' => $request->donation_category,
-                'sold_at_auction_price' => $request->sold_at_auction_price,
-                'recipient' => $request->recipient,
-                'donated' => $request->has('is_being_donated') ? 1 : 0,
-                'auction' => $request->has('is_sold_at_auction') ? 1 : 0,
+                'recipient_type' => $is_being_donated ? $request->input('recipient_type') : null,
+                'donation_agency' => $is_being_donated ? $request->input('donation_agency') : null,
+                'donation_category' => $is_being_donated ? $request->input('donation_category') : null,
+                'sold_at_auction_price' => $is_sold_at_auction ? $request->input('sold_at_auction_price') : null,
+                'recipient' => $is_sold_at_auction ? $request->input('recipient') : null,
+                'donated' => $is_being_donated,
+                'auction' => $is_sold_at_auction,
             ];
             \DB::table('transfer')->insert($transferData);
         }
@@ -246,15 +261,12 @@ class TTUController extends Controller
         // Add vendor if purchase origin is set
         $purchaseOrigin = $request->input('purchase_origin');
         if ($purchaseOrigin) {
-            // Try to find vendor by name
             $vendor = \DB::table('vendor')->where('name', $purchaseOrigin)->first();
             if (!$vendor) {
-                // Insert new vendor and get its ID
                 $vendorId = \DB::table('vendor')->insertGetId(['name' => $purchaseOrigin]);
             } else {
                 $vendorId = $vendor->id;
             }
-            // Save vendor ID to TTU
             $ttu->purchase_origin = $vendorId;
         } else {
             $ttu->purchase_origin = null;
@@ -264,7 +276,6 @@ class TTUController extends Controller
         if ($request->filled('survivor_id')) {
             $survivor = \DB::table('survivor')->where('id', $request->input('survivor_id'))->first();
             if ($survivor) {
-                // Decode location_type as array, or start new array
                 $types = [];
                 if (!empty($survivor->location_type)) {
                     $types = @json_decode($survivor->location_type, true);
@@ -289,7 +300,9 @@ class TTUController extends Controller
         $data = $request->except([
             'survivor_name',
             'name', 'address', 'phone', 'pow', 'h2o', 'sew', 'own', 'res',
-            'damage_assessment', 'ehp', 'ehp_notes', 'dow_long', 'dow_lat', 'zon', 'dow_response', 'privatesite'
+            'damage_assessment', 'ehp', 'ehp_notes', 'dow_long', 'dow_lat', 'zon', 'dow_response', 'privatesite',
+            // exclude transfer fields so we handle them separately
+            'recipient_type', 'donation_agency', 'donation_category', 'sold_at_auction_price', 'recipient'
         ]);
 
         $data['survivor_id'] = $request->input('survivor_id');
@@ -302,15 +315,12 @@ class TTUController extends Controller
 
         $purchaseOrigin = $request->input('purchase_origin');
         if ($purchaseOrigin) {
-            // Try to find vendor by name
             $vendor = \DB::table('vendor')->where('name', $purchaseOrigin)->first();
             if (!$vendor) {
-                // Insert new vendor and get its ID
                 $vendorId = \DB::table('vendor')->insertGetId(['name' => $purchaseOrigin]);
             } else {
                 $vendorId = $vendor->id;
             }
-            // Save vendor ID to TTU
             $ttu->purchase_origin = $vendorId;
         } else {
             $ttu->purchase_origin = null;
@@ -318,12 +328,10 @@ class TTUController extends Controller
 
         $ttu->fill($data);
         $ttu->unit_num = $request->input('unit_num');
-        
         $ttu->save();
 
         // If location_type is privatesite, update privatesite
         if ($request->location_type === 'privatesite') {
-            // Always fetch privatesite by TTU id
             $privatesite = Privatesite::where('ttu_id', $ttu->id)->first();
             if (!$privatesite) {
                 $privatesite = new Privatesite();
@@ -345,14 +353,34 @@ class TTUController extends Controller
             $privatesite->own = $request->has('own');
             $privatesite->res = $request->has('res');
             $privatesite->save();
+        }
 
+        // Save or update transfer table for donation/auction fields
+        $is_being_donated = $request->input('is_being_donated', 0);
+        $is_sold_at_auction = $request->input('is_sold_at_auction', 0);
+
+        $transferData = [
+            'recipient_type' => $is_being_donated ? $request->input('recipient_type') : null,
+            'donation_agency' => $is_being_donated ? $request->input('donation_agency') : null,
+            'donation_category' => $is_being_donated ? $request->input('donation_category') : null,
+            'sold_at_auction_price' => $is_sold_at_auction ? $request->input('sold_at_auction_price') : null,
+            'recipient' => $is_sold_at_auction ? $request->input('recipient') : null,
+            'donated' => $is_being_donated,
+            'auction' => $is_sold_at_auction,
+        ];
+
+        $existingTransfer = \DB::table('transfer')->where('ttu_id', $ttu->id)->first();
+        if ($existingTransfer) {
+            \DB::table('transfer')->where('ttu_id', $ttu->id)->update($transferData);
+        } elseif ($is_being_donated || $is_sold_at_auction) {
+            $transferData['ttu_id'] = $ttu->id;
+            \DB::table('transfer')->insert($transferData);
         }
 
         // After updating $ttu, update survivor location_type if survivor_id is filled
         if ($request->filled('survivor_id')) {
             $survivor = \DB::table('survivor')->where('id', $request->input('survivor_id'))->first();
             if ($survivor) {
-                // Decode location_type as array, or start new array
                 $types = [];
                 if (!empty($survivor->location_type)) {
                     $types = @json_decode($survivor->location_type, true);
