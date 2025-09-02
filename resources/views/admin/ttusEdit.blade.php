@@ -290,6 +290,7 @@
                             <div class="form-group" style="flex:1;">
                                 <label for="disposition">Disposition</label>
                                 <select id="disposition" name="disposition" {{ !empty($readonly) ? 'disabled' : '' }}>
+                                    <option value="" {{ old('disposition', $ttu->disposition ?? '') == '' ? 'selected' : '' }}>-- Select Disposition --</option>    
                                     <option value="Available" {{ old('disposition', $ttu->disposition ?? '') == 'Available' ? 'selected' : '' }}>Available</option>
                                     <option value="Awaiting Field team inspection" {{ old('disposition', $ttu->disposition ?? '') == 'Awaiting Field team inspection' ? 'selected' : '' }}>Awaiting Field team inspection</option>
                                     <option value="Awaiting Maintenance" {{ old('disposition', $ttu->disposition ?? '') == 'Awaiting Maintenance' ? 'selected' : '' }}>Awaiting Maintenance</option>
