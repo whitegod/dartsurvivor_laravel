@@ -59,5 +59,6 @@
 <script>
     window.csrfToken = "{{ csrf_token() }}";
 </script>
+<script src="{{ asset('js/tableSort.js') }}"></script>
 <script src="{{ asset('js/locationsTable.js') }}"></script>
 @endsection

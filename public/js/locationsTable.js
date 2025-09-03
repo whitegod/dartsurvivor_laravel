@@ -1,12 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const locations = JSON.parse(document.getElementById('locations-data').textContent);
-    const fields = JSON.parse(document.getElementById('fields-data').textContent);
+    let locations = [];
+    let currentSortField = localStorage.getItem('locationsSortField') || null;
+    let currentSortDirection = localStorage.getItem('locationsSortDirection') || 'asc';
+    let globalSearchTerm = '';
 
-    const filterDropdown = document.getElementById('filter-dropdown');
-    const headerRow = document.getElementById('dynamic-table-header');
-    const body = document.getElementById('dynamic-table-body');
-
-    // --- Restore checkbox state from localStorage ---
+    // Restore filter fields from localStorage
     const savedFields = JSON.parse(localStorage.getItem('locationsFilterFields') || '[]');
     if (savedFields.length) {
         document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
@@ -14,13 +12,47 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // --- Get checked fields ---
-    function getCheckedFields() {
-        return Array.from(document.querySelectorAll('.filter-field-checkbox:checked')).map(cb => cb.dataset.field);
+    // Save filter fields when clicking Save
+    document.getElementById('save-filter-fields').addEventListener('click', function() {
+        const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox'))
+            .filter(cb => cb.checked)
+            .map(cb => cb.getAttribute('data-field'));
+        localStorage.setItem('locationsFilterFields', JSON.stringify(checkedFields));
+        this.textContent = 'Saved!';
+        setTimeout(() => { this.textContent = 'Save'; }, 1000);
+        document.getElementById('filter-dropdown').classList.remove('active');
+    });
+
+    // Initialize locations before sorting or rendering
+    locations = JSON.parse(document.getElementById('locations-data').textContent);
+
+    // Initial table render with sort
+    if (currentSortField) {
+        applySavedSortToTable(locations, currentSortField, currentSortDirection, renderTable);
+    } else {
+        renderTable();
     }
 
-    // --- Render table (header + body) ---
+    // --- Checkbox Logic ---
+    document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
+        cb.addEventListener('change', function() {
+            renderTable(true);
+        });
+    });
+
+    // --- Table Rendering ---
     function renderTable(useCheckboxes = false) {
+        const fields = JSON.parse(document.getElementById('fields-data').textContent);
+        const fieldLabels = {
+            name: 'Location Name',
+            address: 'Address',
+            city: 'City',
+            state: 'State',
+            zip: 'Zip',
+            type: 'Type'
+            // Add other field labels as needed
+        };
+
         let checkedFields;
         const savedFields = JSON.parse(localStorage.getItem('locationsFilterFields') || '[]');
         if (!useCheckboxes && savedFields.length) {
@@ -29,27 +61,37 @@ document.addEventListener('DOMContentLoaded', function () {
                 cb.checked = savedFields.includes(cb.getAttribute('data-field'));
             });
         } else {
-            checkedFields = getCheckedFields();
+            checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox:checked')).map(cb => cb.dataset.field);
         }
 
         // Header
+        const headerRow = document.getElementById('dynamic-table-header');
         headerRow.innerHTML = '';
-        checkedFields.forEach(field => {
-            const th = document.createElement('th');
-            th.textContent = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            headerRow.appendChild(th);
+        renderSortableTableHeader({
+            checkedFields,
+            fieldLabels,
+            currentSortField,
+            currentSortDirection,
+            sortCallback: sortTableByField,
+            headerRow
         });
-        // Filter button
+
         const thOptions = document.createElement('th');
         thOptions.style.position = 'relative';
         thOptions.innerHTML = `<button id="filter-button" style="background: none; border: none; cursor: pointer; padding: 0; vertical-align: middle;">
-            <i class='fa fa-filter'></i>
-        </button>`;
+                <i class='fa fa-filter'></i>
+            </button>`;
         headerRow.appendChild(thOptions);
 
         // Body
+        const body = document.getElementById('dynamic-table-body');
         body.innerHTML = '';
-        locations.forEach(location => {
+        locations.filter(location => {
+            if (!globalSearchTerm) return true;
+            return Object.values(location).some(val =>
+                (val ?? '').toString().toLowerCase().includes(globalSearchTerm)
+            );
+        }).forEach(location => {
             const tr = document.createElement('tr');
             checkedFields.forEach(field => {
                 const td = document.createElement('td');
@@ -62,10 +104,9 @@ document.addEventListener('DOMContentLoaded', function () {
             tdOptions.style.position = 'relative';
             tdOptions.innerHTML = `⋮
                 <div class="dropdown-menu" style="right:0; left:auto; min-width:120px; position:absolute;">
-                    <a href="/admin/locations/view/${location.id}?type=${location.type}">View</a>
-                    <a href="/admin/locations/edit/${location.id}?type=${location.type}">Edit</a>
-
-                    <form action="/admin/locations/delete/${location.id}?type=${location.type}" method="POST" style="margin: 0;">
+                    <a href="/admin/locations/view/${location.id}">View</a>
+                    <a href="/admin/locations/edit/${location.id}">Edit</a>
+                    <form action="/admin/locations/delete/${location.id}" method="POST" style="margin: 0;">
                         <input type="hidden" name="_token" value="${window.csrfToken}">
                         <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
                     </form>
@@ -99,39 +140,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 0);
     }
 
-    // --- Checkbox and Save Button Logic ---
-    document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
-        cb.addEventListener('change', function() {
-            renderTable(true); // Use current checkbox states, not localStorage
-        });
-    });
-    const saveBtn = document.getElementById('save-filter-fields');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', function() {
-            const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox'))
-                .filter(cb => cb.checked)
-                .map(cb => cb.getAttribute('data-field'));
-            localStorage.setItem('locationsFilterFields', JSON.stringify(checkedFields));
-            this.textContent = 'Saved!';
-            setTimeout(() => { this.textContent = 'Save'; }, 1000);
-            filterDropdown.classList.remove('active');
-            renderTable(); // Re-render table with saved fields
-        });
+    // --- Sorting Logic ---
+    function sortTableByField(field) {
+        if (currentSortField === field) {
+            currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSortField = field;
+            currentSortDirection = 'asc';
+        }
+
+        // Save sort status immediately when sorting
+        localStorage.setItem('locationsSortField', currentSortField);
+        localStorage.setItem('locationsSortDirection', currentSortDirection);
+
+        sortDataArray(locations, field, currentSortDirection);
+        renderTable();
     }
-
-    // --- Dropdown Handling ---
-    filterDropdown.addEventListener('click', function(event) {
-        event.stopPropagation();
-    });
-    document.addEventListener('click', function (event) {
-        if (!event.target.closest('#filter-button')) {
-            filterDropdown.classList.remove('active');
-        }
-        if (!event.target.closest('.options-icon')) {
-            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
-        }
-    });
-
-    // --- Initial render ---
-    renderTable(locations);
 });
