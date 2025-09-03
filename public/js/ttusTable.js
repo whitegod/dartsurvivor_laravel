@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial table render with sort
     if (currentSortField) {
-        applySavedSort();
+        applySavedSortToTable(ttus, currentSortField, currentSortDirection, renderTable);
     } else {
         renderTable();
     }
@@ -261,40 +261,13 @@ function sortTableByField(field) {
     localStorage.setItem('ttusSortField', currentSortField);
     localStorage.setItem('ttusSortDirection', currentSortDirection);
 
-    ttus.sort((a, b) => {
-        let valA = a[field] ?? '';
-        let valB = b[field] ?? '';
-        if (typeof valA === 'string') valA = valA.toLowerCase();
-        if (typeof valB === 'string') valB = valB.toLowerCase();
-
-        if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
-        if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
-        return 0;
-    });
-
-    renderTable();
-}
-
-function applySavedSort() {
-    if (currentSortField) {
-        ttus.sort((a, b) => {
-            let valA = a[currentSortField] ?? '';
-            let valB = b[currentSortField] ?? '';
-            if (typeof valA === 'string') valA = valA.toLowerCase();
-            if (typeof valB === 'string') valB = valB.toLowerCase();
-
-            if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
-            if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
-            return 0;
-        });
-    }
+    sortDataArray(ttus, field, currentSortDirection);
     renderTable();
 }
 
 // --- Initial Table Render ---
-
 if (currentSortField) {
-    applySavedSort();
+    applySavedSortToTable(ttus, currentSortField, currentSortDirection, renderTable);
 } else {
     renderTable();
 }
