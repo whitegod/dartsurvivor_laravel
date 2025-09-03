@@ -3,75 +3,8 @@ let currentSortField = localStorage.getItem('survivorsSortField') || null;
 let currentSortDirection = localStorage.getItem('survivorsSortDirection') || 'asc';
 let globalSearchTerm = '';
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Restore filter fields from localStorage
-    const savedFields = JSON.parse(localStorage.getItem('survivorsFilterFields') || '[]');
-    if (savedFields.length) {
-        document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
-            cb.checked = savedFields.includes(cb.getAttribute('data-field'));
-        });
-    }
-
-    // Save filter fields when clicking Save
-    document.getElementById('save-filter-fields').addEventListener('click', function() {
-        const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox'))
-            .filter(cb => cb.checked)
-            .map(cb => cb.getAttribute('data-field'));
-        localStorage.setItem('survivorsFilterFields', JSON.stringify(checkedFields));
-        this.textContent = 'Saved!';
-        setTimeout(() => { this.textContent = 'Save'; }, 1000);
-        document.getElementById('filter-dropdown').classList.remove('active');
-    });
-
-    // Initialize survivors before sorting or rendering
-    survivors = JSON.parse(document.getElementById('survivors-data').textContent);
-
-    // Initial table render with sort
-    if (currentSortField) {
-        applySavedSortToTable(survivors, currentSortField, currentSortDirection, renderTable);
-    } else {
-        renderTable();
-    }
-});
-
-document.querySelectorAll('.options-icon').forEach(icon => {
-    icon.addEventListener('click', function () {
-        const dropdown = this.querySelector('.dropdown-menu');
-        const isActive = dropdown.classList.contains('active');
-        document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
-        if (!isActive) {
-            dropdown.classList.add('active');
-        }
-    });
-});
-
-document.addEventListener('click', function (event) {
-    if (!event.target.closest('.options-icon')) {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
-    }
-});
-
-document.getElementById('search-button').addEventListener('click', function () {
-    const searchInput = document.getElementById('search-input').value;
-    const url = new URL(window.location.href);
-    url.searchParams.set('search', searchInput);
-    window.location.href = url.toString();
-});
-
-document.getElementById('search-input').addEventListener('keydown', function (event) {
-    if (event.key === 'Enter') {
-        const searchInput = document.getElementById('search-input').value;
-        const url = new URL(window.location.href);
-        url.searchParams.set('search', searchInput);
-        window.location.href = url.toString();
-    }
-});
-
-// --- Dynamic Table Rendering ---
 function renderTable(useCheckboxes = false) {
     const fields = JSON.parse(document.getElementById('fields-data').textContent);
-
-    // Add a mapping for field labels
     const fieldLabels = {
         fname: 'Name',
         lname: 'Name',
@@ -99,7 +32,6 @@ function renderTable(useCheckboxes = false) {
     // Header
     const headerRow = document.getElementById('dynamic-table-header');
     headerRow.innerHTML = '';
-    let renderedName = false, renderedPhone = false;
     renderSortableTableHeader({
         checkedFields,
         fieldLabels,
@@ -179,17 +111,14 @@ function renderTable(useCheckboxes = false) {
         body.appendChild(tr);
     });
 
-    // --- Re-bind filter and options events after header/body re-render ---
+    // Re-bind filter and options events after header/body re-render
     setTimeout(() => {
         const filterBtn = document.getElementById('filter-button');
+        const filterDropdown = document.getElementById('filter-dropdown');
         if (filterBtn && !filterBtn._bound) {
             filterBtn.addEventListener('click', function (event) {
                 event.stopPropagation();
-                const dropdown = document.getElementById('filter-dropdown');
-                dropdown.classList.toggle('active');
-                document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                    if (menu !== dropdown) menu.classList.remove('active');
-                });
+                filterDropdown.classList.toggle('active');
             });
             filterBtn._bound = true;
         }
@@ -208,37 +137,6 @@ function renderTable(useCheckboxes = false) {
     }, 0);
 }
 
-// --- Checkbox and Save Button Logic ---
-document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
-    cb.addEventListener('change', function() {
-        renderTable(true); // Use current checkbox states, not localStorage
-    });
-});
-document.getElementById('save-filter-fields').addEventListener('click', function() {
-    const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox'))
-        .filter(cb => cb.checked)
-        .map(cb => cb.getAttribute('data-field'));
-    localStorage.setItem('survivorsFilterFields', JSON.stringify(checkedFields));
-    this.textContent = 'Saved!';
-    setTimeout(() => { this.textContent = 'Save'; }, 1000);
-    document.getElementById('filter-dropdown').classList.remove('active');
-    renderTable(); // Re-render table with saved fields
-});
-
-// --- Dropdown Handling ---
-document.getElementById('filter-dropdown').addEventListener('click', function(event) {
-    event.stopPropagation();
-});
-document.addEventListener('click', function (event) {
-    if (!event.target.closest('#filter-button')) {
-        document.getElementById('filter-dropdown').classList.remove('active');
-    }
-    if (!event.target.closest('.options-icon')) {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
-    }
-});
-
-// --- Sorting Logic ---
 function sortTableByField(field) {
     if (currentSortField === field) {
         currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
@@ -254,3 +152,71 @@ function sortTableByField(field) {
     sortDataArray(survivors, field, currentSortDirection);
     renderTable();
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Restore filter fields from localStorage
+    const savedFields = JSON.parse(localStorage.getItem('survivorsFilterFields') || '[]');
+    if (savedFields.length) {
+        document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
+            cb.checked = savedFields.includes(cb.getAttribute('data-field'));
+        });
+    }
+
+    // Save filter fields when clicking Save
+    document.getElementById('save-filter-fields').addEventListener('click', function() {
+        const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox'))
+            .filter(cb => cb.checked)
+            .map(cb => cb.getAttribute('data-field'));
+        localStorage.setItem('survivorsFilterFields', JSON.stringify(checkedFields));
+        this.textContent = 'Saved!';
+        setTimeout(() => { this.textContent = 'Save'; }, 1000);
+        document.getElementById('filter-dropdown').classList.remove('active');
+        renderTable();
+    });
+
+    // Initialize survivors before sorting or rendering
+    survivors = JSON.parse(document.getElementById('survivors-data').textContent);
+
+    // Initial table render with sort
+    if (currentSortField) {
+        applySavedSortToTable(survivors, currentSortField, currentSortDirection, renderTable);
+    } else {
+        renderTable();
+    }
+
+    // Checkbox Logic
+    document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
+        cb.addEventListener('change', function() {
+            renderTable(true);
+        });
+    });
+});
+
+// Dropdown handling for filter and options
+document.getElementById('filter-dropdown').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+document.addEventListener('click', function (event) {
+    if (!event.target.closest('#filter-button')) {
+        document.getElementById('filter-dropdown').classList.remove('active');
+    }
+    if (!event.target.closest('.options-icon')) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
+    }
+});
+
+// Search handling
+document.getElementById('search-button').addEventListener('click', function () {
+    const searchInput = document.getElementById('search-input').value;
+    const url = new URL(window.location.href);
+    url.searchParams.set('search', searchInput);
+    window.location.href = url.toString();
+});
+document.getElementById('search-input').addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+        const searchInput = document.getElementById('search-input').value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('search', searchInput);
+        window.location.href = url.toString();
+    }
+});
