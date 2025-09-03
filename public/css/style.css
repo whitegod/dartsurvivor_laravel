@@ -12,6 +12,25 @@ h5{
 	font-size: 13px;
 }
 
+header .select-form {
+	height: 50px;
+	float: right;
+	display: flex;
+	align-items: center;
+	color: #fff;
+}
+
+header .select-form * {
+	margin: 0;
+}
+
+header .select-form select{
+	color: #000;
+	border: none;
+	border-radius: 5px;
+    padding: 5px 10px;
+	margin-left: 10px;
+}
 
 .content-header, .main-content{
 	padding-left: 30px;
@@ -47,22 +66,18 @@ h5{
 	padding-right: 10px;
 }
 
-#client_logo img{
-	/*width: 20%;*/
+.alert-modal .modal {
+	position: relative;
+	top: auto;
+	bottom: auto;
+	right: auto;
+	left: auto;
+	display: block;
+	z-index: 1;
 }
 
 .alert-modal .modal {
-      position: relative;
-      top: auto;
-      bottom: auto;
-      right: auto;
-      left: auto;
-      display: block;
-      z-index: 1;
-}
-
-.alert-modal .modal {
-      background: transparent !important;
+	background: transparent !important;
 }
 
 .alert-modal .modal .modal-content{
@@ -84,7 +99,6 @@ h5{
 }
 
 .alert-modal .modal-dialog{
-	/*width: 970px;*/
 	width: auto;
 	margin-left: 0px;
 }
@@ -224,7 +238,7 @@ h5{
     -moz-appearance: none;
     appearance: none;
     border: none;
-     background: transparent url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png") no-repeat 90px center;
+	background: transparent url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png") no-repeat 90px center;
 }
 
 .table_select{
@@ -232,7 +246,7 @@ h5{
     -moz-appearance: none;
     appearance: none;
     border: none;
-     background: transparent url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png") no-repeat 80px center;
+	background: transparent url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png") no-repeat 80px center;
 }
 
 .tableselect{
@@ -240,7 +254,7 @@ h5{
     -moz-appearance: none;
     appearance: none;
     border: none;
-     background: transparent url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png") no-repeat 110px center;
+	background: transparent url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png") no-repeat 110px center;
 }
 
 .none{

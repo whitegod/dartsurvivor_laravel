@@ -65,7 +65,7 @@
                     <i class="fa fa-group" ></i> <span> Users & Permissions</span>
                 </a>
             </li>
-            <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/dashboard')) ? 'active' : ''}}">
+            <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/caseworkers')) ? 'active' : ''}}">
                 <a href="/admin/caseworkers">
                     <i class="fa fa-briefcase" ></i> <span> Case Workers</span>
                 </a>
@@ -73,6 +73,11 @@
             <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/dashboard')) ? 'active' : ''}}">
                 <a href="/admin/dashboard">
                     <i class="fa fa-globe" ></i> <span> Mission Information</span>
+                </a>
+            </li>
+            <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/dashboard')) ? 'active' : ''}}">
+                <a href="/admin/dashboard">
+                    <i class="fa fa-gear" ></i> <span> Setting</span>
                 </a>
             </li>
 

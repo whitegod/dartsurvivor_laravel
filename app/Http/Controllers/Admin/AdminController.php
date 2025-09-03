@@ -269,6 +269,11 @@ class AdminController extends Controller
         $data=[];
         return view('admin.reporting',$data);
     }
-    
+    public function fetchFdecList()
+    {
+        $fdecList = \DB::table('fdec')->pluck('fdec_no');
+        // Pass $fdecList to your view (replace 'your.view' with your actual view name)
+        return view('admin.fdec_list', compact('fdecList'));
+    }
 }
 
