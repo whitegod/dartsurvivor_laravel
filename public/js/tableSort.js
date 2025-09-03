@@ -3,8 +3,16 @@ function sortDataArray(dataArray, field, direction = 'asc') {
     return dataArray.sort((a, b) => {
         let valA = a[field] ?? '';
         let valB = b[field] ?? '';
-        if (typeof valA === 'string') valA = valA.toLowerCase();
-        if (typeof valB === 'string') valB = valB.toLowerCase();
+
+        // If both values are numbers (or can be parsed as numbers), sort numerically
+        if (!isNaN(valA) && !isNaN(valB) && valA !== '' && valB !== '') {
+            valA = Number(valA);
+            valB = Number(valB);
+        } else {
+            // Otherwise, sort as strings
+            valA = valA.toString().toLowerCase();
+            valB = valB.toString().toLowerCase();
+        }
 
         if (valA < valB) return direction === 'asc' ? -1 : 1;
         if (valA > valB) return direction === 'asc' ? 1 : -1;
