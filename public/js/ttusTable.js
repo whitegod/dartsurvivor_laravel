@@ -1,4 +1,10 @@
+let ttus = [];
+let currentSortField = localStorage.getItem('ttusSortField') || null;
+let currentSortDirection = localStorage.getItem('ttusSortDirection') || 'asc';
+let globalSearchTerm = '';
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Restore filter fields from localStorage
     const savedFields = JSON.parse(localStorage.getItem('ttusFilterFields') || '[]');
     if (savedFields.length) {
         document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
@@ -6,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Save button handler
+    // Save filter fields when clicking Save
     document.getElementById('save-filter-fields').addEventListener('click', function() {
         const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox'))
             .filter(cb => cb.checked)
@@ -14,10 +20,18 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('ttusFilterFields', JSON.stringify(checkedFields));
         this.textContent = 'Saved!';
         setTimeout(() => { this.textContent = 'Save'; }, 1000);
-
-        // Close the dropdown
         document.getElementById('filter-dropdown').classList.remove('active');
     });
+
+    // Initialize ttus before sorting or rendering
+    ttus = JSON.parse(document.getElementById('ttus-data').textContent);
+
+    // Initial table render with sort
+    if (currentSortField) {
+        applySavedSort();
+    } else {
+        renderTable();
+    }
 });
 
 // --- Dropdown and Modal Handling ---
@@ -48,7 +62,6 @@ window.addEventListener('click', function (event) {
 });
 
 // --- Search Handling ---
-let globalSearchTerm = '';
 document.getElementById('search-button').addEventListener('click', function (event) {
     event.preventDefault();
     globalSearchTerm = document.getElementById('search-input').value.trim().toLowerCase();
@@ -64,10 +77,7 @@ document.getElementById('search-input').addEventListener('keydown', function (ev
 
 // --- Table Rendering ---
 function renderTable(useCheckboxes = false) {
-    const ttus = JSON.parse(document.getElementById('ttus-data').textContent);
     const fields = JSON.parse(document.getElementById('fields-data').textContent);
-
-    // Add a mapping for field labels
     const fieldLabels = {
         vin: 'VIN - Last 7',
         survivor_id: 'Survivor',
@@ -93,7 +103,36 @@ function renderTable(useCheckboxes = false) {
     headerRow.innerHTML = '';
     checkedFields.forEach(field => {
         const th = document.createElement('th');
-        th.textContent = fieldLabels[field] || field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        th.style.position = 'relative';
+        th.style.cursor = 'pointer';
+        th.dataset.field = field;
+
+        // Label
+        const labelSpan = document.createElement('span');
+        labelSpan.textContent = fieldLabels[field] || field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+        // Arrow
+        const arrowSpan = document.createElement('span');
+        arrowSpan.className = 'sort-arrow';
+        if (currentSortField === field) {
+            arrowSpan.innerHTML = currentSortDirection === 'asc' ? '&#9650;' : '&#9660;';
+            arrowSpan.style.opacity = '1';
+        } else {
+            arrowSpan.innerHTML = '&#9650;';
+            arrowSpan.style.opacity = '0.3';
+        }
+        arrowSpan.style.position = 'absolute';
+        arrowSpan.style.right = '8px';
+        arrowSpan.style.top = '50%';
+        arrowSpan.style.transform = 'translateY(-50%)';
+
+        th.appendChild(labelSpan);
+        th.appendChild(arrowSpan);
+
+        th.addEventListener('click', function() {
+            sortTableByField(field);
+        });
+
         headerRow.appendChild(th);
     });
     const thOptions = document.createElement('th');
@@ -183,7 +222,7 @@ function renderTable(useCheckboxes = false) {
     }, 0);
 }
 
-// --- Checkbox and Save Button Logic ---
+// --- Checkbox Logic ---
 document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
     cb.addEventListener('change', function() {
         renderTable(true);
@@ -209,5 +248,53 @@ function hideStatusMemo() {
     document.removeEventListener('mousemove', window._moveMemo);
 }
 
+// --- Sorting Logic ---
+function sortTableByField(field) {
+    if (currentSortField === field) {
+        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        currentSortField = field;
+        currentSortDirection = 'asc';
+    }
+
+    // Save sort status immediately when sorting
+    localStorage.setItem('ttusSortField', currentSortField);
+    localStorage.setItem('ttusSortDirection', currentSortDirection);
+
+    ttus.sort((a, b) => {
+        let valA = a[field] ?? '';
+        let valB = b[field] ?? '';
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+
+        if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
+        if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    renderTable();
+}
+
+function applySavedSort() {
+    if (currentSortField) {
+        ttus.sort((a, b) => {
+            let valA = a[currentSortField] ?? '';
+            let valB = b[currentSortField] ?? '';
+            if (typeof valA === 'string') valA = valA.toLowerCase();
+            if (typeof valB === 'string') valB = valB.toLowerCase();
+
+            if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
+            if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+    renderTable();
+}
+
 // --- Initial Table Render ---
-renderTable();
+
+if (currentSortField) {
+    applySavedSort();
+} else {
+    renderTable();
+}
