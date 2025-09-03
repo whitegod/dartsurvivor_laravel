@@ -379,7 +379,7 @@ class SurvivorController extends Controller
         } else {
             // Unassign all TTUs from this survivor
             \App\TTU::where('survivor_id', $survivor->id)->update([
-                'ttu_li_date' => null,
+                'li_date' => null,
                 'lo_date' => null,
                 'est_lo_date' => null,
                 'survivor_id' => null,

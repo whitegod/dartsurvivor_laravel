@@ -1,11 +1,37 @@
+let survivors = [];
+let currentSortField = localStorage.getItem('survivorsSortField') || null;
+let currentSortDirection = localStorage.getItem('survivorsSortDirection') || 'asc';
+let globalSearchTerm = '';
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Restore filter fields from localStorage
     const savedFields = JSON.parse(localStorage.getItem('survivorsFilterFields') || '[]');
     if (savedFields.length) {
         document.querySelectorAll('.filter-field-checkbox').forEach(cb => {
             cb.checked = savedFields.includes(cb.getAttribute('data-field'));
         });
     }
-    renderTable();
+
+    // Save filter fields when clicking Save
+    document.getElementById('save-filter-fields').addEventListener('click', function() {
+        const checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox'))
+            .filter(cb => cb.checked)
+            .map(cb => cb.getAttribute('data-field'));
+        localStorage.setItem('survivorsFilterFields', JSON.stringify(checkedFields));
+        this.textContent = 'Saved!';
+        setTimeout(() => { this.textContent = 'Save'; }, 1000);
+        document.getElementById('filter-dropdown').classList.remove('active');
+    });
+
+    // Initialize survivors before sorting or rendering
+    survivors = JSON.parse(document.getElementById('survivors-data').textContent);
+
+    // Initial table render with sort
+    if (currentSortField) {
+        applySavedSortToTable(survivors, currentSortField, currentSortDirection, renderTable);
+    } else {
+        renderTable();
+    }
 });
 
 document.querySelectorAll('.options-icon').forEach(icon => {
@@ -43,7 +69,6 @@ document.getElementById('search-input').addEventListener('keydown', function (ev
 
 // --- Dynamic Table Rendering ---
 function renderTable(useCheckboxes = false) {
-    const survivors = JSON.parse(document.getElementById('survivors-data').textContent);
     const fields = JSON.parse(document.getElementById('fields-data').textContent);
 
     // Add a mapping for field labels
@@ -71,43 +96,35 @@ function renderTable(useCheckboxes = false) {
         checkedFields = Array.from(document.querySelectorAll('.filter-field-checkbox:checked')).map(cb => cb.dataset.field);
     }
 
-    // --- Render header ---
+    // Header
     const headerRow = document.getElementById('dynamic-table-header');
     headerRow.innerHTML = '';
     let renderedName = false, renderedPhone = false;
-    checkedFields.forEach(field => {
-        const th = document.createElement('th');
-        if ((field === 'fname' || field === 'lname' || field === 'name') && !renderedName) {
-            th.textContent = 'Name';
-            headerRow.appendChild(th);
-            renderedName = true;
-        } else if ((field === 'primary_phone' || field === 'secondary_phone' || field === 'phone') && !renderedPhone) {
-            th.textContent = 'Phone';
-            headerRow.appendChild(th);
-            renderedPhone = true;
-        } else if (field === 'caseworker_id') {
-            th.textContent = 'Caseworker';
-            headerRow.appendChild(th);
-        } else if (fieldLabels[field]) {
-            th.textContent = fieldLabels[field];
-            headerRow.appendChild(th);
-        } else {
-            th.textContent = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            headerRow.appendChild(th);
-        }
+    renderSortableTableHeader({
+        checkedFields,
+        fieldLabels,
+        currentSortField,
+        currentSortDirection,
+        sortCallback: sortTableByField,
+        headerRow
     });
-    // Add options/filter column
+
     const thOptions = document.createElement('th');
     thOptions.style.position = 'relative';
     thOptions.innerHTML = `<button id="filter-button" style="background: none; border: none; cursor: pointer; padding: 0; vertical-align: middle;">
-        <i class='fa fa-filter'></i>
-    </button>`;
+            <i class='fa fa-filter'></i>
+        </button>`;
     headerRow.appendChild(thOptions);
 
-    // --- Render body ---
+    // Body
     const body = document.getElementById('dynamic-table-body');
     body.innerHTML = '';
-    survivors.forEach(survivor => {
+    survivors.filter(survivor => {
+        if (!globalSearchTerm) return true;
+        return Object.values(survivor).some(val =>
+            (val ?? '').toString().toLowerCase().includes(globalSearchTerm)
+        );
+    }).forEach(survivor => {
         const tr = document.createElement('tr');
         let renderedNameCell = false, renderedPhoneCell = false;
         checkedFields.forEach(field => {
@@ -220,3 +237,20 @@ document.addEventListener('click', function (event) {
         document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
     }
 });
+
+// --- Sorting Logic ---
+function sortTableByField(field) {
+    if (currentSortField === field) {
+        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        currentSortField = field;
+        currentSortDirection = 'asc';
+    }
+
+    // Save sort status immediately when sorting
+    localStorage.setItem('survivorsSortField', currentSortField);
+    localStorage.setItem('survivorsSortDirection', currentSortDirection);
+
+    sortDataArray(survivors, field, currentSortDirection);
+    renderTable();
+}

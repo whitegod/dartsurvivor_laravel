@@ -19,3 +19,48 @@ function applySavedSortToTable(dataArray, field, direction, renderCallback) {
     }
     renderCallback();
 }
+
+function renderSortableTableHeader({
+    checkedFields,
+    fieldLabels,
+    currentSortField,
+    currentSortDirection,
+    sortCallback,
+    headerRow
+}) {
+    headerRow.innerHTML = '';
+    checkedFields.forEach(field => {
+        const th = document.createElement('th');
+        th.style.position = 'relative';
+        th.style.cursor = 'pointer';
+        th.dataset.field = field;
+
+        // Label
+        const labelSpan = document.createElement('span');
+        labelSpan.textContent = fieldLabels[field] || field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+        // Arrow
+        const arrowSpan = document.createElement('span');
+        arrowSpan.className = 'sort-arrow';
+        if (currentSortField === field) {
+            arrowSpan.innerHTML = currentSortDirection === 'asc' ? '&#9650;' : '&#9660;';
+            arrowSpan.style.opacity = '1';
+        } else {
+            arrowSpan.innerHTML = '&#9650;';
+            arrowSpan.style.opacity = '0.3';
+        }
+        arrowSpan.style.position = 'absolute';
+        arrowSpan.style.right = '8px';
+        arrowSpan.style.top = '50%';
+        arrowSpan.style.transform = 'translateY(-50%)';
+
+        th.appendChild(labelSpan);
+        th.appendChild(arrowSpan);
+
+        th.addEventListener('click', function() {
+            sortCallback(field);
+        });
+
+        headerRow.appendChild(th);
+    });
+}

@@ -101,40 +101,15 @@ function renderTable(useCheckboxes = false) {
     // Header
     const headerRow = document.getElementById('dynamic-table-header');
     headerRow.innerHTML = '';
-    checkedFields.forEach(field => {
-        const th = document.createElement('th');
-        th.style.position = 'relative';
-        th.style.cursor = 'pointer';
-        th.dataset.field = field;
-
-        // Label
-        const labelSpan = document.createElement('span');
-        labelSpan.textContent = fieldLabels[field] || field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
-        // Arrow
-        const arrowSpan = document.createElement('span');
-        arrowSpan.className = 'sort-arrow';
-        if (currentSortField === field) {
-            arrowSpan.innerHTML = currentSortDirection === 'asc' ? '&#9650;' : '&#9660;';
-            arrowSpan.style.opacity = '1';
-        } else {
-            arrowSpan.innerHTML = '&#9650;';
-            arrowSpan.style.opacity = '0.3';
-        }
-        arrowSpan.style.position = 'absolute';
-        arrowSpan.style.right = '8px';
-        arrowSpan.style.top = '50%';
-        arrowSpan.style.transform = 'translateY(-50%)';
-
-        th.appendChild(labelSpan);
-        th.appendChild(arrowSpan);
-
-        th.addEventListener('click', function() {
-            sortTableByField(field);
-        });
-
-        headerRow.appendChild(th);
+    renderSortableTableHeader({
+        checkedFields,
+        fieldLabels,
+        currentSortField,
+        currentSortDirection,
+        sortCallback: sortTableByField,
+        headerRow
     });
+
     const thOptions = document.createElement('th');
     thOptions.style.position = 'relative';
     thOptions.innerHTML = `<button id="filter-button" style="background: none; border: none; cursor: pointer; padding: 0; vertical-align: middle;">
