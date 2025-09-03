@@ -64,8 +64,8 @@
                     <div class="form-group">
                         <input type="text" name="title_model" placeholder="Enter model" value="{{ old('title_model', $ttu->title_model ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
-                    <div class="form-group left-label-field">
-                        <label for="title-select" style="margin-right: 5px; font-size: 13px;">Do&nbsp;we&nbsp;have&nbsp;the&nbsp;Title?</label>
+                    <div class="form-group">
+                        <label for="title-select" style="margin-right: 5px; font-size: 13px;">Do we have the Title?</label>
                         <select id="title-select" name="has_title" {{ !empty($readonly) ? 'disabled' : '' }}>
                             <option {{ old('has_title', $ttu->has_title ?? '') == 'Yes' ? 'selected' : '' }}>Yes</option>
                             <option {{ old('has_title', $ttu->has_title ?? '') == 'No' ? 'selected' : '' }}>No</option>
@@ -318,32 +318,42 @@
                         </div>
                         <!-- Donation Section -->
                         <div id="donation-section" class="form-section" style="margin-bottom: 10px; display: none;">
-                            <div class="left-label-field">
+                            <div class="form-group">
                                 <label>Is the recipient a State, City, County, or NPO?</label>
                                 <select name="recipient_type" style="flex:0.2;" {{ !empty($readonly) ? 'disabled' : '' }}>
                                     <option {{ old('recipient_type', $transfer->recipient_type ?? '') == 'YES' ? 'selected' : '' }}>YES</option>
                                     <option {{ old('recipient_type', $transfer->recipient_type ?? '') == 'NO' ? 'selected' : '' }}>NO</option>
                                 </select>
                             </div>
-                            <div class="left-label-field">
-                                <label for="donation_agency" style="white-space:nowrap;">What Agency Is being given to?</label>
-                                <input type="text" id="donation_agency" name="donation_agency" value="{{ old('donation_agency', $transfer->donation_agency ?? '') }}" style="max-width: 300px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
-                            </div>
-                            <div class="left-label-field">
-                                <label for="donation_category" style="white-space:nowrap;">Donation Category</label>
-                                <input type="text" id="donation_category" name="donation_category" value="{{ old('donation_category', $transfer->donation_category ?? '') }}" style="max-width: 300px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                            <div class="form-row margin-bottom-none">
+                                <div class="form-group">
+                                    <label for="donation_agency" style="white-space:nowrap;">What Agency Is being given to?</label>
+                                    <input type="text" id="donation_agency" name="donation_agency" value="{{ old('donation_agency', $transfer->donation_agency ?? '') }}" style="max-width: 300px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                                </div>
+                                <div class="form-group">
+                                    <label for="donation_category" style="white-space:nowrap;">Donation Category</label>
+                                    <select id="donation_category" name="donation_category" style="max-width: 300px;" {{ !empty($readonly) ? 'disabled' : '' }}>
+                                        <option value="" {{ old('donation_category', $transfer->donation_category ?? '') == '' ? 'selected' : '' }}>-- Select Category --</option>
+                                        <option value="State" {{ old('donation_category', $transfer->donation_category ?? '') == 'State' ? 'selected' : '' }}>State</option>
+                                        <option value="County" {{ old('donation_category', $transfer->donation_category ?? '') == 'County' ? 'selected' : '' }}>County</option>
+                                        <option value="City" {{ old('donation_category', $transfer->donation_category ?? '') == 'City' ? 'selected' : '' }}>City</option>
+                                        <option value="Non-Profit" {{ old('donation_category', $transfer->donation_category ?? '') == 'Non-Profit' ? 'selected' : '' }}>Non-Profit</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Sold At Auction Section -->
                         <div id="sold-at-auction-section" class="form-section" style="margin-bottom: 10px; display: none;">
-                            <div class="left-label-field">
-                                <label for="sold_at_auction_price">Sold At Auction Price</label>
-                                <input type="text" id="sold_at_auction_price" name="sold_at_auction_price" value="{{ old('sold_at_auction_price', $transfer->sold_at_auction_price ?? '') }}" style="max-width: 150px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
-                            </div>
-                            <div class="left-label-field">
-                                <label for="recipient" style="white-space:nowrap;">Who is recipient?</label>
-                                <input type="text" id="recipient" name="recipient" value="{{ old('recipient', $transfer->recipient ?? '') }}" style="max-width: 300px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                            <div class="form-row margin-bottom-none">
+                                <div class="form-group">
+                                    <label for="sold_at_auction_price">Sold At Auction Price</label>
+                                    <input type="text" id="sold_at_auction_price" name="sold_at_auction_price" value="{{ old('sold_at_auction_price', $transfer->sold_at_auction_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient" style="white-space:nowrap;">Who is recipient?</label>
+                                    <input type="text" id="recipient" name="recipient" value="{{ old('recipient', $transfer->recipient ?? '') }}" style="max-width: 300px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                                </div>
                             </div>
                         </div>
                         <div class="form-section">    
