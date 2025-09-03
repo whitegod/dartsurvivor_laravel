@@ -37,6 +37,7 @@
       <div class="select-form">
         <label for="fdec">FDEC</label>
         <select name="fdec" id="fdec">
+          <option value="" selected>All</option>
           @foreach($fdecList as $fdec)
               <option value="{{ $fdec }}">{{ $fdec }}</option>
           @endforeach
