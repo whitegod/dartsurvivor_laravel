@@ -75,8 +75,8 @@
                     <i class="fa fa-globe" ></i> <span> Mission Information</span>
                 </a>
             </li>
-            <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/dashboard')) ? 'active' : ''}}">
-                <a href="/admin/dashboard">
+            <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/setting')) ? 'active' : ''}}">
+                <a href="/admin/setting">
                     <i class="fa fa-gear" ></i> <span> Setting</span>
                 </a>
             </li>
