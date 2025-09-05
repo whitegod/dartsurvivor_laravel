@@ -12,9 +12,16 @@ class SurvivorController extends Controller
     {
         $query = \DB::table('survivor'); // changed from 'survivors'
 
+        // Filter by FDEC if present
+        if ($request->has('fdec_id') && !empty($request->fdec_id)) {
+            $query->where('fdec_id', $request->fdec_id);
+        }
+
+        // Search logic (unchanged)
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
-            $query->where('fema_id', 'LIKE', "%$search%")
+            $query->where(function($q) use ($search) {
+                $q->where('fema_id', 'LIKE', "%$search%")
                   ->orWhere('fname', 'LIKE', "%$search%")
                   ->orWhere('lname', 'LIKE', "%$search%")
                   ->orWhere('address', 'LIKE', "%$search%")
@@ -22,6 +29,7 @@ class SurvivorController extends Controller
                   ->orWhere('secondary_phone', 'LIKE', "%$search%")
                   ->orWhere('hh_size', 'LIKE', "%$search%")
                   ->orWhere('li_date', 'LIKE', "%$search%");
+            });
         }
 
         $survivors = $query->get();
@@ -36,7 +44,9 @@ class SurvivorController extends Controller
         }
 
         $fields = \Schema::getColumnListing('survivor'); // changed from 'survivors'
-        return view('admin.survivors', compact('survivors', 'fields'));
+        $fdecList = \DB::table('fdec')->get(); // Pass FDEC list for header filter
+
+        return view('admin.survivors', compact('survivors', 'fields', 'fdecList'));
     }
 
     public function viewSurvivor($id)
@@ -89,11 +99,12 @@ class SurvivorController extends Controller
         if (empty($ttus) || (is_object($ttus) && $ttus->count() === 0) || (is_array($ttus) && count($ttus) === 0)) {
             $ttus = [null];
         }
+        $fdecList = \DB::table('fdec')->get();
         return view('admin.survivorsEdit', compact(
             'survivor', 'ttus', 'hotelRooms', 'stateparkUnits',
             'hotelName', 'hotelRoom', 'hotelLiDate', 'hotelLoDate',
             'stateparkName', 'unitName', 'stateparkLiDate', 'stateparkLoDate',
-            'locationType', 'readonly'
+            'locationType', 'readonly', 'fdecList'
         ));
     }
 
@@ -145,11 +156,12 @@ class SurvivorController extends Controller
         if (empty($ttus) || (is_object($ttus) && $ttus->count() === 0) || (is_array($ttus) && count($ttus) === 0)) {
             $ttus = [null];
         }
+        $fdecList = \DB::table('fdec')->get();
         return view('admin.survivorsEdit', compact(
             'survivor', 'ttus', 'hotelRooms', 'stateparkUnits',
             'hotelName', 'hotelRoom', 'hotelLiDate', 'hotelLoDate',
             'stateparkName', 'unitName', 'stateparkLiDate', 'stateparkLoDate',
-            'locationType'
+            'locationType', 'fdecList'
         ));
     }
 

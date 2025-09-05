@@ -31,6 +31,9 @@ select {
     font-family: inherit;
     font-weight: 400;
 }
+input[type=checkbox] {
+    margin: 0 !important;
+}
 textarea {
     width: 100%;
     height: 60px;
@@ -52,7 +55,7 @@ select {
     -moz-appearance: none;
     background-image: url("data:image/svg+xml;charset=UTF-8,<svg width='16' height='16' fill='gray' xmlns='http://www.w3.org/2000/svg'><path d='M4 6l4 4 4-4'/></svg>");
     background-repeat: no-repeat;
-    background-position: right 10px center;
+    background-position: right 3px center;
     background-size: 16px 16px;
 }
 

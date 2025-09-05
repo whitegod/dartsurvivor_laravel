@@ -8,17 +8,18 @@ class Survivor extends Model
 {
     protected $table = 'survivor'; // Specify the table name
     protected $fillable = [
-        'fname',         // First Name
-        'lname',         // Last Name
-        'address',      // Address
+        'fname',
+        'lname',
+        'address',
         'city',
         'state',
         'zip',
-        'primary_phone',        // Phone
-        'secondary_phone',        // Phone
+        'fdec_id',
+        'primary_phone',
+        'secondary_phone',
         'county',
         'own_rent',
-        'hh_size',      // HH Size (Household Size)
+        'hh_size',
         'pets',
         'li_date',
         'email',
@@ -29,7 +30,7 @@ class Survivor extends Model
         'statepark_lo_date',
         'opt_out',
         'opt_out_reason',
-        'caseworker_id', // Case Worker ID
+        'caseworker_id',
         'notes',
         'author',
         'fema_id',

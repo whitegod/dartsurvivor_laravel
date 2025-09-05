@@ -35,13 +35,14 @@
       </div>
 
       <div class="select-form">
-        <label for="fdec">FDEC</label>
-        <select name="fdec" id="fdec">
+        <label for="fdec-filter">FDEC</label>
+        <select name="fdec-filter" id="fdec-filter">
           <option value="" selected>All</option>
           @foreach($fdecList as $fdec)
-              <option value="{{ $fdec }}">{{ $fdec }}</option>
+              <option value="{{ $fdec->id }}" {{ request('fdec-filter') == $fdec->id ? 'selected' : '' }}>{{ $fdec->fdec_no }}</option>
           @endforeach
         </select>
       </div>
     </nav>
 </header>
+<script src="{{ asset('js/fdec-select.js') }}"></script>

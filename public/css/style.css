@@ -30,6 +30,7 @@ header .select-form select{
 	border-radius: 5px;
     padding: 5px 10px;
 	margin-left: 10px;
+	background-position: right 0 center;
 }
 
 .content-header, .main-content{

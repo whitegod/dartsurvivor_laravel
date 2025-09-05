@@ -15,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         View::composer('nav.header', function ($view) {
-            $view->with('fdecList', \DB::table('fdec')->pluck('fdec_no'));
+            $view->with('fdecList', \DB::table('fdec')->get());
         });
     }
 

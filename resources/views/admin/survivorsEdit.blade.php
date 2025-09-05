@@ -58,6 +58,15 @@
                 </div>
 
                 <div class="form-row">
+                    <div class="form-group" style="flex:2;">
+                        <label for="fdec">FDEC</label>
+                        <select name="fdec_id" id="fdec_id" {{ !empty($readonly) ? 'disabled' : '' }}>
+                            <option value="">Select FDEC</option>
+                            @foreach($fdecList as $fdec)
+                                <option value="{{ $fdec->id }}" {{ old('fdec_id', $survivor->fdec_id ?? '') == $fdec->id ? 'selected' : '' }}>{{ $fdec->fdec_no }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="fema_id">FEMA-ID</label>
                         <input type="text" id="fema_id" name="fema_id" value="{{ old('fema_id', $survivor->fema_id ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
@@ -74,7 +83,7 @@
                         <label for="county">County</label>
                         <input type="text" id="county" name="county" value="{{ $survivor->county ?? '' }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="flex:2;">
                         <label for="own_rent">Own/Rent</label>
                         <select id="own_rent" name="own_rent" {{ !empty($readonly) ? 'disabled' : '' }}>
                             <option value="Own" {{ (old('own_rent', $survivor->own_rent ?? '') == 'Own') ? 'selected' : '' }}>Own</option>
@@ -375,6 +384,8 @@
     window.initialSelectedRoom = @json(old('hotel_room', $hotelRoom ?? ''));
     window.initialHotelName = @json(old('hotel_name', $hotelName ?? $survivor->hotel_name ?? ''));
     window.initialStateparkName = @json(old('statepark_name', $stateparkName ?? $survivor->statepark_name ?? ''));
+    window.survivorFdecId = "{{ $survivor->fdec_id ?? '' }}";
 </script>
+<script src="{{ asset('js/fdec-select.js') }}"></script>
 <script src="{{ asset('js/survivorsEdit.js') }}"></script>
 @endsection
