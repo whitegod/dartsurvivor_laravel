@@ -12,10 +12,9 @@ class SurvivorController extends Controller
     {
         $query = \DB::table('survivor');
 
-        // Filter by FDEC if present — handle fdec_id stored as JSON array
+        // FDEC filter (JSON array stored in fdec_id)
         if ($request->has('fdec_id') && !empty($request->fdec_id)) {
             $fdecId = (string) $request->fdec_id;
-            // match when fdec_id JSON array contains the selected id (stored as string or number)
             $query->whereRaw('JSON_CONTAINS(fdec_id, ?)', ['"' . $fdecId . '"']);
         }
 
@@ -35,6 +34,40 @@ class SurvivorController extends Controller
         }
 
         $survivors = $query->get();
+
+        // collect all FDEC ids from survivors (fdec_id stored as JSON array)
+        $allFdecIds = [];
+        foreach ($survivors as $s) {
+            $ids = @json_decode($s->fdec_id ?? '[]', true);
+            if (is_array($ids)) {
+                foreach ($ids as $id) {
+                    $allFdecIds[] = (string) $id;
+                }
+            }
+        }
+        $allFdecIds = array_values(array_unique(array_filter($allFdecIds)));
+
+        // build map id => fdec_no
+        $fdecMap = [];
+        if (!empty($allFdecIds)) {
+            $fdecRows = \DB::table('fdec')->whereIn('id', $allFdecIds)->select('id', 'fdec_no')->get();
+            foreach ($fdecRows as $r) {
+                $fdecMap[(string)$r->id] = $r->fdec_no;
+            }
+        }
+
+        // attach readable fdec numbers to each survivor
+        foreach ($survivors as $s) {
+            $ids = @json_decode($s->fdec_id ?? '[]', true);
+            $numbers = [];
+            if (is_array($ids)) {
+                foreach ($ids as $id) {
+                    $idKey = (string)$id;
+                    if (isset($fdecMap[$idKey])) $numbers[] = $fdecMap[$idKey];
+                }
+            }
+            $s->fdec_numbers = $numbers; // array of fdec_no strings
+        }
 
         foreach ($survivors as $survivor) {
             if (!empty($survivor->caseworker_id)) {

@@ -39,6 +39,7 @@
                                 'fname', 'lname', 'name' => 'Name',
                                 'primary_phone', 'secondary_phone', 'phone' => 'Phone',
                                 'fema_id' => 'FEMA-ID',
+                                'fdec_id' => 'FDEC',
                                 'hh_size' => 'HH Size',
                                 'own_rent' => 'Own/Rent',
                                 'caseworker_id' => 'Caseworker',
