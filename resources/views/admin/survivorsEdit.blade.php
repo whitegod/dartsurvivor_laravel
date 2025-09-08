@@ -196,6 +196,25 @@
                                 <div class="vin-suggestions" style="position:relative; z-index:10;"></div>
                             </div>
                             <div class="form-group">
+                                <label>Location</label>
+                                <div style="position:relative;">
+                                    <input name="location[]" type="text" class="location-autocomplete"
+                                        value="{{ old('location.' . $loop->index, $ttu->location ?? '') }}"
+                                        autocomplete="off" {{ !empty($readonly) ? 'readonly' : '' }}>
+                                    <div class="location-suggestions" style="position:absolute; left:0; top:100%; width:100%; z-index:1000;"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="flex:4;">
+                                <label>Unit #</label>
+                                <div style="position:relative;">
+                                    <input name="unit_num[]" type="text" class="unit-autocomplete"
+                                        value="{{ old('unit_num.' . $loop->index, $ttu->unit_num ?? $ttu->unit_name ?? '') }}"
+                                        autocomplete="off" {{ !empty($readonly) ? 'readonly' : '' }}>
+                                    <div class="unit-suggestions" style="position:absolute; left:0; top:100%; width:100%; z-index:1000;"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label>LI Date</label>
                                 <input name="ttu_li_date[]" type="date" value="{{ old('ttu_li_date.' . $loop->index, $ttu->li_date ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                             </div>
