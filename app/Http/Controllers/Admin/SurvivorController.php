@@ -10,11 +10,13 @@ class SurvivorController extends Controller
 {
     public function survivors(Request $request)
     {
-        $query = \DB::table('survivor'); // changed from 'survivors'
+        $query = \DB::table('survivor');
 
-        // Filter by FDEC if present
+        // Filter by FDEC if present — handle fdec_id stored as JSON array
         if ($request->has('fdec_id') && !empty($request->fdec_id)) {
-            $query->where('fdec_id', $request->fdec_id);
+            $fdecId = (string) $request->fdec_id;
+            // match when fdec_id JSON array contains the selected id (stored as string or number)
+            $query->whereRaw('JSON_CONTAINS(fdec_id, ?)', ['"' . $fdecId . '"']);
         }
 
         // Search logic (unchanged)

@@ -405,7 +405,8 @@
     window.initialSelectedRoom = @json(old('hotel_room', $hotelRoom ?? ''));
     window.initialHotelName = @json(old('hotel_name', $hotelName ?? $survivor->hotel_name ?? ''));
     window.initialStateparkName = @json(old('statepark_name', $stateparkName ?? $survivor->statepark_name ?? ''));
-    window.survivorFdecId = "{{ $survivor->fdec_id ?? '' }}";
+    window.survivorFdecId = @json(old('fdec_id', $survivor->fdec_id ?? []));
+    window.survivorReadonly = {{ !empty($readonly) ? 'true' : 'false' }};
 </script>
 <script src="{{ asset('js/fdec-select.js') }}"></script>
 <script src="{{ asset('js/survivorsEdit.js') }}"></script>
