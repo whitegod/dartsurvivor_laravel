@@ -49,4 +49,21 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = url.toString();
         });
     }
+
+    if (editFdec && headerFdec && headerFdec.value) {
+        for (var i = 0; i < editFdec.options.length; i++) {
+            editFdec.options[i].selected = (editFdec.options[i].value === headerFdec.value);
+        }
+    }
 });
+
+if (window.jQuery && $('#fdec_id').length) {
+    $('#fdec_id').select2({
+        placeholder: "Select FDEC(s)",
+        allowClear: true,
+        width: '100%'
+    });
+    if (window.survivorReadonly) {
+        $('#fdec_id').prop('disabled', true);
+    }
+}

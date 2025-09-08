@@ -23,6 +23,11 @@
 <link rel="stylesheet" type="text/css" href="{{config('url')}}/plugins/chartjs/areachart/jquery-ui-1.10.4.css" /> 
 
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
 <!-- AdminLTE Skins. Choose a skin from the css/skins
       folder instead of downloading all of them to reduce the load. -->
 <link rel="stylesheet" href="{{config('url')}}/css/skins/_all-skins.min.css">

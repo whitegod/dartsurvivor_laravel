@@ -60,10 +60,12 @@
                 <div class="form-row">
                     <div class="form-group" style="flex:2;">
                         <label for="fdec">FDEC</label>
-                        <select name="fdec_id" id="fdec_id" {{ !empty($readonly) ? 'disabled' : '' }}>
-                            <option value="">Select FDEC</option>
+                        <select name="fdec_id[]" id="fdec_id" multiple>
                             @foreach($fdecList as $fdec)
-                                <option value="{{ $fdec->id }}" {{ old('fdec_id', $survivor->fdec_id ?? '') == $fdec->id ? 'selected' : '' }}>{{ $fdec->fdec_no }}</option>
+                                <option value="{{ $fdec->id }}"
+                                    {{ (is_array(old('fdec_id', $survivor->fdec_id ?? [])) && in_array($fdec->id, old('fdec_id', $survivor->fdec_id ?? []))) ? 'selected' : '' }}>
+                                    {{ $fdec->fdec_no }}
+                                </option>
                             @endforeach
                         </select>
                     </div>

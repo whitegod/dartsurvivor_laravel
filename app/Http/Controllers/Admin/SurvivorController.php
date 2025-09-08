@@ -360,6 +360,7 @@ class SurvivorController extends Controller
             $data['li_date'] = null;
         }
 
+        $data['fdec_id'] = json_encode($request->input('fdec_id', []));
         $survivor->update($data);
 
         // TTU
