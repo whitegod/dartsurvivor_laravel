@@ -181,6 +181,7 @@ input:checked + .slider:before {
 
 /* --- Autocomplete --- */
 .autocomplete-suggestions {
+    display: none;
     background: #fff;
     position: absolute;
     z-index: 1000;
@@ -189,6 +190,7 @@ input:checked + .slider:before {
     width: 100%;
     top: 100%;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgb(204, 204, 204);
 }
 .autocomplete-suggestion {
     padding: 8px 12px;

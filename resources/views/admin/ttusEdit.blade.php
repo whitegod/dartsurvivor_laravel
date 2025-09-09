@@ -64,9 +64,9 @@
                     <div class="form-group">
                         <input type="text" name="title_model" placeholder="Enter model" value="{{ old('title_model', $ttu->title_model ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="display:flex;">
                         <label for="title-select" style="margin-right: 5px; font-size: 13px;">Do we have the Title?</label>
-                        <select id="title-select" name="has_title" {{ !empty($readonly) ? 'disabled' : '' }}>
+                        <select id="title-select" name="has_title" style="flex:2;" {{ !empty($readonly) ? 'disabled' : '' }}>
                             <option {{ old('has_title', $ttu->has_title ?? '') == 'Yes' ? 'selected' : '' }}>Yes</option>
                             <option {{ old('has_title', $ttu->has_title ?? '') == 'No' ? 'selected' : '' }}>No</option>
                         </select>
@@ -88,7 +88,7 @@
                     <div class="form-group" style="position: relative;">
                         <label for="location">Location</label>
                         <input type="text" id="location" name="location" value="{{ old('location', $ttu->location ?? '') }}" autocomplete="off" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
-                        <div id="location-suggestions" class="autocomplete-suggestions" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ccc; z-index:1000; max-height:200px; overflow-y:auto;"></div>
+                        <div id="location-suggestions" class="autocomplete-suggestions"></div>
                     </div>
                     <div class="form-group" id="unit_num-group" style="position: relative;">
                         <label for="unit_num">Unit #</label>
@@ -99,7 +99,7 @@
                                 disabled readonly
                             @endif
                         >
-                        <div id="unit-num-suggestions" class="autocomplete-suggestions" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ccc; z-index:1000; max-height:200px; overflow-y:auto;"></div>
+                        <div id="unit-num-suggestions" class="autocomplete-suggestions"></div>
                     </div>
                     <div class="form-group">
                         <label for="county">County</label>
@@ -123,7 +123,7 @@
                     <div class="form-group" style="position: relative;">
                         <label for="purchase_origin">Purchase Origin</label>
                         <input type="text" id="purchase_origin" name="purchase_origin" value="{{ old('purchase_origin', $ttu->purchase_origin ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
-                        <div id="purchase-origin-suggestions" class="autocomplete-suggestions" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ccc; z-index:1000; max-height:200px; overflow-y:auto;"></div>
+                        <div id="purchase-origin-suggestions" class="autocomplete-suggestions"></div>
                     </div>
                     <div class="form-group">
                         <label for="total_beds">Total beds</label>
@@ -287,7 +287,7 @@
                     </div>
                     <div class="form-column">
                         <div class="form-row">
-                            <div class="form-group" style="flex:1;">
+                            <div class="form-group">
                                 <label for="disposition">Disposition</label>
                                 <select id="disposition" name="disposition" {{ !empty($readonly) ? 'disabled' : '' }}>
                                     <option value="" {{ old('disposition', $ttu->disposition ?? '') == '' ? 'selected' : '' }}>-- Select Disposition --</option>    
@@ -311,7 +311,7 @@
                                     <option value="Unknown" {{ old('disposition', $ttu->disposition ?? '') == 'Unknown' ? 'selected' : '' }}>Unknown</option>
                                 </select>
                             </div>
-                            <div class="form-group" style="flex:1; margin-right: 0;">
+                            <div class="form-group">
                                 <label for="transpo_agency">Transport Agency</label>
                                 <input type="text" id="transpo_agency" name="transpo_agency" value="{{ old('transpo_agency', $ttu->transpo_agency ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                             </div>
@@ -320,19 +320,20 @@
                         <div id="donation-section" class="form-section" style="margin-bottom: 10px; display: none;">
                             <div class="form-group">
                                 <label>Is the recipient a State, City, County, or NPO?</label>
-                                <select name="recipient_type" style="flex:0.2;" {{ !empty($readonly) ? 'disabled' : '' }}>
-                                    <option {{ old('recipient_type', $transfer->recipient_type ?? '') == 'YES' ? 'selected' : '' }}>YES</option>
-                                    <option {{ old('recipient_type', $transfer->recipient_type ?? '') == 'NO' ? 'selected' : '' }}>NO</option>
+                                <select name="recipient_type" id="recipient_type" {{ !empty($readonly) ? 'disabled' : '' }}>
+                                    <option value="">-- Select --</option>
+                                    <option value="yes" {{ (isset($transfer->recipient_type) && strtolower($transfer->recipient_type) === 'yes') || (isset($ttu->transfer['recipient_type']) && strtolower($ttu->transfer['recipient_type']) === 'yes') ? 'selected' : '' }}>Yes</option>
+                                    <option value="no"  {{ (isset($transfer->recipient_type) && strtolower($transfer->recipient_type) === 'no')  || (isset($ttu->transfer['recipient_type']) && strtolower($ttu->transfer['recipient_type']) === 'no')  ? 'selected' : '' }}>No</option>
                                 </select>
                             </div>
                             <div class="form-row margin-bottom-none">
                                 <div class="form-group">
-                                    <label for="donation_agency" style="white-space:nowrap;">What Agency Is being given to?</label>
+                                    <label for="donation_agency">What Agency Is being given to?</label>
                                     <input type="text" id="donation_agency" name="donation_agency" value="{{ old('donation_agency', $transfer->donation_agency ?? '') }}" style="max-width: 300px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                                 </div>
                                 <div class="form-group">
-                                    <label for="donation_category" style="white-space:nowrap;">Donation Category</label>
-                                    <select id="donation_category" name="donation_category" style="max-width: 300px;" {{ !empty($readonly) ? 'disabled' : '' }}>
+                                    <label for="donation_category">Donation Category</label>
+                                    <select id="donation_category" name="donation_category" {{ !empty($readonly) ? 'disabled' : '' }}>
                                         <option value="" {{ old('donation_category', $transfer->donation_category ?? '') == '' ? 'selected' : '' }}>-- Select Category --</option>
                                         <option value="State" {{ old('donation_category', $transfer->donation_category ?? '') == 'State' ? 'selected' : '' }}>State</option>
                                         <option value="County" {{ old('donation_category', $transfer->donation_category ?? '') == 'County' ? 'selected' : '' }}>County</option>
@@ -351,8 +352,8 @@
                                     <input type="text" id="sold_at_auction_price" name="sold_at_auction_price" value="{{ old('sold_at_auction_price', $transfer->sold_at_auction_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                                 </div>
                                 <div class="form-group">
-                                    <label for="recipient" style="white-space:nowrap;">Who is recipient?</label>
-                                    <input type="text" id="recipient" name="recipient" value="{{ old('recipient', $transfer->recipient ?? '') }}" style="max-width: 300px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                                    <label for="recipient">Who is recipient?</label>
+                                    <input type="text" id="recipient" name="recipient" value="{{ old('recipient', $transfer->recipient ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                                 </div>
                             </div>
                         </div>

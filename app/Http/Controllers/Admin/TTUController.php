@@ -12,20 +12,43 @@ class TTUController extends Controller
 {
     public function ttus(Request $request)
     {
-        $query = \App\TTU::query();
+        // determine actual TTU table name from the model and get transfer columns
+        $ttuTable = (new TTU)->getTable();
+        // get transfer columns but exclude primary/key fields
+        $transferCols = array_values(array_filter(\Schema::getColumnListing('transfer'), function($c){
+            return $c !== 'id' && $c !== 'ttu_id';
+        }));
 
+        // select ttu table columns and explicit transfer columns (exclude transfer.id and transfer.ttu_id)
+        $selects = [$ttuTable . '.*'];
+        foreach ($transferCols as $col) {
+            $selects[] = "transfer.{$col}";
+        }
+        $query = \App\TTU::leftJoin('transfer', $ttuTable . '.id', '=', 'transfer.ttu_id')
+            ->select($selects);
+
+        // apply search (prefix TTU columns)
         if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
-            $query->where('vin', 'LIKE', "%$search%")
-                  ->orWhere('address', 'LIKE', "%$search%")
-                  ->orWhere('unit', 'LIKE', "%$search%")
-                  ->orWhere('status', 'LIKE', "%$search%")
-                  ->orWhere('total_beds', 'LIKE', "%$search%");
+            $s = $request->search;
+            $query->where(function($q) use ($s) {
+                $q->where('ttu.vin', 'LIKE', "%$s%")
+                  ->orWhere('ttu.address', 'LIKE', "%$s%")
+                  ->orWhere('ttu.unit', 'LIKE', "%$s%")
+                  ->orWhere('ttu.status', 'LIKE', "%$s%")
+                  ->orWhere('ttu.total_beds', 'LIKE', "%$s%");
+            });
+        }
+
+        // default sort: TTU id ascending unless caller provided explicit sort params
+        if (! $request->has('sort') && ! $request->has('order') && ! $request->has('order_by')) {
+            $query->orderBy($ttuTable . '.id', 'asc');
         }
 
         $ttus = $query->get();
 
+        // perform post-processing and move transfer columns into a nested transfer object
         foreach ($ttus as $ttu) {
+            // basic TTU transformations
             $ttu->author = $ttu->author
                 ? (\DB::table('users')->where('id', $ttu->author)->value('name') ?? $ttu->author)
                 : '';
@@ -41,9 +64,38 @@ class TTUController extends Controller
                     ? trim(($survivor->fname ?? '') . ' ' . ($survivor->lname ?? ''))
                     : $ttu->survivor_id;
             }
+
+            // collect transfer columns (original names) from the joined row into $ttu->transfer
+            $transferData = [];
+            foreach ($transferCols as $c) {
+                if (property_exists($ttu, $c) && $ttu->{$c} !== null) {
+                    $transferData[$c] = $ttu->{$c};
+                    // remove the flat property so TTU object stays clean
+                    unset($ttu->{$c});
+                }
+            }
+
+            // normalize recipient_type to 'yes'/'no' when it's stored as 1/0
+            if (isset($transferData['recipient_type'])) {
+                $rt = $transferData['recipient_type'];
+                $rtLower = is_scalar($rt) ? strtolower((string)$rt) : '';
+                if ($rtLower === '1' || $rtLower === 'true' || $rtLower === 'yes') {
+                    $transferData['recipient_type'] = 'yes';
+                } elseif ($rtLower === '0' || $rtLower === 'false' || $rtLower === 'no') {
+                    $transferData['recipient_type'] = 'no';
+                } else {
+                    // leave non-boolean values as-is
+                    $transferData['recipient_type'] = $rt;
+                }
+            }
+
+            $ttu->transfer = $transferData;
         }
 
-        $fields = \Schema::getColumnListing('ttu');
+        // build fields list (TTU columns discovered from the model + transfer columns)
+        $ttuFields = \Schema::getColumnListing($ttuTable);
+        $fields = array_merge($ttuFields, $transferCols);
+
         return view('admin.ttus', compact('ttus', 'fields'));
     }
 
@@ -86,8 +138,16 @@ class TTUController extends Controller
         $is_sold_at_auction = 0;
         if ($ttu) {
             $transfer = \DB::table('transfer')->where('ttu_id', $ttu->id)->first();
-            $is_being_donated = $transfer ? ($transfer->donated ?? 0) : ($ttu->is_being_donated ?? 0);
-            $is_sold_at_auction = $transfer ? ($transfer->auction ?? 0) : ($ttu->is_sold_at_auction ?? 0);
+
+            // transfer fields are stored as 'yes'/'no' varchar now
+            if ($transfer) {
+                $is_being_donated = (isset($transfer->being_donated) && strtolower($transfer->being_donated) === 'yes') ? 1 : 0;
+                $is_sold_at_auction = (isset($transfer->sold_at_auction) && strtolower($transfer->sold_at_auction) === 'yes') ? 1 : 0;
+            } else {
+                // fallback to ttu-level fields (if present) which also use 'yes'/'no'
+                $is_being_donated = (isset($ttu->being_donated) && strtolower($ttu->being_donated) === 'yes') ? 1 : 0;
+                $is_sold_at_auction = (isset($ttu->sold_at_auction) && strtolower($ttu->sold_at_auction) === 'yes') ? 1 : 0;
+            }
         }
 
         // Optionally, fetch all survivors for a dropdown
@@ -147,8 +207,16 @@ class TTUController extends Controller
         $is_sold_at_auction = 0;
         if ($ttu) {
             $transfer = \DB::table('transfer')->where('ttu_id', $ttu->id)->first();
-            $is_being_donated = $transfer ? ($transfer->donated ?? 0) : ($ttu->is_being_donated ?? 0);
-            $is_sold_at_auction = $transfer ? ($transfer->auction ?? 0) : ($ttu->is_sold_at_auction ?? 0);
+
+            // transfer fields are stored as 'yes'/'no' varchar now
+            if ($transfer) {
+                $is_being_donated = (isset($transfer->being_donated) && strtolower($transfer->being_donated) === 'yes') ? 1 : 0;
+                $is_sold_at_auction = (isset($transfer->sold_at_auction) && strtolower($transfer->sold_at_auction) === 'yes') ? 1 : 0;
+            } else {
+                // fallback to ttu-level fields (if present) which also use 'yes'/'no'
+                $is_being_donated = (isset($ttu->being_donated) && strtolower($ttu->being_donated) === 'yes') ? 1 : 0;
+                $is_sold_at_auction = (isset($ttu->sold_at_auction) && strtolower($ttu->sold_at_auction) === 'yes') ? 1 : 0;
+            }
         }
 
         // Optionally, fetch all survivors for a dropdown
@@ -244,17 +312,31 @@ class TTUController extends Controller
         $is_being_donated = $request->input('is_being_donated', 0);
         $is_sold_at_auction = $request->input('is_sold_at_auction', 0);
 
-        if ($is_being_donated || $is_sold_at_auction) {
-            $transferData = [
-                'ttu_id' => $ttu->id,
-                'recipient_type' => $is_being_donated ? $request->input('recipient_type') : null,
-                'donation_agency' => $is_being_donated ? $request->input('donation_agency') : null,
-                'donation_category' => $is_being_donated ? $request->input('donation_category') : null,
-                'sold_at_auction_price' => $is_sold_at_auction ? $request->input('sold_at_auction_price') : null,
-                'recipient' => $is_sold_at_auction ? $request->input('recipient') : null,
-                'donated' => $is_being_donated,
-                'auction' => $is_sold_at_auction,
-            ];
+        // always collect transfer fields from request (recipient_type included)
+        // normalize recipient_type input: convert 1/0 or true/false to 'yes'/'no'
+        $recipientTypeRaw = $request->input('recipient_type', null);
+        $recipientType = null;
+        if ($recipientTypeRaw !== null && $recipientTypeRaw !== '') {
+            $rt = strtolower((string)$recipientTypeRaw);
+            if ($rt === '1' || $rt === 'true' || $rt === 'yes') $recipientType = 'yes';
+            elseif ($rt === '0' || $rt === 'false' || $rt === 'no') $recipientType = 'no';
+            else $recipientType = $recipientTypeRaw;
+        }
+
+        $transferData = [
+            'ttu_id' => $ttu->id,
+            'recipient_type'       => $recipientType,
+            'donation_agency'      => $request->input('donation_agency', null),
+            'donation_category'    => $request->input('donation_category', null),
+            'sold_at_auction_price'=> $request->input('sold_at_auction_price', null),
+            'recipient'            => $request->input('recipient', null),
+            'being_donated'        => $is_being_donated ? 'yes' : 'no',
+            'sold_at_auction'      => $is_sold_at_auction ? 'yes' : 'no',
+        ];
+
+        // only insert when any transfer field or flags are present
+        if ($request->filled('recipient_type') || $request->filled('donation_agency') || $request->filled('donation_category')
+            || $request->filled('sold_at_auction_price') || $request->filled('recipient') || $is_being_donated || $is_sold_at_auction) {
             \DB::table('transfer')->insert($transferData);
         }
 
@@ -359,20 +441,41 @@ class TTUController extends Controller
         $is_being_donated = $request->input('is_being_donated', 0);
         $is_sold_at_auction = $request->input('is_sold_at_auction', 0);
 
+        // normalize recipient_type input: convert 1/0 or true/false to 'yes'/'no'
+        $recipientTypeRaw = $request->input('recipient_type', null);
+        $recipientType = null;
+        if ($recipientTypeRaw !== null && $recipientTypeRaw !== '') {
+            $rt = strtolower((string)$recipientTypeRaw);
+            if (in_array($rt, ['1','true','yes'], true)) $recipientType = 'yes';
+            elseif (in_array($rt, ['0','false','no'], true)) $recipientType = 'no';
+            else $recipientType = $recipientTypeRaw;
+        }
+
+        // always read transfer-related inputs and persist flags as 'yes'/'no'
         $transferData = [
-            'recipient_type' => $is_being_donated ? $request->input('recipient_type') : null,
-            'donation_agency' => $is_being_donated ? $request->input('donation_agency') : null,
-            'donation_category' => $is_being_donated ? $request->input('donation_category') : null,
-            'sold_at_auction_price' => $is_sold_at_auction ? $request->input('sold_at_auction_price') : null,
-            'recipient' => $is_sold_at_auction ? $request->input('recipient') : null,
-            'donated' => $is_being_donated,
-            'auction' => $is_sold_at_auction,
+            'recipient_type'        => $recipientType,
+            'donation_agency'       => $request->input('donation_agency', null),
+            'donation_category'     => $request->input('donation_category', null),
+            'sold_at_auction_price' => $request->input('sold_at_auction_price', null),
+            'recipient'             => $request->input('recipient', null),
+            'being_donated'         => $is_being_donated ? 'yes' : 'no',
+            'sold_at_auction'       => $is_sold_at_auction ? 'yes' : 'no',
         ];
 
         $existingTransfer = \DB::table('transfer')->where('ttu_id', $ttu->id)->first();
         if ($existingTransfer) {
+            // update existing row (overwrite with submitted values, including clearing fields)
             \DB::table('transfer')->where('ttu_id', $ttu->id)->update($transferData);
-        } elseif ($is_being_donated || $is_sold_at_auction) {
+        } elseif (
+            $request->filled('recipient_type') ||
+            $request->filled('donation_agency') ||
+            $request->filled('donation_category') ||
+            $request->filled('sold_at_auction_price') ||
+            $request->filled('recipient') ||
+            $is_being_donated ||
+            $is_sold_at_auction
+        ) {
+            // insert new transfer row only when any transfer data or flags present
             $transferData['ttu_id'] = $ttu->id;
             \DB::table('transfer')->insert($transferData);
         }

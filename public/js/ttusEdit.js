@@ -247,5 +247,27 @@ document.addEventListener('DOMContentLoaded', function() {
         donatedSwitch.addEventListener('change', toggleDonatedSection);
         toggleDonatedSection();
     }
+
+    const loc = document.getElementById('location_type');
+    const unit = document.getElementById('unit_num');
+    if (!loc || !unit) return;
+
+    // remember if server intentionally forced disabled/readonly (do not override)
+    const serverLocked = unit.disabled || unit.readOnly;
+
+    function updateUnitEnabled() {
+        if (serverLocked) return; // keep server decision
+        if (loc.value === 'statepark') {
+            unit.removeAttribute('disabled');
+            unit.removeAttribute('readonly');
+        } else {
+            unit.setAttribute('disabled', 'disabled');
+            unit.setAttribute('readonly', 'readonly');
+        }
+    }
+
+    // init and react to changes
+    updateUnitEnabled();
+    loc.addEventListener('change', updateUnitEnabled);
 });
 
