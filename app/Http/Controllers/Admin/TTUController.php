@@ -27,6 +27,42 @@ class TTUController extends Controller
         $query = \App\TTU::leftJoin('transfer', $ttuTable . '.id', '=', 'transfer.ttu_id')
             ->select($selects);
 
+        // apply FDEC filter (from URL ?fdec_id or ?fdec-filter, or cookie set by client-side script)
+        $fdecFilter = $request->query('fdec_id')
+            ?? $request->query('fdec-filter')
+            ?? $request->cookie('fdecFilter')
+            ?? null;
+
+        if (!empty($fdecFilter)) {
+            // allow comma-separated list in the query param
+            $raw = is_array($fdecFilter) ? $fdecFilter : preg_split('/\s*,\s*/', trim((string)$fdecFilter));
+            $ids = array_values(array_filter(array_map(function($v){ return trim((string)$v); }, (array)$raw)));
+
+            try {
+                $colType = \Schema::getColumnType($ttuTable, 'fdec_id');
+            } catch (\Exception $e) {
+                $colType = null;
+            }
+
+            if ($colType === 'json') {
+                // build an OR group: match any of the provided fdec ids
+                $query->where(function($q) use ($ttuTable, $ids) {
+                    foreach ($ids as $id) {
+                        if ($id === '') continue;
+                        $q->orWhereJsonContains($ttuTable . '.fdec_id', (string)$id);
+                    }
+                });
+            } else {
+                // fallback for text column storing JSON: match any quoted id inside JSON string
+                $query->where(function($q) use ($ttuTable, $ids) {
+                    foreach ($ids as $id) {
+                        if ($id === '') continue;
+                        $q->orWhere($ttuTable . '.fdec_id', 'like', '%"' . (string)$id . '"%');
+                    }
+                });
+            }
+        }
+
         // apply search (prefix TTU columns)
         if ($request->has('search') && !empty($request->search)) {
             $s = $request->search;
@@ -45,6 +81,31 @@ class TTUController extends Controller
         }
 
         $ttus = $query->get();
+
+        // attach human-readable FDEC label(s) to each ttu
+        $fdecMap = \DB::table('fdec')->pluck('fdec_no', 'id')->all();
+
+        foreach ($ttus as $ttu) {
+            $labels = [];
+            $ids = $ttu->fdec_id ?? [];
+
+            // normalize possible storage formats -> array of ids
+            if (is_string($ids) && $ids !== '') {
+                $decoded = json_decode($ids, true);
+                $ids = is_array($decoded) ? $decoded : [];
+            }
+            if (!is_array($ids)) {
+                $ids = [];
+            }
+
+            foreach ($ids as $id) {
+                if ($id === null || $id === '') continue;
+                // prefer string key, fallback to int
+                $labels[] = $fdecMap[$id] ?? $fdecMap[(int)$id] ?? (string)$id;
+            }
+
+            $ttu->fdec = $labels ? implode(', ', $labels) : '';
+        }
 
         // perform post-processing and move transfer columns into a nested transfer object
         foreach ($ttus as $ttu) {
@@ -96,7 +157,15 @@ class TTUController extends Controller
         $ttuFields = \Schema::getColumnListing($ttuTable);
         $fields = array_merge($ttuFields, $transferCols);
 
-        return view('admin.ttus', compact('ttus', 'fields'));
+        // replace 'fdec_id' column with a display-only 'fdec' so views render the human label
+        foreach ($fields as &$f) {
+            if ($f === 'fdec_id') $f = 'fdec';
+        }
+        unset($f);
+
+        // make filter + list available to the view so header select shows selection
+        $fdecList = \DB::table('fdec')->orderBy('fdec_no')->get();
+        return view('admin.ttus', compact('ttus', 'fields', 'fdecList', 'fdecFilter'));
     }
 
     public function ttusEdit($id = null)
@@ -162,9 +231,11 @@ class TTUController extends Controller
                 ->first();
         }
 
+        $fdecList = \DB::table('fdec')->orderBy('fdec_no')->get();
+
         return view('admin.ttusEdit', compact(
             'ttu', 'privatesite', 'locations', 'survivor_name', 'survivors', 'selectedFemaId', 'authorName', 'transfer',
-            'is_being_donated', 'is_sold_at_auction'
+            'is_being_donated', 'is_sold_at_auction', 'fdecList'
         ));
     }
 
@@ -231,10 +302,12 @@ class TTUController extends Controller
                 ->first();
         }
 
+        $fdecList = \DB::table('fdec')->orderBy('fdec_no')->get();
+
         $readonly = true;
         return view('admin.ttusEdit', compact(
             'ttu', 'privatesite', 'locations', 'survivor_name', 'survivors', 'selectedFemaId', 'authorName', 'transfer',
-            'is_being_donated', 'is_sold_at_auction', 'readonly'
+            'is_being_donated', 'is_sold_at_auction', 'fdecList', 'readonly'
         ));
     }
 
@@ -282,6 +355,9 @@ class TTUController extends Controller
         }
 
         $data['author'] = auth()->id();
+
+        // store as array and let Eloquent handle JSON encoding via model casts
+        $data['fdec_id'] = $request->input('fdec_id', []);
         $ttu = \App\TTU::create($data);
 
         // Save privatesite if privatesite switch is checked
@@ -408,9 +484,10 @@ class TTUController extends Controller
             $ttu->purchase_origin = null;
         }
 
-        $ttu->fill($data);
         $ttu->unit_num = $request->input('unit_num');
-        $ttu->save();
+        // store as array and let Eloquent handle JSON encoding via model casts
+        $data['fdec_id'] = $request->input('fdec_id', []);
+        $ttu->update($data);
 
         // If location_type is privatesite, update privatesite
         if ($request->location_type === 'privatesite') {

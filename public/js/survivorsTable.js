@@ -4,6 +4,7 @@ let currentSortDirection = localStorage.getItem('survivorsSortDirection') || 'as
 let globalSearchTerm = '';
 
 function renderTable(useCheckboxes = false) {
+    try{ console.time && console.time('survivors:renderTable'); }catch(e){}
     const fieldLabels = {
         fname: 'Name', lname: 'Name', name: 'Name',
         primary_phone: 'Phone', secondary_phone: 'Phone', phone: 'Phone',
@@ -37,6 +38,7 @@ function renderTable(useCheckboxes = false) {
     // Body
     const body = document.getElementById('dynamic-table-body');
     body.innerHTML = '';
+    const frag = document.createDocumentFragment();
 
     const searchTerm = (globalSearchTerm || '').toLowerCase();
     const filtered = survivors.filter(survivor => {
@@ -127,8 +129,23 @@ function renderTable(useCheckboxes = false) {
             </div>`;
         tr.appendChild(tdOptions);
 
-        body.appendChild(tr);
+        frag.appendChild(tr);
     });
+
+    // Append all rows in one operation to minimize reflows
+    // For large tables, appending all at once can block the UI. Append in batches to keep UI responsive.
+    (function appendInBatches(container, fragment, batchSize){
+        try{ if(typeof requestAnimationFrame === 'undefined'){ container.appendChild(fragment); return; } }catch(e){ container.appendChild(fragment); return; }
+        // Convert fragment children to an array for batching
+        var nodes = Array.from(fragment.childNodes || []);
+        var idx = 0;
+        function step(){
+            var end = Math.min(idx + batchSize, nodes.length);
+            for(; idx < end; idx++){ container.appendChild(nodes[idx]); }
+            if(idx < nodes.length) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    })(body, frag, 200);
 
     // Bind UI behaviors
     setTimeout(() => {
@@ -151,6 +168,7 @@ function renderTable(useCheckboxes = false) {
             }
         });
     }, 0);
+    try{ console.timeEnd && console.timeEnd('survivors:renderTable'); }catch(e){}
 }
 
 function sortTableByField(field) {
@@ -221,6 +239,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const url = new URL(window.location.href);
             url.searchParams.set('search', searchInput.value);
             window.location.href = url.toString();
+        });
+        let survivorsSearchDebounce = null;
+        searchInput.addEventListener('input', function () {
+            clearTimeout(survivorsSearchDebounce);
+            survivorsSearchDebounce = setTimeout(() => {
+                globalSearchTerm = this.value.trim().toLowerCase();
+                renderTable();
+            }, 200);
         });
         searchInput.addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {

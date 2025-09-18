@@ -31,6 +31,7 @@
                                 'survivor_id' => 'Survivor',
                                 'location' => 'Location',
                                 'address' => 'Address',
+                                'fdec_id' => 'FDEC',
                                 'unit', 'loc_id' => 'Unit',
                                 'status' => 'Status (Color Code)',
                                 'total_beds' => 'Total Beds',

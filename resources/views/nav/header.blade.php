@@ -36,10 +36,13 @@
 
       <div class="select-form">
         <label for="fdec-filter">FDEC</label>
-        <select name="fdec-filter" id="fdec-filter">
-          <option value="" selected>All</option>
-          @foreach($fdecList as $fdec)
-              <option value="{{ $fdec->id }}" {{ request('fdec-filter') == $fdec->id ? 'selected' : '' }}>{{ $fdec->fdec_no }}</option>
+        <select id="fdec-filter" name="fdec_id">
+          <option value="">All FDEC</option>
+          @foreach($fdecList ?? [] as $f)
+            <option value="{{ $f->id }}"
+              {{ ((string)($fdecFilter ?? request()->query('fdec_id') ?? '')) === (string)$f->id ? 'selected' : '' }}>
+              {{ $f->fdec_no ?? $f->name ?? $f->id }}
+            </option>
           @endforeach
         </select>
       </div>

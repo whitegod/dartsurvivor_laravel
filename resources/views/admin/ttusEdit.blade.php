@@ -112,6 +112,24 @@
                 </div>
                 <div class="form-row">
                     
+                    <div class="form-group" style="flex:2;">
+                        <label for="fdec_id">FDEC</label>
+                        @php
+                            $selectedFdec = old('fdec_id', $ttu->fdec_id ?? []);
+                            if (!is_array($selectedFdec)) {
+                                $decoded = json_decode($selectedFdec, true);
+                                $selectedFdec = is_array($decoded) ? $decoded : [];
+                            }
+                        @endphp
+
+                        <select id="fdec_id" name="fdec_id[]" multiple>
+                            @foreach($fdecList ?? [] as $f)
+                                <option value="{{ $f->id }}" {{ in_array((string)$f->id, array_map('strval', $selectedFdec), true) ? 'selected' : '' }}>
+                                    {{ $f->fdec_no ?? $f->name ?? $f->id }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="li_date">License In Date</label>
                         <input type="date" id="li_date" name="li_date" value="{{ old('li_date', $ttu->li_date ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
@@ -450,5 +468,6 @@
         </div>
     </div>
 </section>
+<script src="{{ asset('js/fdec-select.js') }}"></script>
 <script src="{{ asset('js/ttusEdit.js') }}"></script>
 @endsection

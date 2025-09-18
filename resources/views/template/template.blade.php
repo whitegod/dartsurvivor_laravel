@@ -24,14 +24,14 @@
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 
 <!-- AdminLTE Skins. Choose a skin from the css/skins
       folder instead of downloading all of them to reduce the load. -->
 <link rel="stylesheet" href="{{config('url')}}/css/skins/_all-skins.min.css">
 <link rel="stylesheet" type="text/css" href="{{config('url')}}/css/style.css">
+<!-- Local Select2 CSS -->
+<link rel="stylesheet" href="{{config('url')}}/plugins/select2/select2.min.css">
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -104,13 +104,13 @@
   @include('nav.footer')
 </div>
 <!-- ./wrapper -->
-<!-- jQuery 2.2.3 -->
-<script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
-<!-- <script src="/plugins/jQuery/jquery-2.2.3.min.js"></script> -->
+<!-- legacy jQuery include removed to avoid double-loading (we load jQuery 3.x above) -->
 <!-- Bootstrap 3.3.6 -->
 <script src="{{config('url')}}/plugins/bootstrap3.3.7/bootstrap.min.js"></script>
 <!-- SlimScroll -->
 <script src="{{config('url')}}/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+<!-- Local Select2 JS -->
+<script src="{{config('url')}}/plugins/select2/select2.min.js"></script>
 <!-- FastClick -->
 <script src="{{config('url')}}/plugins/fastclick/fastclick.js"></script>
 <script src="{{config('url')}}\plugins\datatables\jquery.dataTables.js"></script>

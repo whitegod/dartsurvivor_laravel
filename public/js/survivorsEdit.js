@@ -23,8 +23,35 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             var vinSuggestions = clone.querySelector('.vin-suggestions');
             if (vinSuggestions) vinSuggestions.innerHTML = '';
+            // Remove any Select2 DOM that may have been cloned (Select2 creates sibling .select2-container elements
+            // and adds classes/attributes to the original select). Clean the clone so selects are plain DOM elements
+            // and can be safely re-initialized.
+            Array.from(clone.querySelectorAll('.select2-container')).forEach(function(el){
+                if (el && el.parentNode) el.parentNode.removeChild(el);
+            });
+            Array.from(clone.querySelectorAll('select')).forEach(function(sel){
+                // Remove Select2-specific classes/attributes that may have been copied
+                sel.classList.remove('select2-hidden-accessible');
+                sel.removeAttribute('data-select2-id');
+                sel.removeAttribute('aria-hidden');
+                sel.removeAttribute('tabindex');
+                sel.style.display = '';
+            });
+
             rowsContainer.appendChild(clone);
-            setTimeout(setupAllVinAutocompletes, 0);
+            // After appending, re-bind autocompletes and (if available) re-initialize Select2 on new selects
+            setTimeout(function(){
+                setupAllVinAutocompletes();
+                try {
+                    if (window.jQuery && jQuery.fn && jQuery.fn.select2) {
+                        var $clone = jQuery(clone);
+                        $clone.find('select').each(function(){
+                            // Re-initialize Select2 for selects in the cloned row. Keep options consistent with site usage.
+                            try { jQuery(this).select2({ width: '100%', placeholder: 'Select FDEC(s)', allowClear: true }); } catch(e){ /* ignore */ }
+                        });
+                    }
+                } catch(e) { /* ignore any initialization errors */ }
+            }, 0);
         });
     }
 

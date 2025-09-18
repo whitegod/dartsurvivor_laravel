@@ -67,6 +67,14 @@ document.getElementById('search-button').addEventListener('click', function (eve
     globalSearchTerm = document.getElementById('search-input').value.trim().toLowerCase();
     renderTable();
 });
+let ttusSearchDebounce = null;
+document.getElementById('search-input').addEventListener('input', function () {
+    clearTimeout(ttusSearchDebounce);
+    ttusSearchDebounce = setTimeout(() => {
+        globalSearchTerm = this.value.trim().toLowerCase();
+        renderTable();
+    }, 200);
+});
 document.getElementById('search-input').addEventListener('keydown', function (event) {
     if (event.key === 'Enter') {
         event.preventDefault();
@@ -77,6 +85,7 @@ document.getElementById('search-input').addEventListener('keydown', function (ev
 
 // --- Table Rendering ---
 function renderTable(useCheckboxes = false) {
+    try{ console.time && console.time('ttus:renderTable'); }catch(e){}
     const fields = JSON.parse(document.getElementById('fields-data').textContent);
     const fieldLabels = {
         vin: 'VIN - Last 7',
@@ -84,7 +93,8 @@ function renderTable(useCheckboxes = false) {
         unit: 'Unit',
         loc_id: 'Unit',
         status: 'Status (Color Code)',
-        total_beds: 'Total Beds'
+        total_beds: 'Total Beds',
+        fdec: 'FDEC', fdec_id: 'FDEC'
     };
 
     let checkedFields;
@@ -120,6 +130,7 @@ function renderTable(useCheckboxes = false) {
     // Body
     const body = document.getElementById('dynamic-table-body');
     body.innerHTML = '';
+    const frag = document.createDocumentFragment();
     ttus.filter(ttu => {
         if (!globalSearchTerm) return true;
         return Object.values(ttu).some(val =>
@@ -146,6 +157,9 @@ function renderTable(useCheckboxes = false) {
                     ></span>`;
             } else if (field === 'total_beds') {
                 td.innerHTML = `<span class="total-beds">${ttu.total_beds !== undefined ? ttu.total_beds : ''}</span>`;
+            } else if (field === 'fdec') {
+                // server provides human-readable fdec string in ttu.fdec
+                td.textContent = ttu.fdec !== undefined && ttu.fdec !== null ? ttu.fdec : (ttu.fdec_id ? (Array.isArray(ttu.fdec_id) ? ttu.fdec_id.join(', ') : ttu.fdec_id) : '');
             } else {
                 td.textContent = ttu[field] !== undefined ? ttu[field] : '';
             }
@@ -165,8 +179,20 @@ function renderTable(useCheckboxes = false) {
                 </form>
             </div>`;
         tr.appendChild(tdOptions);
-        body.appendChild(tr);
+        frag.appendChild(tr);
     });
+    // Append in batches to avoid blocking the main thread for large data sets
+    (function appendInBatches(container, fragment, batchSize){
+        try{ if(typeof requestAnimationFrame === 'undefined'){ container.appendChild(fragment); return; } }catch(e){ container.appendChild(fragment); return; }
+        var nodes = Array.from(fragment.childNodes || []);
+        var idx = 0;
+        function step(){
+            var end = Math.min(idx + batchSize, nodes.length);
+            for(; idx < end; idx++){ container.appendChild(nodes[idx]); }
+            if(idx < nodes.length) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    })(body, frag, 200);
 
     // Re-bind filter and options events after header/body re-render
     setTimeout(() => {
@@ -195,6 +221,7 @@ function renderTable(useCheckboxes = false) {
             }
         });
     }, 0);
+    try{ console.timeEnd && console.timeEnd('ttus:renderTable'); }catch(e){}
 }
 
 // --- Checkbox Logic ---
