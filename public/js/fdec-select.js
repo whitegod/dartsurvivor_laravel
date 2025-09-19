@@ -8,34 +8,17 @@
     }
     function clearStored(){ try{ localStorage.removeItem(STORAGE_KEY); }catch(e){} try{ localStorage.removeItem(LEGACY_KEY);}catch(e){} }
 
-    // Early redirect to avoid unfiltered flash: schedule a redirect but avoid hiding the whole document.
-    // We'll hide only the listing table area (section #Survivors or #TTU) once the DOM is ready, then redirect.
-    var pendingRedirectUrl = null;
+    // Early redirect to avoid unfiltered flash
     try{
         var storedEarly = readStored();
         var path = window.location.pathname || '';
         var isListing = path.indexOf('/admin/survivors')!==-1 || path.indexOf('/admin/ttus')!==-1;
         var urlEarly = new URL(window.location.href);
         var hasParam = !!urlEarly.searchParams.get('fdec_id');
-        if(isListing && !hasParam && storedEarly){ urlEarly.searchParams.set('fdec_id', storedEarly); pendingRedirectUrl = urlEarly.toString(); }
+        if(isListing && !hasParam && storedEarly){ try{ document.documentElement.style.visibility='hidden'; }catch(e){} urlEarly.searchParams.set('fdec_id', storedEarly); window.location.replace(urlEarly.toString()); return; }
     }catch(e){}
 
     document.addEventListener('DOMContentLoaded', function(){
-        // If we scheduled an early redirect, hide only the listing section to avoid a full-page flash
-        try{
-            if(pendingRedirectUrl){
-                var section = document.querySelector('#Survivors, #TTU');
-                if(section){ section.style.visibility = 'hidden'; }
-                else {
-                    // fallback: hide the dynamic table body if available
-                    var tb = document.getElementById('dynamic-table-body');
-                    if(tb) tb.style.visibility = 'hidden';
-                }
-                // perform the redirect
-                window.location.replace(pendingRedirectUrl);
-                return; // stop further initialization on this page since we're navigating away
-            }
-        }catch(e){}
         var header = document.getElementById('fdec-filter');
         var editSelect = document.getElementById('fdec_id') || document.getElementById('fdec');
 
