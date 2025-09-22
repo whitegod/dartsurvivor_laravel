@@ -56,7 +56,7 @@ class SurvivorController extends Controller
             }
         }
 
-        // attach readable fdec numbers to each survivor
+        // attach readable fdec numbers to each survivor (array and printable string)
         foreach ($survivors as $s) {
             $ids = @json_decode($s->fdec_id ?? '[]', true);
             $numbers = [];
@@ -67,6 +67,7 @@ class SurvivorController extends Controller
                 }
             }
             $s->fdec_numbers = $numbers; // array of fdec_no strings
+            $s->fdec = $numbers ? implode(', ', $numbers) : ''; // printable comma-joined label (for views)
         }
 
         foreach ($survivors as $survivor) {
@@ -79,6 +80,10 @@ class SurvivorController extends Controller
         }
 
         $fields = \Schema::getColumnListing('survivor'); // changed from 'survivors'
+        // replace 'fdec_id' with display-only 'fdec' so views render human label
+        foreach ($fields as &$f) {
+            if ($f === 'fdec_id') $f = 'fdec';
+        }
         $fdecList = \DB::table('fdec')->get(); // Pass FDEC list for header filter
 
         return view('admin.survivors', compact('survivors', 'fields', 'fdecList'));
