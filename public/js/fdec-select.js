@@ -40,8 +40,34 @@
             }
         }catch(e){}
 
-        // Select2 init and edit pre-populate
-        function ensureSelect2(cb, attempts){ attempts = typeof attempts==='number'?attempts:12; if(window.jQuery && $.fn && $.fn.select2 && editSelect && $(editSelect).length){ var $s = $(editSelect); if(!$s.data('select2')) $s.select2({placeholder:'Select FDEC(s)', allowClear:true, width:'100%'}); if(window.survivorReadonly) $s.prop('disabled', true); if(typeof cb==='function') cb(); return; } if(attempts>0) setTimeout(function(){ensureSelect2(cb, attempts-1)},60); else if(typeof cb==='function') cb(); }
+        // Select2 init and edit pre-populate (checkbox-style dropdown)
+        function ensureSelect2(cb, attempts){
+            attempts = typeof attempts === 'number' ? attempts : 12;
+            if (window.jQuery && $.fn && $.fn.select2 && editSelect && $(editSelect).length) {
+                var $s = $(editSelect);
+                if (!$s.data('select2')) {
+                    // render checkbox in dropdown and keep it open for multi-select
+                    $s.select2({
+                        placeholder: 'Select FDEC(s)',
+                        allowClear: true,
+                        width: '100%',
+                        closeOnSelect: false,
+                        templateResult: function(item) {
+                            if (!item.id) return item.text;
+                            var checked = item.selected ? 'checked' : '';
+                            return '<label style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" ' + checked + ' /> <span>' + item.text + '</span></label>';
+                        },
+                        templateSelection: function(item) { return item.text; },
+                        escapeMarkup: function(m) { return m; }
+                    });
+                }
+                if (window.survivorReadonly) $s.prop('disabled', true);
+                if (typeof cb === 'function') cb();
+                return;
+            }
+            if (attempts > 0) setTimeout(function() { ensureSelect2(cb, attempts - 1); }, 60);
+            else if (typeof cb === 'function') cb();
+        }
 
         function applyEditValues(vals){ if(!editSelect) return; if(window.jQuery && $.fn && $.fn.select2 && $(editSelect).length){ ensureSelect2(function(){ $(editSelect).val(Array.isArray(vals)?vals:(vals? [vals]:[])).trigger('change'); }); } else { var opts = Array.from(editSelect.options||[]); var v = Array.isArray(vals)?vals.map(String):(vals? [String(vals)]:[]); opts.forEach(function(o){ o.selected = v.indexOf(o.value)!==-1; }); try{ editSelect.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){} } }
 
