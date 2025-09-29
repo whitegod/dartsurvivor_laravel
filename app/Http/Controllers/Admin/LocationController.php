@@ -10,6 +10,18 @@ class LocationController extends Controller
 {
     public function locations()
     {
+        // apply FDEC filter (from URL ?fdec_id or ?fdec-filter, or cookie set by client-side script)
+        $fdecFilter = request()->query('fdec_id')
+            ?? request()->query('fdec-filter')
+            ?? request()->cookie('fdecFilter')
+            ?? null;
+
+        $fdecIds = [];
+        if (!empty($fdecFilter)) {
+            $raw = is_array($fdecFilter) ? $fdecFilter : preg_split('/\s*,\s*/', trim((string)$fdecFilter));
+            $fdecIds = array_values(array_filter(array_map(function($v){ return trim((string)$v); }, (array)$raw)));
+        }
+
         // Fetch hotels with survivor hh_size sum
         $hotels = \DB::table('hotel')
             ->select(
@@ -28,8 +40,34 @@ class LocationController extends Controller
                     WHERE r.hotel_id = hotel.id
                 ), 0) as survivor_count'),
                 'hotel.created_at'
-            )
-            ->get();
+            );
+
+        // apply FDEC filter to hotels if requested
+        if (!empty($fdecIds)) {
+            try {
+                $colType = \Schema::getColumnType('hotel', 'fdec_id');
+            } catch (\Exception $e) {
+                $colType = null;
+            }
+
+            if ($colType === 'json') {
+                $hotels->where(function($q) use ($fdecIds) {
+                    foreach ($fdecIds as $id) {
+                        if ($id === '') continue;
+                        $q->orWhereJsonContains('hotel.fdec_id', (string)$id);
+                    }
+                });
+            } else {
+                $hotels->where(function($q) use ($fdecIds) {
+                    foreach ($fdecIds as $id) {
+                        if ($id === '') continue;
+                        $q->orWhere('hotel.fdec_id', 'like', '%"' . (string)$id . '"%');
+                    }
+                });
+            }
+        }
+
+        $hotels = $hotels->get();
 
         // Fetch state parks with survivor hh_size sum
         $stateparks = \DB::table('statepark')
@@ -49,8 +87,34 @@ class LocationController extends Controller
                     WHERE lu.statepark_id = statepark.id
                 ), 0) as survivor_count'),
                 'statepark.created_at'
-            )
-            ->get();
+            );
+
+        // apply FDEC filter to stateparks if requested
+        if (!empty($fdecIds)) {
+            try {
+                $colType = \Schema::getColumnType('statepark', 'fdec_id');
+            } catch (\Exception $e) {
+                $colType = null;
+            }
+
+            if ($colType === 'json') {
+                $stateparks->where(function($q) use ($fdecIds) {
+                    foreach ($fdecIds as $id) {
+                        if ($id === '') continue;
+                        $q->orWhereJsonContains('statepark.fdec_id', (string)$id);
+                    }
+                });
+            } else {
+                $stateparks->where(function($q) use ($fdecIds) {
+                    foreach ($fdecIds as $id) {
+                        if ($id === '') continue;
+                        $q->orWhere('statepark.fdec_id', 'like', '%"' . (string)$id . '"%');
+                    }
+                });
+            }
+        }
+
+        $stateparks = $stateparks->get();
 
         // Fetch privatesite locations with survivor_count (hh_size from survivor via ttu)
         $privatesites = \DB::table('privatesite')
@@ -66,11 +130,56 @@ class LocationController extends Controller
                 'privatesite.fdec_id',
                 \DB::raw('COALESCE(survivor.hh_size, 0) as survivor_count'),
                 'privatesite.created_at'
-            )
-            ->get();
+            );
+
+        // apply FDEC filter to privatesites if requested
+        if (!empty($fdecIds)) {
+            try {
+                $colType = \Schema::getColumnType('privatesite', 'fdec_id');
+            } catch (\Exception $e) {
+                $colType = null;
+            }
+
+            if ($colType === 'json') {
+                $privatesites->where(function($q) use ($fdecIds) {
+                    foreach ($fdecIds as $id) {
+                        if ($id === '') continue;
+                        $q->orWhereJsonContains('privatesite.fdec_id', (string)$id);
+                    }
+                });
+            } else {
+                $privatesites->where(function($q) use ($fdecIds) {
+                    foreach ($fdecIds as $id) {
+                        if ($id === '') continue;
+                        $q->orWhere('privatesite.fdec_id', 'like', '%"' . (string)$id . '"%');
+                    }
+                });
+            }
+        }
+
+        $privatesites = $privatesites->get();
 
         // Merge all collections and sort by created_at descending
         $locations = $hotels->merge($stateparks)->merge($privatesites)->sortByDesc('created_at')->values();
+
+        // attach human-readable FDEC labels to each location (like TTUController)
+        $fdecMap = \DB::table('fdec')->pluck('fdec_no', 'id')->all();
+        foreach ($locations as $loc) {
+            $labels = [];
+            $ids = $loc->fdec_id ?? [];
+            if (is_string($ids) && $ids !== '') {
+                $decoded = json_decode($ids, true);
+                $ids = is_array($decoded) ? $decoded : [];
+            }
+            if (!is_array($ids)) {
+                $ids = [];
+            }
+            foreach ($ids as $id) {
+                if ($id === null || $id === '') continue;
+                $labels[] = $fdecMap[$id] ?? $fdecMap[(int)$id] ?? (string)$id;
+            }
+            $loc->fdec = $labels ? implode(', ', $labels) : '';
+        }
 
         // Define the fields you want to show/filter
         $fields = [
@@ -82,10 +191,10 @@ class LocationController extends Controller
             // add more fields if needed
         ];
 
-        // provide FDEC list for the header filter and table label mapping
-        $fdecList = \DB::table('fdec')->get();
+    // provide FDEC list for the header filter and table label mapping
+    $fdecList = \DB::table('fdec')->orderBy('fdec_no')->get();
 
-        return view('admin.locations', compact('locations', 'fields', 'fdecList'));
+    return view('admin.locations', compact('locations', 'fields', 'fdecList', 'fdecFilter'));
     }
 
     public function locationEdit(Request $request, $id)

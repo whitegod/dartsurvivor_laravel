@@ -12,7 +12,7 @@
     try{
         var storedEarly = readStored();
         var path = window.location.pathname || '';
-        var isListing = path.indexOf('/admin/survivors')!==-1 || path.indexOf('/admin/ttus')!==-1;
+        var isListing = path.indexOf('/admin/survivors')!==-1 || path.indexOf('/admin/ttus')!==-1 || path.indexOf('/admin/locations')!==-1;
         var urlEarly = new URL(window.location.href);
         var hasParam = !!urlEarly.searchParams.get('fdec_id');
         if(isListing && !hasParam && storedEarly){ try{ document.documentElement.style.visibility='hidden'; }catch(e){} urlEarly.searchParams.set('fdec_id', storedEarly); window.location.replace(urlEarly.toString()); return; }
