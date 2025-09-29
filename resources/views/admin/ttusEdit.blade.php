@@ -44,8 +44,9 @@
                         <select id="status" name="status" {{ !empty($readonly) ? 'disabled' : '' }}>
                             <option value="" {{ old('status', $ttu->status ?? '') == '' ? 'selected' : '' }}>None</option>
                             <option value="Not Ready for Occupancy (#b22222)" {{ old('status', $ttu->status ?? '') == 'Not Ready for Occupancy (#b22222)' ? 'selected' : '' }}>🔴 Not Ready for Occupancy</option>
+                            <option value="Ready for Occupancy (#228b22)" {{ old('status', $ttu->status ?? '') == 'Ready for Occupancy (#228b22)' ? 'selected' : '' }}>🟢 Ready for Occupancy</option>
                             <option value="Demobilized (#ffd700)" {{ old('status', $ttu->status ?? '') == 'Demobilized (#ffd700)' ? 'selected' : '' }}>🟡 Demobilized</option>
-                            <option value="Ready for Transport (#228b22)" {{ old('status', $ttu->status ?? '') == 'Ready for Transport (#228b22)' ? 'selected' : '' }}>🟢 Ready for Transport</option>
+                            <option value="Ready for Transport (#F7630C)" {{ old('status', $ttu->status ?? '') == 'Ready for Transport (#F7630C)' ? 'selected' : '' }}>🟠 Ready for Transport</option>
                             <option value="Transferred to Auction (#007bff)" {{ old('status', $ttu->status ?? '') == 'Transferred to Auction (#007bff)' ? 'selected' : '' }}>🔵 Transferred to Auction</option>
                             <option value="Transferred to City/County/State Entity (#800080)" {{ old('status', $ttu->status ?? '') == 'Transferred to City/County/State Entity (#800080)' ? 'selected' : '' }}>🟣 Transferred to City/County/State Entity</option>
                         </select>
