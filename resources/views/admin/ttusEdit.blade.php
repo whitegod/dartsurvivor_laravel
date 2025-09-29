@@ -136,7 +136,7 @@
                     </div>
                     <div class="form-group">
                         <label for="purchase_price">Purchase Price (USD)</label>
-                        <input type="number" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                        <input type="text" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                     <div class="form-group" style="position: relative;">
                         <label for="purchase_origin">Purchase Origin</label>
