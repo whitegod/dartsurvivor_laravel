@@ -11,9 +11,21 @@ function renderTable(useCheckboxes = false) {
         city: 'City',
         state: 'State',
         zip: 'Zip',
-        type: 'Type'
+        type: 'Type',
+        contact_name: 'Contact Name',
+        fdec_id: 'FDEC'
         // Add other field labels as needed
     };
+
+    // Build FDEC mapping (id -> label) if provided by server
+    let fdecMap = {};
+    try {
+        const fdecListEl = document.getElementById('fdec-list-data');
+        if (fdecListEl) {
+            const fdecList = JSON.parse(fdecListEl.textContent || '[]');
+            fdecList.forEach(function(f){ fdecMap[String(f.id)] = f.label; });
+        }
+    } catch (e) { fdecMap = {}; }
 
     let checkedFields;
     const savedFields = JSON.parse(localStorage.getItem('locationsFilterFields') || '[]');
@@ -57,7 +69,23 @@ function renderTable(useCheckboxes = false) {
         const tr = document.createElement('tr');
         checkedFields.forEach(field => {
             const td = document.createElement('td');
-            td.textContent = location[field] !== undefined ? location[field] : '';
+            // Special handling for fdec_id: may be stored as JSON array or CSV or single id
+            if (field === 'fdec_id') {
+                let raw = location[field];
+                let ids = [];
+                if (!raw || raw === null) ids = [];
+                else if (Array.isArray(raw)) ids = raw.map(String);
+                else if (typeof raw === 'string') {
+                    // try JSON parse, otherwise split by comma
+                    try { const parsed = JSON.parse(raw); if (Array.isArray(parsed)) ids = parsed.map(String); else ids = String(raw).split(',').map(s=>s.trim()).filter(Boolean); } catch(e) { ids = String(raw).split(',').map(s=>s.trim()).filter(Boolean); }
+                } else {
+                    ids = [String(raw)];
+                }
+                const labels = ids.map(id => fdecMap[String(id)] || id).filter(Boolean);
+                td.textContent = labels.join(', ');
+            } else {
+                td.textContent = location[field] !== undefined ? location[field] : '';
+            }
             tr.appendChild(td);
         });
         // Options column

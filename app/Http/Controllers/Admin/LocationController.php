@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class LocationController extends Controller
 {
@@ -17,6 +18,8 @@ class LocationController extends Controller
                 'hotel.name as location_name',
                 'hotel.address',
                 'hotel.phone',
+                'hotel.contact_name',
+                'hotel.fdec_id',
                 // Sum hh_size from survivors assigned to rooms in this hotel
                 \DB::raw('COALESCE((
                     SELECT SUM(s.hh_size)
@@ -36,6 +39,8 @@ class LocationController extends Controller
                 'statepark.name as location_name',
                 'statepark.address',
                 'statepark.phone',
+                'statepark.contact_name',
+                'statepark.fdec_id',
                 // Sum hh_size from survivors assigned to lodge_units in this state park
                 \DB::raw('COALESCE((
                     SELECT SUM(s.hh_size)
@@ -57,6 +62,8 @@ class LocationController extends Controller
                 'privatesite.name as location_name',
                 'privatesite.address',
                 'privatesite.phone',
+                'privatesite.contact_name',
+                'privatesite.fdec_id',
                 \DB::raw('COALESCE(survivor.hh_size, 0) as survivor_count'),
                 'privatesite.created_at'
             )
@@ -75,7 +82,10 @@ class LocationController extends Controller
             // add more fields if needed
         ];
 
-        return view('admin.locations', compact('locations', 'fields'));
+        // provide FDEC list for the header filter and table label mapping
+        $fdecList = \DB::table('fdec')->get();
+
+        return view('admin.locations', compact('locations', 'fields', 'fdecList'));
     }
 
     public function locationEdit(Request $request, $id)
@@ -120,7 +130,10 @@ class LocationController extends Controller
             $ttu = null;
         }
 
-        return view('admin.locationsEdit', compact('location', 'type', 'rooms', 'lodge_units', 'privatesite', 'ttu'));
+        // provide FDEC list for the select control
+        $fdecList = \DB::table('fdec')->get();
+
+        return view('admin.locationsEdit', compact('location', 'type', 'rooms', 'lodge_units', 'privatesite', 'ttu', 'fdecList'));
     }
 
     public function locationUpdate(Request $request, $id)
@@ -130,9 +143,22 @@ class LocationController extends Controller
         $data['updated_at'] = now();
         $data['author'] = auth()->user()->name ?? 'Unknown';
 
+        // Handle optional FDEC input (store as JSON array) if the table has the column
+        $fdecIds = $request->input('fdec_id', []);
+        if (!is_array($fdecIds)) {
+            // attempt to parse comma-separated string
+            $fdecIds = $fdecIds === null || $fdecIds === '' ? [] : preg_split('/\s*,\s*/', (string)$fdecIds);
+        }
+
         if ($type === 'hotel') {
+            if (Schema::hasColumn('hotel', 'fdec_id')) {
+                $data['fdec_id'] = json_encode(array_values(array_filter($fdecIds)));
+            }
             \DB::table('hotel')->where('id', $id)->update($data);
         } elseif ($type === 'statepark') {
+            if (Schema::hasColumn('statepark', 'fdec_id')) {
+                $data['fdec_id'] = json_encode(array_values(array_filter($fdecIds)));
+            }
             \DB::table('statepark')->where('id', $id)->update($data);
         } elseif ($type === 'privatesite') {
             $privatesiteData = [
@@ -153,6 +179,9 @@ class LocationController extends Controller
                 'dow_response' => $request->input('dow_response'),
                 'updated_at' => now(),
             ];
+            if (Schema::hasColumn('privatesite', 'fdec_id')) {
+                $privatesiteData['fdec_id'] = json_encode(array_values(array_filter($fdecIds)));
+            }
             $updated = \DB::table('privatesite')->where('id', $id)->update($privatesiteData);
             if ($updated === 0) {
                 \Log::warning("No privatesite row updated for id=$id");
@@ -170,9 +199,20 @@ class LocationController extends Controller
         $data['created_at'] = now(); // Optional: ensure created_at is set
         $data['updated_at'] = now(); // Optional: ensure updated_at is set
 
+        // handle optional fdec ids
+        $fdecIds = $request->input('fdec_id', []);
+        if (!is_array($fdecIds)) {
+            $fdecIds = $fdecIds === null || $fdecIds === '' ? [] : preg_split('/\s*,\s*/', (string)$fdecIds);
+        }
         if ($type === 'hotel') {
+            if (Schema::hasColumn('hotel', 'fdec_id')) {
+                $data['fdec_id'] = json_encode(array_values(array_filter($fdecIds)));
+            }
             \DB::table('hotel')->insert($data);
         } elseif ($type === 'statepark') {
+            if (Schema::hasColumn('statepark', 'fdec_id')) {
+                $data['fdec_id'] = json_encode(array_values(array_filter($fdecIds)));
+            }
             \DB::table('statepark')->insert($data);
         } elseif ($type === 'privatesite') {
             $privatesiteData = [
@@ -192,6 +232,9 @@ class LocationController extends Controller
                 'zon' => $request->input('zon'),
                 'dow_response' => $request->input('dow_response'),
             ];
+            if (Schema::hasColumn('privatesite', 'fdec_id')) {
+                $privatesiteData['fdec_id'] = json_encode(array_values(array_filter($fdecIds)));
+            }
             \DB::table('privatesite')->insert($privatesiteData);
         }
         return redirect()->route('admin.locations')->with('success', 'Location added!');
@@ -298,8 +341,11 @@ class LocationController extends Controller
             $ttu = null;
         }
 
+        // ensure FDEC list is available in readonly view as well
+        $fdecList = \DB::table('fdec')->get();
+
         return view('admin.locationsEdit', compact(
-            'location', 'type', 'rooms', 'lodge_units', 'privatesite', 'ttu', 'readonly'
+            'location', 'type', 'rooms', 'lodge_units', 'privatesite', 'ttu', 'readonly', 'fdecList'
         ));
     }
 

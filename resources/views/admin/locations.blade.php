@@ -31,6 +31,13 @@
                 </table>
                 <!-- Filter Dropdown -->
                 @php
+                    // Ensure fdec_id and contact_name are available as selectable fields for the table
+                    if (!in_array('fdec_id', $fields)) {
+                        $fields[] = 'fdec_id';
+                    }
+                    if (!in_array('contact_name', $fields)) {
+                        $fields[] = 'contact_name';
+                    }
                     $defaultChecked = $fields;
                 @endphp
                 <div id="filter-dropdown" class="dropdown-menu"
@@ -51,6 +58,15 @@
                 </script>
                 <script type="application/json" id="fields-data">
                     {!! json_encode($fields) !!}
+                </script>
+                <script type="application/json" id="fdec-list-data">
+                    @php
+                        $__fdec_data = [];
+                        foreach (($fdecList ?? []) as $__f) {
+                            $__fdec_data[] = ['id' => $__f->id, 'label' => ($__f->fdec_no ?? $__f->name ?? $__f->id)];
+                        }
+                    @endphp
+                    {!! json_encode($__fdec_data) !!}
                 </script>
             </div>
         </div>

@@ -13,6 +13,8 @@
             ? route('admin.locations.update', $privatesite->id) 
             : (isset($location) ? route('admin.locations.update', $location->id) : route('admin.locations.store')) }}">
                 @csrf
+                {{-- Hidden type so server knows which table to update even when the visible select is disabled on edit --}}
+                <input type="hidden" name="type" value="{{ old('type', $type ?? '') }}">
                 @if(isset($location) || isset($privatesite))
                     @method('PUT')
                 @endif
@@ -41,6 +43,24 @@
                     <div class="form-group" style="flex: 1;">
                         <label for="contact_name">Contact Name</label>
                         <input type="text" name="contact_name" id="contact_name" required value="{{ old('contact_name', $location->contact_name ?? $privatesite->contact_name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="fdec_id">FDEC</label>
+                        @php
+                            $selectedFdec = old('fdec_id', $location->fdec_id ?? $privatesite->fdec_id ?? []);
+                            if (!is_array($selectedFdec)) {
+                                $decoded = json_decode($selectedFdec, true);
+                                $selectedFdec = is_array($decoded) ? $decoded : [];
+                            }
+                        @endphp
+
+                        <select id="fdec_id" name="fdec_id[]" multiple>
+                            @foreach($fdecList ?? [] as $f)
+                                <option value="{{ $f->id }}" {{ in_array((string)$f->id, array_map('strval', $selectedFdec), true) ? 'selected' : '' }}>
+                                    {{ $f->fdec_no ?? $f->name ?? $f->id }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div id="privatesite-section" class="form-row"  style="align-items: unset">
@@ -304,4 +324,5 @@
     window.csrfToken = "{{ csrf_token() }}";
 </script>
 <script src="{{ asset('js/locationsEdit.js') }}"></script>
+<script src="{{ asset('js/fdec-select.js') }}"></script>
 @endsection
