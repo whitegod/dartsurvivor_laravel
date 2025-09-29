@@ -147,6 +147,21 @@ function renderTable(useCheckboxes = false) {
                     ></span>`;
             } else if (field === 'total_beds') {
                 td.innerHTML = `<span class="total-beds">${ttu.total_beds !== undefined ? ttu.total_beds : ''}</span>`;
+            } else if (field === 'purchase_price') {
+                // Show purchase price with USD suffix for clarity (do not alter underlying data)
+                let price = ttu.purchase_price !== undefined && ttu.purchase_price !== null ? String(ttu.purchase_price).trim() : '';
+                if (price && !(/\bUSD\b/i.test(price) || /\$/.test(price))) price = price + ' USD';
+                td.textContent = price;
+            } else if (field === 'sold_at_auction_price') {
+                // sold at auction price might be nested under transfer or top-level
+                let soldPrice = '';
+                if (ttu.sold_at_auction_price !== undefined && ttu.sold_at_auction_price !== null) {
+                    soldPrice = String(ttu.sold_at_auction_price).trim();
+                } else if (ttu.transfer && (ttu.transfer.sold_at_auction_price !== undefined && ttu.transfer.sold_at_auction_price !== null)) {
+                    soldPrice = String(ttu.transfer.sold_at_auction_price).trim();
+                }
+                if (soldPrice && !(/\bUSD\b/i.test(soldPrice) || /\$/.test(soldPrice))) soldPrice = soldPrice + ' USD';
+                td.textContent = soldPrice;
             } else if (field === 'fdec') {
                 // server provides human-readable fdec string in ttu.fdec
                 td.textContent = ttu.fdec !== undefined && ttu.fdec !== null ? ttu.fdec : (ttu.fdec_id ? (Array.isArray(ttu.fdec_id) ? ttu.fdec_id.join(', ') : ttu.fdec_id) : '');

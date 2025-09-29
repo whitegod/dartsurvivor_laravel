@@ -137,7 +137,10 @@
                     </div>
                     <div class="form-group">
                         <label for="purchase_price">Purchase Price (USD)</label>
-                        <input type="text" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                        <div style="display:flex; align-items:center;">
+                            <span aria-hidden="true" style="margin-right:6px; font-weight:600;">$</span>
+                            <input type="text" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                        </div>
                     </div>
                     <div class="form-group" style="position: relative;">
                         <label for="purchase_origin">Purchase Origin</label>
@@ -372,7 +375,10 @@
                             <div class="form-row margin-bottom-none">
                                 <div class="form-group">
                                     <label for="sold_at_auction_price">Sold At Auction Price</label>
-                                    <input type="text" id="sold_at_auction_price" name="sold_at_auction_price" value="{{ old('sold_at_auction_price', $transfer->sold_at_auction_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                                    <div style="display:flex; align-items:center;">
+                                        <span aria-hidden="true" style="margin-right:6px; font-weight:600;">$</span>
+                                        <input type="text" id="sold_at_auction_price" name="sold_at_auction_price" value="{{ old('sold_at_auction_price', $transfer->sold_at_auction_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="recipient">Who is recipient?</label>
