@@ -147,6 +147,10 @@
                         <label for="total_beds">Total beds</label>
                         <input type="number" id="total_beds" name="total_beds" value="{{ old('total_beds', $ttu->total_beds ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
+                    <div class="form-group">
+                        <label for="condition_code">Condition code</label>
+                        <input type="text" id="condition_code" name="condition_code" value="{{ old('condition_code', $ttu->condition_code ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                    </div>
                 </div>
                 <div id="privatesite-section" class="container form-section" style="display: {{ old('privatesite', $ttu->privatesite ?? false) ? 'flex' : 'none' }};">
                     <div class="column">
