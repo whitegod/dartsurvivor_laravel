@@ -334,6 +334,7 @@
                                     <option value="Sold" {{ old('disposition', $ttu->disposition ?? '') == 'Sold' ? 'selected' : '' }}>Sold</option>
                                     <option value="Staged" {{ old('disposition', $ttu->disposition ?? '') == 'Staged' ? 'selected' : '' }}>Staged</option>
                                     <option value="Storage" {{ old('disposition', $ttu->disposition ?? '') == 'Storage' ? 'selected' : '' }}>Storage</option>
+                                    <option value="Vacant" {{ old('disposition', $ttu->disposition ?? '') == 'Vacant' ? 'selected' : '' }}>Vacant</option>
                                     <option value="Unknown" {{ old('disposition', $ttu->disposition ?? '') == 'Unknown' ? 'selected' : '' }}>Unknown</option>
                                 </select>
                             </div>
