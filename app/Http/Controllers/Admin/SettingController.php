@@ -10,8 +10,8 @@ class SettingController extends Controller
 {
     public function fdec()
     {
-        // Get all rows from the fdec table
-        $fdecs = DB::table('fdec')->get();
+    // Get all rows from the fdec table, ordered by fdec_no
+    $fdecs = DB::table('fdec')->orderBy('fdec_no')->get();
         return view('admin.setting', compact('fdecs'));
     }
 
