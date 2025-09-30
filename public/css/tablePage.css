@@ -57,7 +57,14 @@ td {
     padding: 10px;
     border-bottom: 1px solid #ddd;
     text-align: left;
+    vertical-align: middle !important;
     word-wrap: break-word;
+}
+
+/* Right-align the last column (useful for Actions columns) */
+th:last-child,
+td:last-child {
+    text-align: right;
 }
 
 th {
@@ -189,3 +196,4 @@ th {
         width: 100%;
     }
 }
+

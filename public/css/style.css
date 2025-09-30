@@ -261,3 +261,26 @@ header .select-form select{
 .none{
 	display: none;
 }
+
+/* FDEC table + add-form layout */
+.fdec-table-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+}
+.fdec-add-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+.fdec-add-form input {
+    flex: 1 1 auto;
+    min-width: 0; /* allow input to shrink in flex containers */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.add-new-button {
+    white-space: nowrap; /* prevent button text from wrapping */
+}

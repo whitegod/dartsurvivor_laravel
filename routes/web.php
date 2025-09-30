@@ -88,6 +88,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('/admin/caseworkers/{id}', 'CaseworkerController@destroy')->name('admin.caseworkers.destroy');
 
         Route::get('/admin/setting', 'SettingController@fdec')->name('admin.setting');
+        Route::post('/admin/setting/store', 'SettingController@store')->name('admin.setting.store');
+        Route::post('/admin/setting/delete/{id}', 'SettingController@delete')->name('admin.setting.delete');
     });
 
     Route::get('/admin/ttus/vin-autocomplete', function(\Illuminate\Http\Request $request) {
