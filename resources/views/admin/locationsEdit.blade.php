@@ -324,5 +324,4 @@
     window.csrfToken = "{{ csrf_token() }}";
 </script>
 <script src="{{ asset('js/locationsEdit.js') }}"></script>
-<script src="{{ asset('js/fdec-select.js') }}"></script>
 @endsection

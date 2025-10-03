@@ -16,6 +16,7 @@ header .select-form {
 	height: 50px;
 	float: right;
 	display: flex;
+	gap: 10px;
 	align-items: center;
 	color: #fff;
 }
@@ -283,4 +284,78 @@ header .select-form select{
 }
 .add-new-button {
     white-space: nowrap; /* prevent button text from wrapping */
+}
+
+/* Prevent flash-of-unstyled-content (FOUC) for header select: hide native select until Select2 completes init */
+header .select-form.select-form--loading > select{
+	visibility: hidden; /* keep layout space but hide native select */
+	height: 0; /* avoid overflow */
+	margin: 0;
+	padding: 0;
+}
+
+/* when loading, ensure label still visible and header height preserved */
+header .select-form.select-form--loading{
+	min-height: 38px;
+}
+
+/* Ensure header FDEC control doesn't shrink below 200px */
+header .select-form > select,
+header .select-form .select2-container {
+	min-width: 150px;
+	max-width: 200px; /* keep a reasonable upper bound */
+}
+
+/* Style for the save button under the header select */
+header .select-form .select-wrap{
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+header .select-form #fdec-filter-save{
+	margin-top: 6px;
+	padding: 4px 8px;
+	font-size: 12px;
+}
+
+/* Select2 dropdown footer (save) */
+.select2-dropdown .select2-footer{
+	border-top: 1px solid #e5e5e5;
+	background: #fff;
+}
+.select2-footer .select2-footer-save{
+	padding: 4px 8px;
+	font-size: 12px;
+}
+
+.select2-container--default .select2-selection--multiple {
+    min-height: 38px;
+    height: auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    align-items: center;
+    max-width: 200px;
+    width: 100%;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-width: 2px;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__rendered {
+    display: flex !important;
+    flex-wrap: nowrap;
+    overflow-x: auto !important;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    justify-content: flex-start;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    margin-right: 4px;
+    white-space: nowrap;
+    color: #333;
 }

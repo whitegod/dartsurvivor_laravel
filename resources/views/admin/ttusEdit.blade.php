@@ -480,6 +480,5 @@
         </div>
     </div>
 </section>
-<script src="{{ asset('js/fdec-select.js') }}"></script>
 <script src="{{ asset('js/ttusEdit.js') }}"></script>
 @endsection

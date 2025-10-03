@@ -113,6 +113,8 @@
 <script src="{{config('url')}}/plugins/select2/select2.min.js"></script>
 <!-- FastClick -->
 <script src="{{config('url')}}/plugins/fastclick/fastclick.js"></script>
+<!-- Header / edit select glue (depends on Select2) -->
+<script src="{{ asset('js/fdec-select.js') }}"></script>
 <script src="{{config('url')}}\plugins\datatables\jquery.dataTables.js"></script>
 <script src="{{config('url')}}\plugins\datatables\dataTables.bootstrap.js"></script>
 <script src="{{config('url')}}\plugins\datatables\datatable.js"></script>

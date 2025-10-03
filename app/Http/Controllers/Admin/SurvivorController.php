@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Survivor;
+use Illuminate\Support\Facades\Schema;
 
 class SurvivorController extends Controller
 {
@@ -12,10 +13,40 @@ class SurvivorController extends Controller
     {
         $query = \DB::table('survivor');
 
-        // FDEC filter (JSON array stored in fdec_id)
-        if ($request->has('fdec_id') && !empty($request->fdec_id)) {
-            $fdecId = (string) $request->fdec_id;
-            $query->whereRaw('JSON_CONTAINS(fdec_id, ?)', ['"' . $fdecId . '"']);
+        // FDEC filter (accept comma-separated list or array; fdec_id stored as JSON array)
+        $fdecFilter = $request->query('fdec_id')
+            ?? $request->query('fdec-filter')
+            ?? $request->cookie('fdecFilter')
+            ?? null;
+
+        $fdecIds = [];
+        if (!empty($fdecFilter)) {
+            $raw = is_array($fdecFilter) ? $fdecFilter : preg_split('/\s*,\s*/', trim((string)$fdecFilter));
+            $fdecIds = array_values(array_filter(array_map(function($v){ return trim((string)$v); }, (array)$raw)));
+        }
+
+        if (!empty($fdecIds)) {
+            try {
+                $colType = Schema::getColumnType('survivor', 'fdec_id');
+            } catch (\Exception $e) {
+                $colType = null;
+            }
+
+            if ($colType === 'json') {
+                $query->where(function($q) use ($fdecIds) {
+                    foreach ($fdecIds as $id) {
+                        if ($id === '') continue;
+                        $q->orWhereJsonContains('fdec_id', (string)$id);
+                    }
+                });
+            } else {
+                $query->where(function($q) use ($fdecIds) {
+                    foreach ($fdecIds as $id) {
+                        if ($id === '') continue;
+                        $q->orWhere('fdec_id', 'like', '%"' . (string)$id . '"%');
+                    }
+                });
+            }
         }
 
         // Search logic (unchanged)

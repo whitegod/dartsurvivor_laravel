@@ -35,17 +35,12 @@
       </div>
 
       <div class="select-form">
-        <label for="fdec-filter">FDEC</label>
-        <select id="fdec-filter" name="fdec_id">
-          <option value="">All FDEC</option>
+        <label for="fdec-filter">FDEC </label>
+        <select id="fdec-filter" name="fdec_id[]" multiple>
           @foreach($fdecList ?? [] as $f)
-            <option value="{{ $f->id }}"
-              {{ ((string)($fdecFilter ?? request()->query('fdec_id') ?? '')) === (string)$f->id ? 'selected' : '' }}>
-              {{ $f->fdec_no ?? $f->name ?? $f->id }}
-            </option>
+            <option value="{{ $f->id }}">{{ $f->fdec_no ?? $f->name ?? $f->id }}</option>
           @endforeach
         </select>
       </div>
     </nav>
 </header>
-<script src="{{ asset('js/fdec-select.js') }}"></script>

@@ -408,6 +408,6 @@
     window.survivorFdecId = @json(old('fdec_id', $survivor->fdec_id ?? []));
     window.survivorReadonly = {{ !empty($readonly) ? 'true' : 'false' }};
 </script>
-<script src="{{ asset('js/fdec-select.js') }}"></script>
 <script src="{{ asset('js/survivorsEdit.js') }}"></script>
 @endsection
+
