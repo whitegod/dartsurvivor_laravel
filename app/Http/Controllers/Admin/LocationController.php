@@ -209,7 +209,7 @@ class LocationController extends Controller
             $location = \DB::table('hotel')->where('id', $id)->first();
             $rooms = \DB::table('room')
                 ->leftJoin('survivor', 'room.survivor_id', '=', 'survivor.id')
-                ->select('room.id as room_id', 'room.room_num', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('room.id as room_id', 'room.room_num', 'room.daily_rate', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('room.hotel_id', $id)
                 ->get()
                 ->map(function($r) {
@@ -220,7 +220,7 @@ class LocationController extends Controller
             $location = \DB::table('statepark')->where('id', $id)->first();
             $lodge_units = \DB::table('lodge_unit')
                 ->leftJoin('survivor', 'lodge_unit.survivor_id', '=', 'survivor.id')
-                ->select('lodge_unit.id as lodge_unit_id', 'lodge_unit.unit_type', 'lodge_unit.unit_name', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('lodge_unit.id as lodge_unit_id', 'lodge_unit.unit_type', 'lodge_unit.unit_name', 'lodge_unit.daily_rate', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('lodge_unit.statepark_id', $id)
                 ->get()
                 ->map(function($u) {
@@ -260,11 +260,17 @@ class LocationController extends Controller
         }
 
         if ($type === 'hotel') {
+            if (Schema::hasColumn('hotel', 'pet_friendly')) {
+                $data['pet_friendly'] = $request->has('pet_friendly') ? 1 : 0;
+            }
             if (Schema::hasColumn('hotel', 'fdec_id')) {
                 $data['fdec_id'] = json_encode(array_values(array_filter($fdecIds)));
             }
             \DB::table('hotel')->where('id', $id)->update($data);
         } elseif ($type === 'statepark') {
+            if (Schema::hasColumn('statepark', 'pet_friendly')) {
+                $data['pet_friendly'] = $request->has('pet_friendly') ? 1 : 0;
+            }
             if (Schema::hasColumn('statepark', 'fdec_id')) {
                 $data['fdec_id'] = json_encode(array_values(array_filter($fdecIds)));
             }
@@ -288,6 +294,9 @@ class LocationController extends Controller
                 'dow_response' => $request->input('dow_response'),
                 'updated_at' => now(),
             ];
+            if (Schema::hasColumn('privatesite', 'pet_friendly')) {
+                $privatesiteData['pet_friendly'] = $request->has('pet_friendly') ? 1 : 0;
+            }
             if (Schema::hasColumn('privatesite', 'fdec_id')) {
                 $privatesiteData['fdec_id'] = json_encode(array_values(array_filter($fdecIds)));
             }
@@ -314,11 +323,17 @@ class LocationController extends Controller
             $fdecIds = $fdecIds === null || $fdecIds === '' ? [] : preg_split('/\s*,\s*/', (string)$fdecIds);
         }
         if ($type === 'hotel') {
+            if (Schema::hasColumn('hotel', 'pet_friendly')) {
+                $data['pet_friendly'] = $request->has('pet_friendly') ? 1 : 0;
+            }
             if (Schema::hasColumn('hotel', 'fdec_id')) {
                 $data['fdec_id'] = json_encode(array_values(array_filter($fdecIds)));
             }
             \DB::table('hotel')->insert($data);
         } elseif ($type === 'statepark') {
+            if (Schema::hasColumn('statepark', 'pet_friendly')) {
+                $data['pet_friendly'] = $request->has('pet_friendly') ? 1 : 0;
+            }
             if (Schema::hasColumn('statepark', 'fdec_id')) {
                 $data['fdec_id'] = json_encode(array_values(array_filter($fdecIds)));
             }
@@ -341,6 +356,9 @@ class LocationController extends Controller
                 'zon' => $request->input('zon'),
                 'dow_response' => $request->input('dow_response'),
             ];
+            if (Schema::hasColumn('privatesite', 'pet_friendly')) {
+                $privatesiteData['pet_friendly'] = $request->has('pet_friendly') ? 1 : 0;
+            }
             if (Schema::hasColumn('privatesite', 'fdec_id')) {
                 $privatesiteData['fdec_id'] = json_encode(array_values(array_filter($fdecIds)));
             }
@@ -379,12 +397,17 @@ class LocationController extends Controller
         $validated = $request->validate([
             'location_id' => 'required|integer|exists:hotel,id',
             'number' => 'required|string|max:255',
+            'daily_rate' => 'nullable|numeric|min:0',
         ]);
 
         \DB::table('room')->insert([
             'hotel_id' => $validated['location_id'],
             'room_num' => $validated['number'],
         ]);
+        if (\Schema::hasColumn('room', 'daily_rate')) {
+            $insert['daily_rate'] = $request->input('daily_rate');
+        }
+        \DB::table('room')->insert($insert);
 
         return redirect()->back()->with('success', 'Room added successfully!');
     }
@@ -396,13 +419,18 @@ class LocationController extends Controller
             'location_id' => 'required|integer|exists:statepark,id',
             'number' => 'required|string|max:255',
             'unit_type' => 'required|string', // <-- validate unit_type
+            'daily_rate' => 'nullable|numeric|min:0',
         ]);
 
-        \DB::table('lodge_unit')->insert([
+        $insert = [
             'statepark_id' => $validated['location_id'],
             'unit_name' => $validated['number'],
             'unit_type' => $validated['unit_type'], // <-- save unit_type
-        ]);
+        ];
+        if (\Schema::hasColumn('lodge_unit', 'daily_rate')) {
+            $insert['daily_rate'] = $request->input('daily_rate');
+        }
+        \DB::table('lodge_unit')->insert($insert);
 
         return redirect()->back()->with('success', 'Lodge Unit added successfully!');
     }
@@ -461,10 +489,15 @@ class LocationController extends Controller
     public function roomUpdate(Request $request, $id) {
         $request->validate([
             'number' => 'required|string|max:255',
+            'daily_rate' => 'nullable|numeric|min:0',
         ]);
-        \DB::table('room')->where('id', $id)->update([
+        $update = [
             'room_num' => $request->number,
-        ]);
+        ];
+        if (\Schema::hasColumn('room', 'daily_rate')) {
+            $update['daily_rate'] = $request->input('daily_rate');
+        }
+        \DB::table('room')->where('id', $id)->update($update);
         return redirect()->back()->with('success', 'Room updated!');
     }
 
@@ -482,11 +515,16 @@ class LocationController extends Controller
         $request->validate([
             'number' => 'required|string|max:255',
             'unit_type' => 'required|string',
+            'daily_rate' => 'nullable|numeric|min:0',
         ]);
-        \DB::table('lodge_unit')->where('id', $id)->update([
+        $update = [
             'unit_name' => $request->number,
             'unit_type' => $request->unit_type,
-        ]);
+        ];
+        if (\Schema::hasColumn('lodge_unit', 'daily_rate')) {
+            $update['daily_rate'] = $request->input('daily_rate');
+        }
+        \DB::table('lodge_unit')->where('id', $id)->update($update);
         return redirect()->back()->with('success', 'Lodge unit updated!');
     }
 

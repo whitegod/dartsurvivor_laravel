@@ -329,7 +329,7 @@ header .select-form #fdec-filter-save{
 }
 
 .select2-container--default .select2-selection--multiple {
-    min-height: 38px;
+    min-height: 38px !important;
     height: auto;
     box-sizing: border-box;
     display: flex;
@@ -358,4 +358,20 @@ header .select-form #fdec-filter-save{
     margin-right: 4px;
     white-space: nowrap;
     color: #333;
+}
+
+/* Vertically center the Select2 placeholder/input for the header FDEC filter */
+header .select-form .select2-container--default .select2-selection--multiple{
+    display: flex;
+    align-items: center;
+}
+header .select-form .select2-selection--multiple .select2-search--inline{
+    display: flex;
+    align-items: center;
+}
+header .select-form .select2-selection--multiple .select2-search__field{
+    height: 28px;
+    line-height: 28px;
+    padding: 0;
+    margin: 0;
 }

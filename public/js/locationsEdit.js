@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Fill form fields
             document.getElementById('modalNumber').value = btn.dataset.unit || '';
+            var rateInput = document.getElementById('modalDailyRate');
+            if (rateInput) rateInput.value = (btn.dataset.dailyRate || '');
             if (btn.dataset.type === 'statepark') {
                 document.getElementById('modalUnitType').value = btn.dataset.unitType || '';
             }

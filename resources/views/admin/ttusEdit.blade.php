@@ -137,9 +137,9 @@
                     </div>
                     <div class="form-group">
                         <label for="purchase_price">Purchase Price (USD)</label>
-                        <div style="display:flex; align-items:center;">
-                            <span aria-hidden="true" style="margin-right:6px; font-weight:600;">$</span>
-                            <input type="text" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                        <div style="position:relative;">
+                            <span aria-hidden="true" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#777;">$</span>
+                            <input type="text" id="purchase_price" name="purchase_price" value="{{ old('purchase_price', $ttu->purchase_price ?? '') }}" style="padding-left:22px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                         </div>
                     </div>
                     <div class="form-group" style="position: relative;">
@@ -376,9 +376,9 @@
                             <div class="form-row margin-bottom-none">
                                 <div class="form-group">
                                     <label for="sold_at_auction_price">Sold At Auction Price</label>
-                                    <div style="display:flex; align-items:center;">
-                                        <span aria-hidden="true" style="margin-right:6px; font-weight:600;">$</span>
-                                        <input type="text" id="sold_at_auction_price" name="sold_at_auction_price" value="{{ old('sold_at_auction_price', $transfer->sold_at_auction_price ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                                    <div style="position:relative;">
+                                        <span aria-hidden="true" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#777;">$</span>
+                                        <input type="text" id="sold_at_auction_price" name="sold_at_auction_price" value="{{ old('sold_at_auction_price', $transfer->sold_at_auction_price ?? '') }}" style="padding-left:22px;" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                                     </div>
                                 </div>
                                 <div class="form-group">

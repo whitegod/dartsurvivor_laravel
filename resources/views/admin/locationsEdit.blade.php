@@ -44,25 +44,36 @@
                         <label for="contact_name">Contact Name</label>
                         <input type="text" name="contact_name" id="contact_name" required value="{{ old('contact_name', $location->contact_name ?? $privatesite->contact_name ?? '') }}" {{ !empty($readonly) ? 'readonly' : '' }}>
                     </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label for="fdec_id">FDEC</label>
-                        @php
-                            $selectedFdec = old('fdec_id', $location->fdec_id ?? $privatesite->fdec_id ?? []);
-                            if (!is_array($selectedFdec)) {
-                                $decoded = json_decode($selectedFdec, true);
-                                $selectedFdec = is_array($decoded) ? $decoded : [];
-                            }
-                        @endphp
-
-                        <select id="fdec_id" name="fdec_id[]" multiple>
-                            @foreach($fdecList ?? [] as $f)
-                                <option value="{{ $f->id }}" {{ in_array((string)$f->id, array_map('strval', $selectedFdec), true) ? 'selected' : '' }}>
-                                    {{ $f->fdec_no ?? $f->name ?? $f->id }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
                 </div>
+				<div class="form-row" style="display: flex; gap: 24px; margin-bottom: 24px; align-items:center;">
+					<div class="form-group" style="flex: 0 1 200px;">
+						<label for="fdec_id">FDEC</label>
+						@php
+							$selectedFdec = old('fdec_id', $location->fdec_id ?? $privatesite->fdec_id ?? []);
+							if (!is_array($selectedFdec)) {
+								$decoded = json_decode($selectedFdec, true);
+								$selectedFdec = is_array($decoded) ? $decoded : [];
+							}
+						@endphp
+
+						<select id="fdec_id" name="fdec_id[]" multiple>
+							@foreach($fdecList ?? [] as $f)
+								<option value="{{ $f->id }}" {{ in_array((string)$f->id, array_map('strval', $selectedFdec), true) ? 'selected' : '' }}>
+									{{ $f->fdec_no ?? $f->name ?? $f->id }}
+								</option>
+							@endforeach
+						</select>
+					</div>
+                    <div class="form-group" style="flex: 0 0 auto; display:flex; align-items:center; gap:8px;">
+						<label for="pet_friendly" style="margin:0;">Pet-friendly</label>
+						<label class="switch" style="margin:0;">
+							<input type="checkbox" id="pet_friendly" name="pet_friendly" value="1"
+								{{ old('pet_friendly', ($location->pet_friendly ?? $privatesite->pet_friendly ?? false)) ? 'checked' : '' }}
+								{{ !empty($readonly) ? 'disabled' : '' }}>
+							<span class="slider"></span>
+						</label>
+					</div>
+				</div>
                 <div id="privatesite-section" class="form-row"  style="align-items: unset">
                     <div class="column">
                         <table>
@@ -228,12 +239,13 @@
                                     </td>
                                     <td>{{ $item->hh_size ?? '-' }}</td>
                                     @if(empty($readonly))
-                                        <td class="text-right">                                        
+                                    <td class="text-right">                                        
                                             <button type="button"
                                                 class="btn btn-sm btn-primary edit-unit-btn"
                                                 data-id="{{ $item->room_id ?? $item->lodge_unit_id ?? '' }}"
                                                 data-type="{{ $ishotel ? 'hotel' : 'statepark' }}"
                                                 data-unit="{{ $ishotel ? $item->room_num : $item->unit_name }}"
+                                                data-daily-rate="{{ $item->daily_rate ?? '' }}"
                                                 @if(!$ishotel)
                                                     data-unit-type="{{ $item->unit_type ?? '' }}"
                                                 @endif
@@ -302,9 +314,18 @@
                             </select>
                         </div>
                         @endif
-                        <div class="form-group">
-                            <label id="modalLabelNumber" for="number">{{ $type === 'hotel' ? 'Room #' : 'Unit #' }}</label>
-                            <input type="text" name="number" id="modalNumber" class="form-control" required>
+                        <div class="form-row" style="display:flex; gap:16px;">
+                            <div class="form-group" style="flex:1;">
+                                <label id="modalLabelNumber" for="number">{{ $type === 'hotel' ? 'Room #' : 'Unit #' }}</label>
+                                <input type="text" name="number" id="modalNumber" class="form-control" required>
+                            </div>
+                            <div class="form-group" style="flex:1;">
+                                <label for="modalDailyRate">Daily Rate</label>
+								<div style="position:relative;">
+									<span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#777;">$</span>
+									<input type="text" name="daily_rate" id="modalDailyRate" class="form-control" style="padding-left:22px;">
+								</div>
+                            </div>
                         </div>
                         
                         <div style="margin-top:16px;">

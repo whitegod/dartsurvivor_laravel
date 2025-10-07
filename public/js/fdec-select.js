@@ -81,7 +81,6 @@
                     var $s = $(editSelect);
                     if (!$s.data('select2')) {
                         $s.select2({
-                            placeholder: 'Select FDEC(s)',
                             allowClear: true,
                             width: '100%',
                             closeOnSelect: false,
