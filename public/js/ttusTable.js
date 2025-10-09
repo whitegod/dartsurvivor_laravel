@@ -150,7 +150,7 @@ function renderTable(useCheckboxes = false) {
             } else if (field === 'purchase_price') {
                 // Show purchase price with USD suffix for clarity (do not alter underlying data)
                 let price = ttu.purchase_price !== undefined && ttu.purchase_price !== null ? String(ttu.purchase_price).trim() : '';
-                if (price && !(/\bUSD\b/i.test(price) || /\$/.test(price))) price = price + ' USD';
+                if (price && !(/\bUSD\b/i.test(price) || /\$/.test(price))) price = '$' + price;
                 td.textContent = price;
             } else if (field === 'sold_at_auction_price') {
                 // sold at auction price might be nested under transfer or top-level
@@ -160,7 +160,7 @@ function renderTable(useCheckboxes = false) {
                 } else if (ttu.transfer && (ttu.transfer.sold_at_auction_price !== undefined && ttu.transfer.sold_at_auction_price !== null)) {
                     soldPrice = String(ttu.transfer.sold_at_auction_price).trim();
                 }
-                if (soldPrice && !(/\bUSD\b/i.test(soldPrice) || /\$/.test(soldPrice))) soldPrice = soldPrice + ' USD';
+                if (soldPrice && !(/\bUSD\b/i.test(soldPrice) || /\$/.test(soldPrice))) soldPrice = '$' + soldPrice;
                 td.textContent = soldPrice;
             } else if (field === 'fdec') {
                 // server provides human-readable fdec string in ttu.fdec
