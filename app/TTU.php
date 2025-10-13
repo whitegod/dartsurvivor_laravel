@@ -19,7 +19,8 @@ class TTU extends Model
         'has_steps', 'has_teardrop', 'has_foldwalls', 'has_extkitchen',
         'is_onsite', 'is_occupied', 'is_winterized', 'is_deblocked',
         'is_cleaned', 'is_gps_removed', 'is_beingdonated', 'is_soldatauction',
-        'location', 'location_type', 'survivor_id', 'disposition'
+        'location', 'location_type', 'survivor_id', 'disposition',
+        'weather_radio'
     ];
 
     protected $casts = [

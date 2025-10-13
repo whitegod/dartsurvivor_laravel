@@ -151,15 +151,21 @@
                         <label for="total_beds">Total beds</label>
                         <input type="number" id="total_beds" name="total_beds" value="{{ old('total_beds', $ttu->total_beds ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
-                    <div class="form-group">
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 0 0 auto;">
                         <label for="condition_code">Condition code</label>
-                        <select id="condition_code" name="condition_code" {{ !empty($readonly) ? 'disabled' : '' }}>
+                        <select id="condition_code" name="condition_code" {{ !empty($readonly) ? 'disabled' : '' }} style="width: 140px;">
                             <option value="">Select condition code</option>
                             <option value="A1" {{ old('condition_code', $ttu->condition_code ?? '') == 'A1' ? 'selected' : '' }}>A1</option>
                             <option value="A2" {{ old('condition_code', $ttu->condition_code ?? '') == 'A2' ? 'selected' : '' }}>A2</option>
                             <option value="A3" {{ old('condition_code', $ttu->condition_code ?? '') == 'A3' ? 'selected' : '' }}>A3</option>
                             <option value="A4" {{ old('condition_code', $ttu->condition_code ?? '') == 'A4' ? 'selected' : '' }}>A4</option>
                         </select>
+                    </div>
+                    <div class="form-group" style="flex: 0 0 auto;">
+                        <label for="weather_radio">Weather Radio</label>
+                        <input type="text" id="weather_radio" name="weather_radio" value="{{ old('weather_radio', $ttu->weather_radio ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }} style="width: 140px;">
                     </div>
                 </div>
                 <div id="privatesite-section" class="container form-section" style="display: {{ old('privatesite', $ttu->privatesite ?? false) ? 'flex' : 'none' }};">
