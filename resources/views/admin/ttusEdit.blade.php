@@ -111,25 +111,11 @@
                         <input type="text" id="imei" name="imei" value="{{ old('imei', $ttu->imei ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
                     </div>
                 </div>
-                <div class="form-row">
+                <div class="form-row">                    
                     
-                    <div class="form-group" style="flex:2;">
-                        <label for="fdec_id">FDEC</label>
-                        @php
-                            $selectedFdec = old('fdec_id', $ttu->fdec_id ?? []);
-                            if (!is_array($selectedFdec)) {
-                                $decoded = json_decode($selectedFdec, true);
-                                $selectedFdec = is_array($decoded) ? $decoded : [];
-                            }
-                        @endphp
-
-                        <select id="fdec_id" name="fdec_id[]" multiple>
-                            @foreach($fdecList ?? [] as $f)
-                                <option value="{{ $f->id }}" {{ in_array((string)$f->id, array_map('strval', $selectedFdec), true) ? 'selected' : '' }}>
-                                    {{ $f->fdec_no ?? $f->name ?? $f->id }}
-                                </option>
-                            @endforeach
-                        </select>
+                    <div class="form-group" style="flex: 0 0 auto;">
+                        <label for="key_no">TTU Key #</label>
+                        <input type="text" id="key_no" name="key_no" value="{{ old('key_no', $ttu->key_no ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }} maxlength="5" pattern="[A-Za-z0-9]{5}" inputmode="latin" title="Enter 5 letters or numbers" oninput="this.value = this.value.replace(/[^A-Za-z0-9]/g, '').slice(0,5)">
                     </div>
                     <div class="form-group">
                         <label for="li_date">License In Date</label>
@@ -166,6 +152,24 @@
                     <div class="form-group" style="flex: 0 0 auto;">
                         <label for="weather_radio">Weather Radio</label>
                         <input type="text" id="weather_radio" name="weather_radio" value="{{ old('weather_radio', $ttu->weather_radio ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }} style="width: 140px;">
+                    </div>
+                    <div class="form-group" style="flex:2;">
+                        <label for="fdec_id">FDEC</label>
+                        @php
+                            $selectedFdec = old('fdec_id', $ttu->fdec_id ?? []);
+                            if (!is_array($selectedFdec)) {
+                                $decoded = json_decode($selectedFdec, true);
+                                $selectedFdec = is_array($decoded) ? $decoded : [];
+                            }
+                        @endphp
+
+                        <select id="fdec_id" name="fdec_id[]" multiple>
+                            @foreach($fdecList ?? [] as $f)
+                                <option value="{{ $f->id }}" {{ in_array((string)$f->id, array_map('strval', $selectedFdec), true) ? 'selected' : '' }}>
+                                    {{ $f->fdec_no ?? $f->name ?? $f->id }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div id="privatesite-section" class="container form-section" style="display: {{ old('privatesite', $ttu->privatesite ?? false) ? 'flex' : 'none' }};">
