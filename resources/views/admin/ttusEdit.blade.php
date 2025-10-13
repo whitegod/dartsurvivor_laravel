@@ -153,7 +153,13 @@
                     </div>
                     <div class="form-group">
                         <label for="condition_code">Condition code</label>
-                        <input type="text" id="condition_code" name="condition_code" value="{{ old('condition_code', $ttu->condition_code ?? '') }}" {{ !empty($readonly) ? 'readonly disabled' : '' }}>
+                        <select id="condition_code" name="condition_code" {{ !empty($readonly) ? 'disabled' : '' }}>
+                            <option value="">Select condition code</option>
+                            <option value="A1" {{ old('condition_code', $ttu->condition_code ?? '') == 'A1' ? 'selected' : '' }}>A1</option>
+                            <option value="A2" {{ old('condition_code', $ttu->condition_code ?? '') == 'A2' ? 'selected' : '' }}>A2</option>
+                            <option value="A3" {{ old('condition_code', $ttu->condition_code ?? '') == 'A3' ? 'selected' : '' }}>A3</option>
+                            <option value="A4" {{ old('condition_code', $ttu->condition_code ?? '') == 'A4' ? 'selected' : '' }}>A4</option>
+                        </select>
                     </div>
                 </div>
                 <div id="privatesite-section" class="container form-section" style="display: {{ old('privatesite', $ttu->privatesite ?? false) ? 'flex' : 'none' }};">
