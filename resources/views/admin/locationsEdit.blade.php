@@ -214,6 +214,9 @@
                                     <th>Unit Type</th>
                                 @endif
                                 <th>{{ $numberLabel }}</th>
+                                <th>Daily Rate</th>
+                                <th>From</th>
+                                <th>To</th>
                                 <th>Survivor</th>
                                 <th>HH Size</th>
                                 @if(empty($readonly))
@@ -228,6 +231,9 @@
                                         <td>{{ $item->unit_type ?? '-' }}</td>
                                     @endif
                                     <td>{{ $ishotel ? $item->room_num : $item->unit_name }}</td>
+                                    <td>{{ isset($item->daily_rate) && (float) $item->daily_rate > 0 ? $item->daily_rate : '-' }}</td>
+                                    <td>{{ !empty($item->li_date) ? $item->li_date : '-' }}</td>
+                                    <td>{{ !empty($item->lo_date) ? $item->lo_date : '-' }}</td>
                                     <td>
                                         @if(!empty($item->fname) && !empty($item->lname) && isset($item->id))
                                             <a href="{{ route('admin.survivors.view', $item->id) }}">
@@ -240,31 +246,33 @@
                                     <td>{{ $item->hh_size ?? '-' }}</td>
                                     @if(empty($readonly))
                                     <td class="text-right">                                        
-                                            <button type="button"
-                                                class="btn btn-sm btn-primary edit-unit-btn"
-                                                data-id="{{ $item->room_id ?? $item->lodge_unit_id ?? '' }}"
-                                                data-type="{{ $ishotel ? 'hotel' : 'statepark' }}"
-                                                data-unit="{{ $ishotel ? $item->room_num : $item->unit_name }}"
-                                                data-daily-rate="{{ $item->daily_rate ?? '' }}"
-                                                @if(!$ishotel)
-                                                    data-unit-type="{{ $item->unit_type ?? '' }}"
-                                                @endif
-                                            >
-                                                Edit
+                                        <button type="button"
+                                            class="btn btn-sm btn-primary edit-unit-btn"
+                                            data-id="{{ $item->room_id ?? $item->lodge_unit_id ?? '' }}"
+                                            data-type="{{ $ishotel ? 'hotel' : 'statepark' }}"
+                                            data-unit="{{ $ishotel ? $item->room_num : $item->unit_name }}"
+                                            data-daily-rate="{{ $item->daily_rate ?? '' }}"
+                                            data-li-date="{{ $item->li_date ?? '' }}"
+                                            data-lo-date="{{ $item->lo_date ?? '' }}"
+                                            @if(!$ishotel)
+                                                data-unit-type="{{ $item->unit_type ?? '' }}"
+                                            @endif
+                                        >
+                                            Edit
+                                        </button>
+                                        <form method="POST"
+                                            action="{{ $ishotel
+                                                ? route('admin.rooms.delete', $item->room_id)
+                                                : route('admin.lodge_units.delete', $item->lodge_unit_id) }}"
+                                            style="display:inline;">
+                                            @csrf
+                                            <button type="submit"
+                                                class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Are you sure you want to remove this {{ $ishotel ? 'room' : 'unit' }}?');">
+                                                Remove
                                             </button>
-                                            <form method="POST"
-                                                action="{{ $ishotel
-                                                    ? route('admin.rooms.delete', $item->room_id)
-                                                    : route('admin.lodge_units.delete', $item->lodge_unit_id) }}"
-                                                style="display:inline;">
-                                                @csrf
-                                                <button type="submit"
-                                                    class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Are you sure you want to remove this {{ $ishotel ? 'room' : 'unit' }}?');">
-                                                    Remove
-                                                </button>
-                                            </form>
-                                        </td>
+                                        </form>
+                                    </td>
                                     @endif
                                 </tr>
                             @endforeach
@@ -321,10 +329,21 @@
                             </div>
                             <div class="form-group" style="flex:1;">
                                 <label for="modalDailyRate">Daily Rate</label>
-								<div style="position:relative;">
-									<span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#777;">$</span>
-									<input type="text" name="daily_rate" id="modalDailyRate" class="form-control" style="padding-left:22px;">
-								</div>
+                                <div style="position:relative;">
+                                    <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#777;">$</span>
+                                    <input type="text" name="daily_rate" id="modalDailyRate" class="form-control" style="padding-left:22px;">
+                                </div>
+                            </div>
+                        </div>
+                        <h4 style="margin-bottom:0;">Reservation</h4>
+                        <div class="form-row" style="display:flex; gap:16px; margin-top: 8px;">
+                            <div class="form-group" style="flex:1;">
+                                <label for="modalLiDate">From</label>
+                                <input type="date" name="li_date" id="modalLiDate" class="form-control">
+                            </div>
+                            <div class="form-group" style="flex:1;">
+                                <label for="modalLoDate">To</label>
+                                <input type="date" name="lo_date" id="modalLoDate" class="form-control">
                             </div>
                         </div>
                         

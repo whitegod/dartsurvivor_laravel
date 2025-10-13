@@ -209,7 +209,7 @@ class LocationController extends Controller
             $location = \DB::table('hotel')->where('id', $id)->first();
             $rooms = \DB::table('room')
                 ->leftJoin('survivor', 'room.survivor_id', '=', 'survivor.id')
-                ->select('room.id as room_id', 'room.room_num', 'room.daily_rate', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('room.id as room_id', 'room.room_num', 'room.daily_rate', 'room.li_date', 'room.lo_date', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('room.hotel_id', $id)
                 ->get()
                 ->map(function($r) {
@@ -220,7 +220,7 @@ class LocationController extends Controller
             $location = \DB::table('statepark')->where('id', $id)->first();
             $lodge_units = \DB::table('lodge_unit')
                 ->leftJoin('survivor', 'lodge_unit.survivor_id', '=', 'survivor.id')
-                ->select('lodge_unit.id as lodge_unit_id', 'lodge_unit.unit_type', 'lodge_unit.unit_name', 'lodge_unit.daily_rate', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('lodge_unit.id as lodge_unit_id', 'lodge_unit.unit_type', 'lodge_unit.unit_name', 'lodge_unit.daily_rate', 'lodge_unit.li_date', 'lodge_unit.lo_date', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('lodge_unit.statepark_id', $id)
                 ->get()
                 ->map(function($u) {
@@ -398,12 +398,16 @@ class LocationController extends Controller
             'location_id' => 'required|integer|exists:hotel,id',
             'number' => 'required|string|max:255',
             'daily_rate' => 'nullable|numeric|min:0',
+            'li_date' => 'nullable|date',
+            'lo_date' => 'nullable|date',
         ]);
 
-        \DB::table('room')->insert([
+        $insert = [
             'hotel_id' => $validated['location_id'],
             'room_num' => $validated['number'],
-        ]);
+            'li_date' => $request->input('li_date'),
+            'lo_date' => $request->input('lo_date'),
+        ];
         if (\Schema::hasColumn('room', 'daily_rate')) {
             $insert['daily_rate'] = $request->input('daily_rate');
         }
@@ -420,12 +424,16 @@ class LocationController extends Controller
             'number' => 'required|string|max:255',
             'unit_type' => 'required|string', // <-- validate unit_type
             'daily_rate' => 'nullable|numeric|min:0',
+            'li_date' => 'nullable|date',
+            'lo_date' => 'nullable|date',
         ]);
 
         $insert = [
             'statepark_id' => $validated['location_id'],
             'unit_name' => $validated['number'],
             'unit_type' => $validated['unit_type'], // <-- save unit_type
+            'li_date' => $request->input('li_date'),
+            'lo_date' => $request->input('lo_date'),
         ];
         if (\Schema::hasColumn('lodge_unit', 'daily_rate')) {
             $insert['daily_rate'] = $request->input('daily_rate');
@@ -490,9 +498,13 @@ class LocationController extends Controller
         $request->validate([
             'number' => 'required|string|max:255',
             'daily_rate' => 'nullable|numeric|min:0',
+            'li_date' => 'nullable|date',
+            'lo_date' => 'nullable|date',
         ]);
         $update = [
             'room_num' => $request->number,
+            'li_date' => $request->input('li_date'),
+            'lo_date' => $request->input('lo_date'),
         ];
         if (\Schema::hasColumn('room', 'daily_rate')) {
             $update['daily_rate'] = $request->input('daily_rate');
@@ -516,10 +528,14 @@ class LocationController extends Controller
             'number' => 'required|string|max:255',
             'unit_type' => 'required|string',
             'daily_rate' => 'nullable|numeric|min:0',
+            'li_date' => 'nullable|date',
+            'lo_date' => 'nullable|date',
         ]);
         $update = [
             'unit_name' => $request->number,
             'unit_type' => $request->unit_type,
+            'li_date' => $request->input('li_date'),
+            'lo_date' => $request->input('lo_date'),
         ];
         if (\Schema::hasColumn('lodge_unit', 'daily_rate')) {
             $update['daily_rate'] = $request->input('daily_rate');

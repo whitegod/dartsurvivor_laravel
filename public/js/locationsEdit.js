@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const isHotel = window.locationType === "hotel";
             document.getElementById('modalTitle').textContent = isHotel ? "Add New Room" : "Add New Lodge Unit";
             document.getElementById('modalLabelNumber').textContent = isHotel ? "Room #" : "Unit #";
+            var li = document.getElementById('modalLiDate');
+            var lo = document.getElementById('modalLoDate');
+            if (li) li.value = '';
+            if (lo) lo.value = '';
             document.getElementById('roomUnitModal').style.display = 'block';
         });
     });
@@ -20,6 +24,10 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('modalNumber').value = btn.dataset.unit || '';
             var rateInput = document.getElementById('modalDailyRate');
             if (rateInput) rateInput.value = (btn.dataset.dailyRate || '');
+            var li = document.getElementById('modalLiDate');
+            var lo = document.getElementById('modalLoDate');
+            if (li) li.value = (btn.dataset.liDate || '');
+            if (lo) lo.value = (btn.dataset.loDate || '');
             if (btn.dataset.type === 'statepark') {
                 document.getElementById('modalUnitType').value = btn.dataset.unitType || '';
             }
