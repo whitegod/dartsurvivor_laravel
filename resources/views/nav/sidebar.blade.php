@@ -15,7 +15,7 @@
     <aside class="main-sidebar">
         <section class="sidebar">
         <ul class="sidebar-menu">
-        @if (Auth::user()->hasRole("Admin"))
+        @if (Auth::user()->hasRole("Admin") || Auth::user()->hasRole("User"))
             <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/dashboard')) ? 'active' : ''}}">
                 <a href="/admin/dashboard">
                     <i class="fa fa-home" ></i> <span> Dashboard</span>
@@ -75,13 +75,14 @@
                     <i class="fa fa-globe" ></i> <span> Mission Information</span>
                 </a>
             </li>
-            <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/setting')) ? 'active' : ''}}">
-                <a href="/admin/setting">
-                    <i class="fa fa-gear" ></i> <span> Setting</span>
-                </a>
-            </li>
-
-        @endif    
+            @if (Auth::user()->hasRole("Admin"))
+                <li class="treeview {{ \Illuminate\Support\Str::startsWith( Request::url(), URL::to('/admin/setting')) ? 'active' : ''}}">
+                    <a href="/admin/setting">
+                        <i class="fa fa-gear" ></i> <span> Setting</span>
+                    </a>
+                </li>
+            @endif
+        @endif
         </ul>
         </section>
     </aside>

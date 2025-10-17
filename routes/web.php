@@ -31,7 +31,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     });
 
-    Route::group(['middleware' => 'role:Admin', 'namespace' => 'Admin'], function () {
+    Route::group(['middleware' => 'role:Admin|User', 'namespace' => 'Admin'], function () {
         Route::get('/admin/dashboard', 'DashboardController@dashboard')->name('admin.dashboard');
         Route::get('/admin/detailed-search', 'DetailedSearchController@detailedSearch')->name('admin.detailedSearch');
         Route::get('/admin/reporting', 'AdminController@reporting')->name('admin.reporting');
@@ -67,11 +67,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/admin/lodge_units/delete/{id}', 'LocationController@lodgeUnitDelete')->name('admin.lodge_units.delete');
 
         Route::get('/admin/user_permissions', 'UserController@userPermissions')->name('admin.user_permissions');
-        Route::post('/admin/user_permissions/add', 'UserController@addUser')->name('admin.user_permissions.add');
-        Route::delete('/admin/user_permissions/{id}', 'UserController@removeUser')->name('admin.user_permissions.remove');
-        Route::post('/admin/user_permissions/{id}/reactivate', 'UserController@reactivateUser')->name('admin.user_permissions.reactivate');
-        Route::post('/admin/user_permissions/{id}/reset-password', 'UserController@resetPassword')->name('admin.user_permissions.reset_password');
-    
+        
         // For hotel rooms
         Route::get('/admin/rooms/create', 'LocationController@roomCreate')->name('admin.rooms.create');
         Route::post('/admin/rooms/store', 'LocationController@roomStore')->name('admin.rooms.store');
@@ -86,10 +82,19 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/admin/caseworkers/store', 'CaseworkerController@store')->name('admin.caseworkers.store');
         Route::put('/admin/caseworkers/{id}', 'CaseworkerController@update')->name('admin.caseworkers.update');
         Route::delete('/admin/caseworkers/{id}', 'CaseworkerController@destroy')->name('admin.caseworkers.destroy');
+        
+    });
 
+    Route::group(['middleware' => 'role:Admin', 'namespace' => 'Admin'], function () {
         Route::get('/admin/setting', 'SettingController@fdec')->name('admin.setting');
         Route::post('/admin/setting/store', 'SettingController@store')->name('admin.setting.store');
         Route::post('/admin/setting/delete/{id}', 'SettingController@delete')->name('admin.setting.delete');
+    
+        Route::post('/admin/user_permissions/add', 'UserController@addUser')->name('admin.user_permissions.add');
+        Route::delete('/admin/user_permissions/{id}', 'UserController@removeUser')->name('admin.user_permissions.remove');
+        Route::post('/admin/user_permissions/{id}/reactivate', 'UserController@reactivateUser')->name('admin.user_permissions.reactivate');
+        Route::post('/admin/user_permissions/{id}/reset-password', 'UserController@resetPassword')->name('admin.user_permissions.reset_password');
+    
     });
 
     Route::get('/admin/ttus/vin-autocomplete', function(\Illuminate\Http\Request $request) {

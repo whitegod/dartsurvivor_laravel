@@ -108,7 +108,9 @@
                         Show Inactive
                     </label>
                 </div>
-                <button class="add-user" onclick="openAddUserModal()">Add User</button>
+                @if (Auth::user()->hasRole("Admin"))
+                    <button class="add-user" onclick="openAddUserModal()">Add User</button>
+                @endif
             </div>
 
             <table>
@@ -118,7 +120,9 @@
                         <th>Email</th>
                         <th>Permission Level</th>
                         <th>Records Authored</th>
-                        <th>Actions</th>
+                        @if (Auth::user()->hasRole("Admin"))
+                            <th>Actions</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -132,26 +136,28 @@
                         <td>
                             {{ $user->records_authored }}
                         </td>
-                        <td>
-                            @if($user->status)
-                                <button type="button" class="btn-reset" onclick="openResetPasswordModal({{ $user->id }})">Reset Password</button>
-                                <form action="{{ route('admin.user_permissions.remove', $user->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-remove" onclick="return confirm('Are you sure you want to remove this user?')">Remove User</button>
-                                </form>
-                            @else
-                                <form action="{{ route('admin.user_permissions.reactivate', $user->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <button type="submit" class="btn-reactivate">Reactivate</button>
-                                </form>
-                                <form action="{{ route('admin.user_permissions.remove', $user->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-remove" onclick="return confirm('Are you sure you want to remove this user?')">Remove User</button>
-                                </form>
-                            @endif
-                        </td>
+                        @if (Auth::user()->hasRole("Admin"))
+                            <td>
+                                @if($user->status)
+                                    <button type="button" class="btn-reset" onclick="openResetPasswordModal({{ $user->id }})">Reset Password</button>
+                                    <form action="{{ route('admin.user_permissions.remove', $user->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-remove" onclick="return confirm('Are you sure you want to remove this user?')">Remove User</button>
+                                    </form>
+                                @else
+                                    <form action="{{ route('admin.user_permissions.reactivate', $user->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        <button type="submit" class="btn-reactivate">Reactivate</button>
+                                    </form>
+                                    <form action="{{ route('admin.user_permissions.remove', $user->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-remove" onclick="return confirm('Are you sure you want to remove this user?')">Remove User</button>
+                                    </form>
+                                @endif
+                            </td>
+                        @endif
                     </tr>
                     @endforeach
                 </tbody>
@@ -161,6 +167,7 @@
 </section>
 
 <!-- Add User Modal (styled) -->
+@if (Auth::user()->hasRole("Admin"))
 <div id="addUserModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); align-items:center; justify-content:center; z-index:1000;">
     <div style="background:#fff; padding:30px; border-radius:8px; min-width:320px; position:relative;">
         <h3>Add New User</h3>
@@ -205,7 +212,9 @@
         </form>
     </div>
 </div>
+@endif
 
+@if (Auth::user()->hasRole("Admin"))
 <!-- Reset Password Modal -->
 <div id="resetPasswordModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); align-items:center; justify-content:center; z-index:1000;">
     <div style="background:#fff; padding:30px; border-radius:8px; min-width:320px; position:relative;">
@@ -240,6 +249,7 @@
         </form>
     </div>
 </div>
+@endif
 
 <script>
 document.querySelector('input[type="checkbox"][checked]').addEventListener('change', function() {
