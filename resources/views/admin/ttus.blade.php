@@ -14,7 +14,13 @@
                     <input type="text" id="search-input" placeholder="Search">
                     <button id="search-button" class="filter-icon"><i class="fa fa-filter"></i></button>
                 </div>
-                <a href="{{ route('admin.ttus.edit') }}" class="add-new-button btn btn-primary">Add New</a>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <select id="archived-selector" style="height:34px; padding:4px;">
+                        <option value="0">Inbox</option>
+                        <option value="1" {{ request()->query('archived') === '1' ? 'selected' : '' }}>Archived</option>
+                    </select>
+                    <a href="{{ route('admin.ttus.edit') }}" class="add-new-button btn btn-primary">Add New</a>
+                </div>
             </div>
 
             <div style="position: relative;">
@@ -74,4 +80,17 @@
 </script>
 <script src="{{ asset('js/tableSort.js') }}"></script>
 <script src="{{ asset('js/ttusTable.js') }}"></script>
+<script>
+    // handle archive selector change
+    document.addEventListener('DOMContentLoaded', function() {
+        const sel = document.getElementById('archived-selector');
+        if (!sel) return;
+        sel.addEventListener('change', function() {
+            const val = this.value;
+            const url = new URL(window.location.href);
+            if (val === '1') url.searchParams.set('archived', '1'); else url.searchParams.delete('archived');
+            window.location.href = url.toString();
+        });
+    });
+</script>
 @endsection

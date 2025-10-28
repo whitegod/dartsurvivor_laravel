@@ -63,6 +63,16 @@ class TTUController extends Controller
             }
         }
 
+        // Archived toggle: default to inbox (archived = 0) unless explicitly requested
+        $showArchived = $request->query('archived') === '1' || $request->query('archived') === 1 || $request->query('archived') === 'true';
+        try {
+            if (\Schema::hasColumn($ttuTable, 'archived')) {
+                $query->where($ttuTable . '.archived', $showArchived ? 1 : 0);
+            }
+        } catch (\Exception $e) {
+            // schema introspection failed — fall back to not filtering
+        }
+
         // apply search (prefix TTU columns)
         if ($request->has('search') && !empty($request->search)) {
             $s = $request->search;
@@ -326,6 +336,58 @@ class TTUController extends Controller
         }
 
         return redirect()->route('admin.ttus')->with('success', 'TTU record deleted successfully!');
+    }
+
+    public function archiveTTU(Request $request, $id)
+    {
+        $ttu = \App\TTU::find($id);
+        if (!$ttu) {
+            if ($request->ajax()) return response()->json(['error' => 'TTU not found'], 404);
+            return redirect()->route('admin.ttus')->with('error', 'TTU not found');
+        }
+
+        // mark archived
+        try {
+            if (\Schema::hasColumn((new \App\TTU)->getTable(), 'archived')) {
+                $ttu->archived = 1;
+                $ttu->save();
+            }
+        } catch (\Exception $e) {
+            // ignore if schema check fails
+        }
+
+        // detach related pointers: privatesite.ttu_id and transfer row; remove survivor assignment
+        \DB::table('privatesite')->where('ttu_id', $ttu->id)->update(['ttu_id' => null]);
+        \DB::table('transfer')->where('ttu_id', $ttu->id)->delete();
+        $ttu->survivor_id = null;
+        $ttu->li_date = null;
+        $ttu->lo_date = null;
+        $ttu->est_lo_date = null;
+        $ttu->save();
+
+        if ($request->ajax()) return response()->json(['success' => true]);
+        return redirect()->route('admin.ttus')->with('success', 'TTU archived successfully.');
+    }
+
+    public function unarchiveTTU(Request $request, $id)
+    {
+        $ttu = \App\TTU::find($id);
+        if (!$ttu) {
+            if ($request->ajax()) return response()->json(['error' => 'TTU not found'], 404);
+            return redirect()->route('admin.ttus')->with('error', 'TTU not found');
+        }
+
+        try {
+            if (\Schema::hasColumn((new \App\TTU)->getTable(), 'archived')) {
+                $ttu->archived = 0;
+                $ttu->save();
+            }
+        } catch (\Exception $e) {
+            // ignore
+        }
+
+        if ($request->ajax()) return response()->json(['success' => true]);
+        return redirect()->route('admin.ttus')->with('success', 'TTU moved to inbox successfully.');
     }
 
     public function storeTTU(Request $request)

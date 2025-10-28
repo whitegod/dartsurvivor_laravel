@@ -20,6 +20,7 @@ class TTU extends Model
         'is_onsite', 'is_occupied', 'is_winterized', 'is_deblocked',
         'is_cleaned', 'is_gps_removed', 'is_beingdonated', 'is_soldatauction',
         'location', 'location_type', 'survivor_id', 'disposition',
+        'archived',
         'weather_radio', 'key_no'
     ];
 

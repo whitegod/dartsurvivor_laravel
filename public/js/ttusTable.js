@@ -170,19 +170,34 @@ function renderTable(useCheckboxes = false) {
             }
             tr.appendChild(td);
         });
-        // Options column
+        // Options column: show different actions for archived vs non-archived rows
         const tdOptions = document.createElement('td');
         tdOptions.className = 'options-icon';
         tdOptions.style.position = 'relative';
-        tdOptions.innerHTML = `⋮
-            <div class="dropdown-menu" style="right:0; left:auto; min-width:120px; position:absolute;">
-                <a href="/admin/ttus/view/${ttu.id}">View</a>
-                <a href="/admin/ttus/edit/${ttu.id}">Edit</a>
-                <form action="/admin/ttus/delete/${ttu.id}" method="POST" style="margin: 0;">
-                    <input type="hidden" name="_token" value="${window.csrfToken}">
-                    <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
-                </form>
-            </div>`;
+        if (ttu.archived && (ttu.archived === 1 || ttu.archived === '1' || ttu.archived === true)) {
+            // archived: show Delete + Move to Inbox
+            tdOptions.innerHTML = `⋮
+                <div class="dropdown-menu" style="right:0; left:auto; min-width:140px; position:absolute;">
+                    <button class="btn-unarchive" data-id="${ttu.id}" >Move to Inbox</button>
+                    <form action="/admin/ttus/delete/${ttu.id}" method="POST" style="margin: 0;">
+                        <input type="hidden" name="_token" value="${window.csrfToken}">
+                        <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
+                    </form>
+                </div>`;
+        } else {
+            // inbox: show View/Edit/Delete/Archive
+            tdOptions.innerHTML = `⋮
+                <div class="dropdown-menu" style="right:0; left:auto; min-width:160px; position:absolute;">
+                    <a href="/admin/ttus/view/${ttu.id}">View</a>
+                    <a href="/admin/ttus/edit/${ttu.id}">Edit</a>
+                    <button class="btn-archive" data-id="${ttu.id}">Archive</button>
+
+                    <form action="/admin/ttus/delete/${ttu.id}" method="POST" style="margin: 0;">
+                        <input type="hidden" name="_token" value="${window.csrfToken}">
+                        <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
+                    </form>
+                </div>`;
+        }
         tr.appendChild(tdOptions);
         body.appendChild(tr);
     });
@@ -212,6 +227,61 @@ function renderTable(useCheckboxes = false) {
                 });
                 icon._bound = true;
             }
+        });
+        // bind archive/unarchive handlers
+        document.querySelectorAll('.btn-archive').forEach(btn => {
+            if (btn._bound) return;
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const id = this.getAttribute('data-id');
+                if (!confirm('Are you sure you want to archive this TTU?')) return;
+                fetch('/admin/ttus/archive/' + id, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': window.csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                }).then(r => r.json()).then(json => {
+                    if (json && json.success) {
+                        // remove from local list and re-render
+                        ttus = ttus.filter(t => String(t.id) !== String(id));
+                        renderTable();
+                    } else {
+                        alert('Archive failed');
+                    }
+                }).catch(() => alert('Archive failed'));
+            });
+            btn._bound = true;
+        });
+
+        document.querySelectorAll('.btn-unarchive').forEach(btn => {
+            if (btn._bound) return;
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const id = this.getAttribute('data-id');
+                if (!confirm('Move this TTU back to inbox?')) return;
+                fetch('/admin/ttus/unarchive/' + id, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': window.csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                }).then(r => r.json()).then(json => {
+                    if (json && json.success) {
+                        ttus = ttus.filter(t => String(t.id) !== String(id));
+                        renderTable();
+                    } else {
+                        alert('Move to inbox failed');
+                    }
+                }).catch(() => alert('Move to inbox failed'));
+            });
+            btn._bound = true;
         });
     }, 0);
 }
