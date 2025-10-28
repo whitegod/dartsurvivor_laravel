@@ -13,7 +13,13 @@
                     <input type="text" id="search-input" placeholder="Search" value="{{ request('search') }}">
                     <button id="search-button" class="filter-icon"><i class="fa fa-filter"></i></button>
                 </div>
-                <a href="{{ route('admin.survivors.edit', ['id' => 'new']) }}" class="add-new-button">Add New</a>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <select id="archive-select" style="padding:6px 8px; border-radius:4px;">
+                        <option value="0" {{ request()->query('archived') === '1' ? '' : 'selected' }}>Inbox</option>
+                        <option value="1" {{ request()->query('archived') === '1' ? 'selected' : '' }}>Archived</option>
+                    </select>
+                    <a href="{{ route('admin.survivors.edit', ['id' => 'new']) }}" class="add-new-button">Add New</a>
+                </div>
             </div>
 
             <div style="position: relative;">
@@ -71,6 +77,21 @@
 
 <script>
     window.csrfToken = "{{ csrf_token() }}";
+</script>
+<script>
+    // Archive selector behaviour: reload page with archived query param
+    (function(){
+        var archiveSelect = document.getElementById('archive-select');
+        if (!archiveSelect) return;
+        archiveSelect.addEventListener('change', function(){
+            var val = this.value;
+            var url = new URL(window.location.href);
+            if (val === '1') url.searchParams.set('archived', '1');
+            else url.searchParams.delete('archived');
+            // keep existing search param if present
+            window.location.href = url.toString();
+        });
+    })();
 </script>
 <script src="{{ asset('js/tableSort.js') }}"></script>
 <script src="{{ asset('js/survivorsTable.js') }}"></script>

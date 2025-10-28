@@ -71,6 +71,8 @@ function renderTable(useCheckboxes = false) {
     const fields = JSON.parse(document.getElementById('fields-data').textContent);
     const fieldLabels = {
         name: 'Name',
+        fname: 'Name',
+        lname: 'Name',
         email: 'Email',
         phone: 'Phone',
         city: 'City',
@@ -126,15 +128,30 @@ function renderTable(useCheckboxes = false) {
         const tdOptions = document.createElement('td');
         tdOptions.className = 'options-icon';
         tdOptions.style.position = 'relative';
-        tdOptions.innerHTML = `⋮
-            <div class="dropdown-menu" style="right:0; left:auto; min-width:120px; position:absolute;">
-                <a href="/admin/survivors/view/${s.id}">View</a>
-                <a href="/admin/survivors/edit/${s.id}">Edit</a>
-                <form action="/admin/survivors/delete/${s.id}" method="POST" style="margin: 0;">
-                    <input type="hidden" name="_token" value="${window.csrfToken}">
-                    <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
-                </form>
-            </div>`;
+            // Build options differently for archived vs non-archived rows
+            if (s.archived && (s.archived === 1 || s.archived === '1' || s.archived === true)) {
+                tdOptions.innerHTML = `⋮
+                <div class="dropdown-menu" style="right:0; left:auto; min-width:160px; position:absolute;">
+                    <button class="btn-unarchive" data-id="${s.id}">Move to Inbox</button>
+                   
+                    <form action="/admin/survivors/delete/${s.id}" method="POST" style="margin: 0;">
+                        <input type="hidden" name="_token" value="${window.csrfToken}">
+                        <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
+                    </form>
+                </div>`;
+            } else {
+                tdOptions.innerHTML = `⋮
+                <div class="dropdown-menu" style="right:0; left:auto; min-width:160px; position:absolute;">
+                    <a href="/admin/survivors/view/${s.id}">View</a>
+                    <a href="/admin/survivors/edit/${s.id}">Edit</a>
+                    <button class="btn-archive" data-id="${s.id}">Archive</button>
+
+                    <form action="/admin/survivors/delete/${s.id}" method="POST" style="margin: 0;">
+                        <input type="hidden" name="_token" value="${window.csrfToken}">
+                        <button class="btn-delete" type="submit" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
+                    </form>
+                </div>`;
+            }
         tr.appendChild(tdOptions);
         body.appendChild(tr);
     });
@@ -162,6 +179,64 @@ function renderTable(useCheckboxes = false) {
                     if (!isActive) dropdown.classList.add('active');
                 });
                 icon._bound = true;
+            }
+            // Bind archive/unarchive buttons inside each options-icon
+            const archiveBtn = icon.querySelector('.btn-archive');
+            if (archiveBtn && !archiveBtn._bound) {
+                archiveBtn.addEventListener('click', function (ev) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    const id = this.getAttribute('data-id');
+                    if (!confirm('Move this survivor to archive? This will free any assigned TTUs/rooms.')) return;
+                    fetch(`/admin/survivors/archive/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': window.csrfToken
+                        },
+                        body: JSON.stringify({})
+                    }).then(r => {
+                        if (r.ok) return r.json().catch(() => ({}));
+                        throw new Error('Request failed');
+                    }).then(j => {
+                        // remove from local survivors array and re-render
+                        survivors = survivors.filter(it => String(it.id) !== String(id));
+                        renderTable();
+                    }).catch(err => {
+                        alert('Failed to archive survivor.');
+                        console.error(err);
+                    });
+                });
+                archiveBtn._bound = true;
+            }
+
+            const unarchiveBtn = icon.querySelector('.btn-unarchive');
+            if (unarchiveBtn && !unarchiveBtn._bound) {
+                unarchiveBtn.addEventListener('click', function (ev) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    const id = this.getAttribute('data-id');
+                    if (!confirm('Move this survivor back to inbox?')) return;
+                    fetch(`/admin/survivors/unarchive/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': window.csrfToken
+                        },
+                        body: JSON.stringify({})
+                    }).then(r => {
+                        if (r.ok) return r.json().catch(() => ({}));
+                        throw new Error('Request failed');
+                    }).then(j => {
+                        // remove from local survivors array and re-render (since we're likely viewing archived list)
+                        survivors = survivors.filter(it => String(it.id) !== String(id));
+                        renderTable();
+                    }).catch(err => {
+                        alert('Failed to move survivor to inbox.');
+                        console.error(err);
+                    });
+                });
+                unarchiveBtn._bound = true;
             }
         });
     }, 0);

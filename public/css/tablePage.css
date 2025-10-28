@@ -153,6 +153,19 @@ th {
     color: red !important;
 }
 
+.btn-archive, .btn-unarchive {
+    width: 100%;
+    background: none;
+    border: none;
+    color: black;
+    text-align: left;
+    padding: 8px 15px;
+}
+
+.btn-archive:hover {
+    background-color: #f0f0f0;
+}
+
 /* Sticky Filter Save */
 .filter-save-sticky {
     position: sticky;

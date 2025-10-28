@@ -13,6 +13,17 @@ class SurvivorController extends Controller
     {
         $query = \DB::table('survivor');
 
+        // Archived toggle: default to inbox (archived = 0) unless explicitly requested
+        $showArchived = $request->query('archived') === '1' || $request->query('archived') === 1 || $request->query('archived') === 'true';
+        try {
+            if (Schema::hasColumn('survivor', 'archived')) {
+                // When the column exists, always filter to either archived or non-archived
+                $query->where('archived', $showArchived ? 1 : 0);
+            }
+        } catch (\Exception $e) {
+            // If schema introspection fails, don't break listing — default to including all rows
+        }
+
         // FDEC filter (accept comma-separated list or array; fdec_id stored as JSON array)
         $fdecFilter = $request->query('fdec_id')
             ?? $request->query('fdec-filter')
@@ -59,8 +70,18 @@ class SurvivorController extends Controller
                   ->orWhere('address', 'LIKE', "%$search%")
                   ->orWhere('primary_phone', 'LIKE', "%$search%")
                   ->orWhere('secondary_phone', 'LIKE', "%$search%")
+                  ->orWhere('email', 'LIKE', "%$search%")
+                  ->orWhere('city', 'LIKE', "%$search%")
+                  ->orWhere('state', 'LIKE', "%$search%")
+                  ->orWhere('zip', 'LIKE', "%$search%")
+                  ->orWhere('county', 'LIKE', "%$search%")
+                  ->orWhere('own_rent', 'LIKE', "%$search%")
+                  ->orWhere('notes', 'LIKE', "%$search%")
+                  ->orWhere('author', 'LIKE', "%$search%")
                   ->orWhere('hh_size', 'LIKE', "%$search%")
-                  ->orWhere('li_date', 'LIKE', "%$search%");
+                  ->orWhere('li_date', 'LIKE', "%$search%")
+                  ->orWhere('fdec_id', 'LIKE', "%$search%")
+                  ->orWhere('caseworker_id', 'LIKE', "%$search%");
             });
         }
 
@@ -99,6 +120,13 @@ class SurvivorController extends Controller
             }
             $s->fdec_numbers = $numbers; // array of fdec_no strings
             $s->fdec = $numbers ? implode(', ', $numbers) : ''; // printable comma-joined label (for views)
+            // Ensure a `name` property exists for frontend rendering (fname + lname)
+            $s->name = trim((string)($s->fname ?? '') . ' ' . (string)($s->lname ?? '')) ?: ($s->name ?? '');
+            // Put the full name into the `fname` field so the existing front-end
+            // (which shows `fname`) will display the full name without changing
+            // the fields list or UI logic. Clear `lname` to avoid duplication.
+            $s->fname = $s->name;
+            $s->lname = '';
         }
 
         foreach ($survivors as $survivor) {
@@ -555,6 +583,64 @@ class SurvivorController extends Controller
         }
 
         return redirect()->route('admin.survivors')->with('success', 'Survivor updated successfully.');
+    }
+
+    public function archiveSurvivor(Request $request, $id)
+    {
+        $survivor = Survivor::find($id);
+        if (!$survivor) {
+            if ($request->ajax()) return response()->json(['error' => 'Survivor not found'], 404);
+            return redirect()->route('admin.survivors')->with('error', 'Survivor not found');
+        }
+
+        // Mark as archived
+        $survivor->archived = 1;
+        $survivor->save();
+
+        // Unassign any related resources (free TTUs, rooms, units)
+        \App\TTU::where('survivor_id', $survivor->id)->update([
+            'li_date' => null,
+            'lo_date' => null,
+            'est_lo_date' => null,
+            'survivor_id' => null,
+        ]);
+
+        \App\Room::where('survivor_id', $survivor->id)->update([
+            'li_date' => null,
+            'lo_date' => null,
+            'survivor_id' => null,
+        ]);
+
+        \DB::table('lodge_unit')->where('survivor_id', $survivor->id)->update([
+            'survivor_id' => null,
+            'li_date' => null,
+            'lo_date' => null,
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('admin.survivors')->with('success', 'Survivor archived successfully.');
+    }
+
+    public function unarchiveSurvivor(Request $request, $id)
+    {
+        $survivor = Survivor::find($id);
+        if (!$survivor) {
+            if ($request->ajax()) return response()->json(['error' => 'Survivor not found'], 404);
+            return redirect()->route('admin.survivors')->with('error', 'Survivor not found');
+        }
+
+        // Mark as not archived
+        $survivor->archived = 0;
+        $survivor->save();
+
+        if ($request->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('admin.survivors')->with('success', 'Survivor moved to inbox successfully.');
     }
 
     public function deleteSurvivor($id)

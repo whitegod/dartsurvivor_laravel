@@ -37,5 +37,6 @@ class Survivor extends Model
         'group0_2', 'group3_6', 'group7_12', 'group13_17',
         'group18_21', 'group22_65', 'group65plus'
         // Add any other fields present in your form and table
+        , 'archived'
     ];
 }
