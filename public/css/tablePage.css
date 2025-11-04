@@ -165,6 +165,7 @@ th {
 #EditLocation .btn-archive, .btn-unarchive {
     width: unset;
     background: #ddd;
+    padding: 10px 20px;
 }
 
 .btn-archive:hover {
