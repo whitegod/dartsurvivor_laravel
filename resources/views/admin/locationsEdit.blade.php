@@ -201,11 +201,19 @@
                     $title = $ishotel ? 'Rooms' : 'Lodge Units';
                 @endphp
                 <div class="form-section" style="margin: 24px 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h4>{{ $title }}</h4>
-                        @if(empty($readonly))
-                            <a class="add-new-button" id="{{ $addBtnId }}">Add New</a>
-                        @endif
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap:12px;">
+                        <h4 style="margin:0">{{ $title }}</h4>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            @if(empty($readonly))
+                                <select id="archived-selector-{{ $ishotel ? 'rooms' : 'units' }}">
+                                    <option value="0">Inbox</option>
+                                    <option value="1" {{ request()->query('archived') === '1' ? 'selected' : '' }}>Archived</option>
+                                </select>
+                            @endif
+                            @if(empty($readonly))
+                                <a class="add-new-button" id="{{ $addBtnId }}">Add New</a>
+                            @endif
+                        </div>
                     </div>
                     <table>
                         <thead>
@@ -245,33 +253,42 @@
                                     </td>
                                     <td>{{ $item->hh_size ?? '-' }}</td>
                                     @if(empty($readonly))
-                                    <td class="text-right">                                        
-                                        <button type="button"
-                                            class="btn btn-sm btn-primary edit-unit-btn"
-                                            data-id="{{ $item->room_id ?? $item->lodge_unit_id ?? '' }}"
-                                            data-type="{{ $ishotel ? 'hotel' : 'statepark' }}"
-                                            data-unit="{{ $ishotel ? $item->room_num : $item->unit_name }}"
-                                            data-daily-rate="{{ $item->daily_rate ?? '' }}"
-                                            data-li-date="{{ $item->li_date ?? '' }}"
-                                            data-lo-date="{{ $item->lo_date ?? '' }}"
-                                            @if(!$ishotel)
-                                                data-unit-type="{{ $item->unit_type ?? '' }}"
+                                    <td class="text-right">
+                                        <div style="display:flex; gap:8px; align-items:center; justify-content:flex-end;">
+                                            @if(isset($item->archived) && ($item->archived === 1 || $item->archived === '1'))
+                                                <button type="button" class="btn btn-sm btn-secondary btn-unarchive" data-id="{{ $item->room_id ?? $item->lodge_unit_id ?? '' }}">Move to Inbox</button>
+                                            @else
+                                                <button type="button" class="btn btn-sm btn-warning btn-archive" data-id="{{ $item->room_id ?? $item->lodge_unit_id ?? '' }}">Archive</button>
                                             @endif
-                                        >
-                                            Edit
-                                        </button>
-                                        <form method="POST"
-                                            action="{{ $ishotel
-                                                ? route('admin.rooms.delete', $item->room_id)
-                                                : route('admin.lodge_units.delete', $item->lodge_unit_id) }}"
-                                            style="display:inline;">
-                                            @csrf
-                                            <button type="submit"
-                                                class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Are you sure you want to remove this {{ $ishotel ? 'room' : 'unit' }}?');">
-                                                Remove
+
+                                            <button type="button"
+                                                class="btn btn-sm btn-primary edit-unit-btn"
+                                                data-id="{{ $item->room_id ?? $item->lodge_unit_id ?? '' }}"
+                                                data-type="{{ $ishotel ? 'hotel' : 'statepark' }}"
+                                                data-unit="{{ $ishotel ? $item->room_num : $item->unit_name }}"
+                                                data-daily-rate="{{ $item->daily_rate ?? '' }}"
+                                                data-li-date="{{ $item->li_date ?? '' }}"
+                                                data-lo-date="{{ $item->lo_date ?? '' }}"
+                                                @if(!$ishotel)
+                                                    data-unit-type="{{ $item->unit_type ?? '' }}"
+                                                @endif
+                                            >
+                                                Edit
                                             </button>
-                                        </form>
+
+                                            <form method="POST"
+                                                action="{{ $ishotel
+                                                    ? route('admin.rooms.delete', $item->room_id)
+                                                    : route('admin.lodge_units.delete', $item->lodge_unit_id) }}"
+                                                style="display:inline;">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Are you sure you want to remove this {{ $ishotel ? 'room' : 'unit' }}?');">
+                                                    Remove
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                     @endif
                                 </tr>

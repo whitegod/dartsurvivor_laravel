@@ -14,7 +14,7 @@
                     <button id="search-button" class="filter-icon"><i class="fa fa-filter"></i></button>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <select id="archive-select" style="padding:6px 8px; border-radius:4px;">
+                    <select id="archive-select" style="padding:8px 10px; border-radius:4px;">
                         <option value="0" {{ request()->query('archived') === '1' ? '' : 'selected' }}>Inbox</option>
                         <option value="1" {{ request()->query('archived') === '1' ? 'selected' : '' }}>Archived</option>
                     </select>

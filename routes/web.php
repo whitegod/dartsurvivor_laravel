@@ -68,8 +68,12 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/admin/locations/delete/{id}', 'LocationController@deleteLocation')->name('admin.locations.delete');
         Route::post('/admin/rooms/update/{id}', 'LocationController@roomUpdate')->name('admin.rooms.update');
         Route::post('/admin/rooms/delete/{id}', 'LocationController@roomDelete')->name('admin.rooms.delete');
+        Route::post('/admin/rooms/archive/{id}', 'LocationController@roomArchive')->name('admin.rooms.archive');
+        Route::post('/admin/rooms/unarchive/{id}', 'LocationController@roomUnarchive')->name('admin.rooms.unarchive');
         Route::post('/admin/lodge_units/update/{id}', 'LocationController@lodgeUnitUpdate')->name('admin.lodge_units.update');
         Route::post('/admin/lodge_units/delete/{id}', 'LocationController@lodgeUnitDelete')->name('admin.lodge_units.delete');
+        Route::post('/admin/lodge_units/archive/{id}', 'LocationController@lodgeUnitArchive')->name('admin.lodge_units.archive');
+        Route::post('/admin/lodge_units/unarchive/{id}', 'LocationController@lodgeUnitUnarchive')->name('admin.lodge_units.unarchive');
 
         Route::get('/admin/user_permissions', 'UserController@userPermissions')->name('admin.user_permissions');
         

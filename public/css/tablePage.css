@@ -162,6 +162,11 @@ th {
     padding: 8px 15px;
 }
 
+#EditLocation .btn-archive, .btn-unarchive {
+    width: unset;
+    background: #ddd;
+}
+
 .btn-archive:hover {
     background-color: #f0f0f0;
 }

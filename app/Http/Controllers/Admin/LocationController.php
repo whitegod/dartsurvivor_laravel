@@ -204,13 +204,22 @@ class LocationController extends Controller
         $rooms = null;
         $lodge_units = null;
         $privatesite = null;
+        $showArchived = $request->query('archived') === '1' || $request->query('archived') === 1 || $request->query('archived') === 'true';
 
         if ($id && $type === 'hotel') {
             $location = \DB::table('hotel')->where('id', $id)->first();
             $rooms = \DB::table('room')
                 ->leftJoin('survivor', 'room.survivor_id', '=', 'survivor.id')
-                ->select('room.id as room_id', 'room.room_num', 'room.daily_rate', 'room.li_date', 'room.lo_date', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('room.id as room_id', 'room.room_num', 'room.daily_rate', 'room.li_date', 'room.lo_date', 'room.archived', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('room.hotel_id', $id)
+                ->when(true, function($q) use ($showArchived) {
+                    try {
+                        if (\Schema::hasColumn('room', 'archived')) {
+                            $q->where('room.archived', $showArchived ? 1 : 0);
+                        }
+                    } catch (\Exception $e) {}
+                    return $q;
+                })
                 ->get()
                 ->map(function($r) {
                     $r->survivor_name = $r->fname ? $r->fname . ' ' . $r->lname : null;
@@ -220,8 +229,16 @@ class LocationController extends Controller
             $location = \DB::table('statepark')->where('id', $id)->first();
             $lodge_units = \DB::table('lodge_unit')
                 ->leftJoin('survivor', 'lodge_unit.survivor_id', '=', 'survivor.id')
-                ->select('lodge_unit.id as lodge_unit_id', 'lodge_unit.unit_type', 'lodge_unit.unit_name', 'lodge_unit.daily_rate', 'lodge_unit.li_date', 'lodge_unit.lo_date', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('lodge_unit.id as lodge_unit_id', 'lodge_unit.unit_type', 'lodge_unit.unit_name', 'lodge_unit.daily_rate', 'lodge_unit.li_date', 'lodge_unit.lo_date', 'lodge_unit.archived', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('lodge_unit.statepark_id', $id)
+                ->when(true, function($q) use ($showArchived) {
+                    try {
+                        if (\Schema::hasColumn('lodge_unit', 'archived')) {
+                            $q->where('lodge_unit.archived', $showArchived ? 1 : 0);
+                        }
+                    } catch (\Exception $e) {}
+                    return $q;
+                })
                 ->get()
                 ->map(function($u) {
                     $u->survivor_name = $u->fname ? $u->fname . ' ' . $u->lname : null;
@@ -455,8 +472,16 @@ class LocationController extends Controller
             $location = \DB::table('hotel')->where('id', $id)->first();
             $rooms = \DB::table('room')
                 ->leftJoin('survivor', 'room.survivor_id', '=', 'survivor.id')
-                ->select('room.id as room_id', 'room.room_num', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('room.id as room_id', 'room.room_num', 'room.archived', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('room.hotel_id', $id)
+                ->when(true, function($q) use ($showArchived) {
+                    try {
+                        if (\Schema::hasColumn('room', 'archived')) {
+                            $q->where('room.archived', $showArchived ? 1 : 0);
+                        }
+                    } catch (\Exception $e) {}
+                    return $q;
+                })
                 ->get()
                 ->map(function($r) {
                     $r->survivor_name = $r->fname ? $r->fname . ' ' . $r->lname : null;
@@ -466,8 +491,16 @@ class LocationController extends Controller
             $location = \DB::table('statepark')->where('id', $id)->first();
             $lodge_units = \DB::table('lodge_unit')
                 ->leftJoin('survivor', 'lodge_unit.survivor_id', '=', 'survivor.id')
-                ->select('lodge_unit.id as lodge_unit_id', 'lodge_unit.unit_type', 'lodge_unit.unit_name', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
+                ->select('lodge_unit.id as lodge_unit_id', 'lodge_unit.unit_type', 'lodge_unit.unit_name', 'lodge_unit.archived', 'survivor.id', 'survivor.fname', 'survivor.lname', 'survivor.hh_size')
                 ->where('lodge_unit.statepark_id', $id)
+                ->when(true, function($q) use ($showArchived) {
+                    try {
+                        if (\Schema::hasColumn('lodge_unit', 'archived')) {
+                            $q->where('lodge_unit.archived', $showArchived ? 1 : 0);
+                        }
+                    } catch (\Exception $e) {}
+                    return $q;
+                })
                 ->get()
                 ->map(function($u) {
                     $u->survivor_name = $u->fname ? $u->fname . ' ' . $u->lname : null;
@@ -523,6 +556,47 @@ class LocationController extends Controller
         return redirect()->back()->with('success', 'Room deleted successfully!');
     }
 
+    public function roomArchive(Request $request, $id)
+    {
+        $room = \App\Room::find($id);
+        if (!$room) {
+            if ($request->ajax()) return response()->json(['error' => 'Room not found'], 404);
+            return redirect()->back()->with('error', 'Room not found');
+        }
+
+        try {
+            if (Schema::hasColumn('room', 'archived')) {
+                $room->archived = 1;
+                $room->survivor_id = null;
+                $room->li_date = null;
+                $room->lo_date = null;
+                $room->save();
+            }
+        } catch (\Exception $e) {}
+
+        if ($request->ajax()) return response()->json(['success' => true]);
+        return redirect()->back()->with('success', 'Room archived');
+    }
+
+    public function roomUnarchive(Request $request, $id)
+    {
+        $room = \App\Room::find($id);
+        if (!$room) {
+            if ($request->ajax()) return response()->json(['error' => 'Room not found'], 404);
+            return redirect()->back()->with('error', 'Room not found');
+        }
+
+        try {
+            if (Schema::hasColumn('room', 'archived')) {
+                $room->archived = 0;
+                $room->save();
+            }
+        } catch (\Exception $e) {}
+
+        if ($request->ajax()) return response()->json(['success' => true]);
+        return redirect()->back()->with('success', 'Room moved to inbox');
+    }
+
     public function lodgeUnitUpdate(Request $request, $id) {
         $request->validate([
             'number' => 'required|string|max:255',
@@ -551,5 +625,46 @@ class LocationController extends Controller
             $unit->delete();
         }
         return redirect()->back()->with('success', 'Lodge unit deleted successfully!');
+    }
+
+    public function lodgeUnitArchive(Request $request, $id)
+    {
+        $unit = \App\LodgeUnit::find($id);
+        if (!$unit) {
+            if ($request->ajax()) return response()->json(['error' => 'Unit not found'], 404);
+            return redirect()->back()->with('error', 'Unit not found');
+        }
+
+        try {
+            if (Schema::hasColumn('lodge_unit', 'archived')) {
+                $unit->archived = 1;
+                $unit->survivor_id = null;
+                $unit->li_date = null;
+                $unit->lo_date = null;
+                $unit->save();
+            }
+        } catch (\Exception $e) {}
+
+        if ($request->ajax()) return response()->json(['success' => true]);
+        return redirect()->back()->with('success', 'Lodge unit archived');
+    }
+
+    public function lodgeUnitUnarchive(Request $request, $id)
+    {
+        $unit = \App\LodgeUnit::find($id);
+        if (!$unit) {
+            if ($request->ajax()) return response()->json(['error' => 'Unit not found'], 404);
+            return redirect()->back()->with('error', 'Unit not found');
+        }
+
+        try {
+            if (Schema::hasColumn('lodge_unit', 'archived')) {
+                $unit->archived = 0;
+                $unit->save();
+            }
+        } catch (\Exception $e) {}
+
+        if ($request->ajax()) return response()->json(['success' => true]);
+        return redirect()->back()->with('success', 'Lodge unit moved to inbox');
     }
 }

@@ -16,6 +16,7 @@ class LodgeUnit extends Model
         'li_date',
         'lo_date',
         'survivor_id',
+        'archived',
         // add other columns if needed
     ];
 

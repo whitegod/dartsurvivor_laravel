@@ -101,3 +101,86 @@ document.addEventListener('DOMContentLoaded', function() {
         togglePrivatesiteSection();
     }
 });
+
+// Archive / Unarchive handlers and archived-selector wiring
+document.addEventListener('DOMContentLoaded', function() {
+    // Bind archive/unarchive buttons
+    function bindArchiveButtons() {
+        document.querySelectorAll('.btn-archive').forEach(btn => {
+            if (btn._bound) return;
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const id = this.getAttribute('data-id');
+                if (!confirm('Are you sure you want to archive this record?')) return;
+                // determine path based on page selector existence
+                const isRoom = this.closest('table') && document.getElementById('addRoomButton');
+                const url = isRoom ? '/admin/rooms/archive/' + id : '/admin/lodge_units/archive/' + id;
+                fetch(url, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': window.csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                }).then(r => r.json()).then(json => {
+                    if (json && json.success) {
+                        // remove row from DOM
+                        const tr = btn.closest('tr');
+                        if (tr) tr.remove();
+                    } else {
+                        alert('Archive failed');
+                    }
+                }).catch(() => alert('Archive failed'));
+            });
+            btn._bound = true;
+        });
+
+        document.querySelectorAll('.btn-unarchive').forEach(btn => {
+            if (btn._bound) return;
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const id = this.getAttribute('data-id');
+                if (!confirm('Move this record back to inbox?')) return;
+                const isRoom = this.closest('table') && document.getElementById('addRoomButton');
+                const url = isRoom ? '/admin/rooms/unarchive/' + id : '/admin/lodge_units/unarchive/' + id;
+                fetch(url, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': window.csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                }).then(r => r.json()).then(json => {
+                    if (json && json.success) {
+                        const tr = btn.closest('tr');
+                        if (tr) tr.remove();
+                    } else {
+                        alert('Move to inbox failed');
+                    }
+                }).catch(() => alert('Move to inbox failed'));
+            });
+            btn._bound = true;
+        });
+    }
+
+    bindArchiveButtons();
+
+    // When modal or any dynamic changes occur, rebind
+    document.addEventListener('click', function() { setTimeout(bindArchiveButtons, 50); });
+
+    // archived selector — reloads page preserving other query params
+    ['archived-selector-rooms', 'archived-selector-units'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        sel.addEventListener('change', function() {
+            const val = this.value;
+            const url = new URL(window.location.href);
+            if (val === '1') url.searchParams.set('archived', '1'); else url.searchParams.delete('archived');
+            window.location.href = url.toString();
+        });
+    });
+});
