@@ -90,8 +90,8 @@ class TTUController extends Controller
             $query->orderBy($ttuTable . '.id', 'asc');
         }
 
-        $ttus = $query->get();
-
+       
+         $ttus = $query->get();
         // attach human-readable FDEC label(s) to each ttu
         $fdecMap = \DB::table('fdec')->pluck('fdec_no', 'id')->all();
 
@@ -114,6 +114,7 @@ class TTUController extends Controller
                 $labels[] = $fdecMap[$id] ?? $fdecMap[(int)$id] ?? (string)$id;
             }
 
+          
             $ttu->fdec = $labels ? implode(', ', $labels) : '';
         }
 
