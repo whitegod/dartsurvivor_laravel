@@ -87,17 +87,17 @@
             <div class="form-row" style="display: flex; gap: 10px;">
                 <div class="form-group" style="flex:1;">
                     <label for="fname">First Name</label>
-                    <input id="fname" type="text" class="form-control" name="fname" required>
+                    <input id="fname" type="text" class="form-control" name="fname" required />
                 </div>
                 <div class="form-group" style="flex:1;">
                     <label for="lname">Last Name</label>
-                    <input id="lname" type="text" class="form-control" name="lname" required>
+                    <input id="lname" type="text" class="form-control" name="lname" required />
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
                     <label for="phone">Phone Number</label>
-                    <input id="phone" type="text" class="form-control" name="phone" required>
+                    <input id="phone" type="text" class="form-control" name="phone" required />
                 </div>
             </div>
         </div>
