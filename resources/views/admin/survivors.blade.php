@@ -76,7 +76,7 @@
 </section>
 
 <script>
-    window.csrfToken = "@csrf";
+    window.csrfToken = "{{ csrf_token() }}";
 </script>
 <script>
     // Archive selector behaviour: reload page with archived query param
